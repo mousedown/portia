@@ -485,3 +485,31 @@ describe("accounts", () => {
 		);
 	});
 });
+
+describe("the dock under Home's list", () => {
+	const at = (cols = 130, rows = 36) =>
+		frameOf([...size(cols, rows)], (s) => s);
+	it("keeps the footer to what most pages need", () => {
+		const foot = at()
+			.filter((l) => l.includes("↑↓ move"))
+			.join("");
+		for (const k of ["a activity", "/ filter", "n new", "? help", "q quit"])
+			expect(foot).toContain(k);
+		for (const k of ["m machine", "o epic PR", "x archive", "s sort"])
+			expect(foot).not.toContain(k);
+	});
+	it("lines the run's key up with the list's keys, and a child's glyph with the list's glyphs", () => {
+		const out = at();
+		const listRow = out.find((l) => /^.{2}. ACME-\d+ /.test(l)) ?? "";
+		const listKey = listRow.search(/ACME-/);
+		const rule = out.map((l) => /^ *─{20,}/.test(l)).lastIndexOf(true);
+		const dock = out.slice(Math.max(0, rule));
+		const head = dock.find((l) => /^ +ACME-\d+ {2}/.test(l)) ?? "";
+		expect(head.search(/ACME-/)).toBe(listKey);
+	});
+	it("draws the strip in one still cell per child, solid once started", () => {
+		const strip = at().find((l) => /of \d+ landed/.test(l)) ?? "";
+		expect(strip).toMatch(/[■□·]/);
+		expect(strip).not.toMatch(/[●○⠁-⣿]/);
+	});
+});

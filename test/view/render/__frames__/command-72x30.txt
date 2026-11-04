@@ -21,10 +21,10 @@
   ✗ ACME-366  —                      ━━━━━━━━────  2/3    4h49m    610k
                                                                ↓ 3 more
 
-
  ──────────────────────────────────────────────────────────────────────
-   ACME-410                         epic/ACME-410 · started 12h 02m ago
-   ✓ ✓✓✓ ✓✓! ✓✓   #398 · ACME-418 parked · 2h
-   ! ACME-418  parked     try 1 opus              Backfill the index f…
+    ACME-410                                       #398 · epic/ACME-410
+    ■  ■■■  ■■■  ■■                  8 of 9 landed · 1 question for you
+
+  ! ACME-418  parked              Backfill the index for old archives
 
   : run ACME-4▏10                                              ACME-410

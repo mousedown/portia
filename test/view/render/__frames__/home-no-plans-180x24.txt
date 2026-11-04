@@ -15,10 +15,10 @@
   ◐ ACME-390  —                    ━━━━━━━━━━──────────   2/4    5h00m    709k tokens    #381   ACME-394 quiet 3h
   ○ ACME-352  —                    ────────────────────     —                            —      not started
                                                                                                                                                                            ↓ 1 more
-
  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   ACME-410                                                                                                                                     epic/ACME-410 · started 12h 02m ago
-     ✓ ✓✓✓ ✓✓! ✓✓   #398 · ACME-418 parked · 2h
-     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+    ACME-410                                                                                                                                                   #398 · epic/ACME-410
+    ■  ■■■  ■■■  ■■                                                                                                                              8 of 9 landed · 1 question for you
 
-   ↑↓ move · → open · Q answer · a activity · m machine · / filter · o epic PR · n new run · x archive · s sort · ? help · q quit                                            ● live
+  ! ACME-418  parked              Backfill the index for old archives
+
+   ↑↓ move · → open · Q answer · a activity · / filter · n new · ? help · q quit                                                                                             ● live

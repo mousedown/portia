@@ -27,10 +27,10 @@
 
 
 
-
  ----------------------------------------------------------------------------------------------------------------------
-   ACME-410                                                                         epic/ACME-410 . started 12h 02m ago
-     + +++ ++! ++   #398 . ACME-418 parked . 2h
-     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+    ACME-410                                                                                       #398 . epic/ACME-410
+    #  ###  ###  ##                                                                  8 of 9 landed . 1 question for you
+
+  ! ACME-418  parked              Backfill the index for old archives
 
   / state:parked state:failed|                                                          2 of 6 . enter keep . esc clear

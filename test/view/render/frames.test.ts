@@ -99,14 +99,14 @@ describe("frames", () => {
 	});
 
 	it("keeps the hero over a list too long to fit, which scrolls under it", () => {
-		const at28 = frame([...size(120, 28), "--depth", "0"]).split("\n");
-		expect(at28[2]).toContain("██████╗");
-		expect(at28.some((l) => /↓ \d+ more/.test(l))).toBe(true);
+		const at29 = frame([...size(120, 29), "--depth", "0"]).split("\n");
+		expect(at29[2]).toContain("██████╗");
+		expect(at29.some((l) => /↓ \d+ more/.test(l))).toBe(true);
 		// A row shorter, the hero gives way to the compact header and the strip.
-		const at27 = frame([...size(120, 27), "--depth", "0"]).split("\n");
-		expect(at27.join("\n")).not.toContain("██████╗");
-		expect(at27[0]).toContain("◆ P O R T I A");
-		expect(at27[1]).toMatch(/cpu .*mem .*disk /);
+		const at28 = frame([...size(120, 28), "--depth", "0"]).split("\n");
+		expect(at28.join("\n")).not.toContain("██████╗");
+		expect(at28[0]).toContain("◆ P O R T I A");
+		expect(at28[1]).toMatch(/cpu .*mem .*disk /);
 	});
 
 	it("puts the strip under the hero when its graphics do not fit beside it", () => {
