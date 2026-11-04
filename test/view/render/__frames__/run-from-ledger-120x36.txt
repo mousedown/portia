@@ -33,4 +33,4 @@
    proves           F9 · · not yet
    ▎ May I add the search index migration to my paths?
 
-   ↑↓ move · → open · g gate matrix · / filter · ← back · ? help                         ! 1 question · ← home   ● live
+   ↑↓ move · → open · g gate matrix · / filter · ← back · ? help                          ! 1 question on Home   ● live

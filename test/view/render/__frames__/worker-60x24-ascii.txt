@@ -21,4 +21,4 @@
   R6 passes locally. Running the task gate next.
   > Bash portia gate task ACME-506 --parent ACME-500
 
-  left back . ? help      ! 1 question . left home   * live
+  left back . ? help          ! 1 question on Home   * live

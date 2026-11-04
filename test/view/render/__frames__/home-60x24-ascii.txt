@@ -21,4 +21,4 @@
 
     type your answer
 
-  enter send . esc list                              * live
+  type to answer . esc list                          * live

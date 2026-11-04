@@ -33,4 +33,4 @@
    ▎ › Edit  src/invoice/mail/on-close.ts
                                                                                                                ↓ 4 more
 
-   ↑↓ move · ⏎ expand · w worker log · y copy worktree · e editor · ← back · ? help      ! 1 question · ← home   ● live
+   ↑↓ move · ⏎ expand · w worker log · y copy worktree · e editor · ← back · ? help       ! 1 question on Home   ● live

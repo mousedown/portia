@@ -21,22 +21,34 @@ export interface Ask {
 	since: string;
 	/** The run the order puts first, fixed when it was taken up, so tab walks one order. */
 	first?: string;
+	/** When it came on screen: taken up, tabbed to, come back to, or its dismissal ended. */
+	takenAt: number;
+	/** Only ever set by ↑ or ↓ reaching the panel, so it says the person is choosing. */
 	choice?: number;
 	text: string;
 	/** A send `answerPark` refused: the panel stays on this question, whatever a refresh says. */
 	refused?: { message: string; question: Question };
 }
 
-/** How long keys must stop before a question that arrived while they were pressed takes them. */
+/**
+ * How long a question must have been up, and keys stopped, before ⏎, ↑↓ and tab reach it:
+ * the time it takes to read that a question is there at all.
+ */
 export const KEY_PAUSE_MS = 2000;
+/**
+ * A ⏎ this soon after a ⏎ is a key held down or mashed, not a decision: it never sends. Long
+ * enough to span a keyboard's usual delay before it repeats, short of a second-apart press.
+ */
+export const ENTER_REPEAT_MS = 800;
 
 const same = (a: Ask, q: Question) =>
 	a.run === q.run && a.child === q.child && a.since === q.since;
-const askFor = (q: Question, first?: string): Ask => ({
+const askFor = (q: Question, now: number, first?: string): Ask => ({
 	run: q.run,
 	child: q.child,
 	since: q.since,
 	first,
+	takenAt: now,
 	text: "",
 });
 
@@ -106,47 +118,125 @@ export const dismissedNow = (s: ViewState, home: HomeView) =>
  * without the keys, so a key meant for the old one cannot answer the new one. Taking a
  * question up selects its run. Only Home shows the panel, so only Home settles it.
  */
-export function settleAsk(s: ViewState, home: HomeView): ViewState {
-	if (s.screen !== "home" || s.ask?.refused) return s;
+export function settleAsk(
+	prev: ViewState,
+	home: HomeView,
+	now: number,
+): ViewState {
+	if (prev.screen !== "home" || prev.ask?.refused) return prev;
 	const qs = questionsOf(home);
 	if (!qs.length)
-		return s.ask || s.held ? { ...s, ask: undefined, held: undefined } : s;
+		return prev.ask || prev.held
+			? { ...prev, ask: undefined, held: undefined }
+			: prev;
+	// A different set of questions ends a dismissal, and the panel coming back is new to read.
+	const s: ViewState =
+		prev.dismissed !== undefined && prev.dismissed !== setOf(qs)
+			? {
+					...prev,
+					dismissed: undefined,
+					held: undefined,
+					ask: prev.ask && { ...prev.ask, takenAt: now },
+				}
+			: prev;
 	const sel = selectedRun(s, home);
 	const on =
 		sel !== undefined && qs.some((q) => q.run === sel) ? sel : undefined;
 	const a = s.ask;
 	if (a && qs.some((q) => same(a, q))) {
-		const moved = on && on !== a.run ? inOrder(qs, on)[0] : undefined;
-		return moved ? { ...s, ask: askFor(moved, on) } : s;
+		// A kept filter can hide the question's own run: its first row is no move onto another.
+		const inList = homeRuns(home, s).some((r) => r.key === a.run);
+		const moved = on && on !== a.run && inList ? inOrder(qs, on)[0] : undefined;
+		return moved ? { ...s, ask: askFor(moved, now, on), held: undefined } : s;
 	}
 	const next = inOrder(qs, on)[0];
 	if (!next) return s;
 	return {
 		...s,
-		ask: askFor(next, on),
-		held: a ? undefined : s.held,
-		// A filter narrowed the list on purpose: the question's run may not be in it.
-		selection: s.filter
-			? s.selection
-			: { ...s.selection, "home:runs": next.run },
+		ask: askFor(next, now, on),
+		held: undefined,
+		pinned: undefined,
+		// A filter narrowed the list on purpose, and --select named a row: both stay.
+		selection:
+			s.filter || s.pinned
+				? s.selection
+				: { ...s.selection, "home:runs": next.run },
 	};
 }
 
+/** The panel is the page's answer to a key: a question shows, and nothing is open over it. */
+export function panelUp(s: ViewState, home: HomeView): boolean {
+	if (s.screen !== "home" || s.overlay || s.filter?.editing || s.command)
+		return false;
+	return !!shownQuestion(s, home) && !dismissedNow(s, home);
+}
+
+/** The question has been up long enough to have been read, or the person is choosing on it. */
+const beenRead = (s: ViewState, now: number) =>
+	!s.ask || s.ask.choice !== undefined || now - s.ask.takenAt >= KEY_PAUSE_MS;
+
 /**
- * Whether the panel has the keys. Not a mode anyone enters: it follows from the state. A
- * key the panel took holds them for the next, so a typed answer never spills into the list.
+ * Whether ⏎, ↑↓ and tab reach the panel. Not a mode anyone enters: it follows from the state.
+ * Keys must have stopped and the question been up for the pause, and arriving does not count
+ * for either. A key the panel took holds them for the next, so a typed answer never spills
+ * into the list.
  */
 export function panelHasKeys(
 	s: ViewState,
 	home: HomeView,
 	now: number,
 ): boolean {
-	if (s.screen !== "home" || s.overlay || s.filter || s.command) return false;
-	if (!shownQuestion(s, home) || dismissedNow(s, home)) return false;
+	if (!panelUp(s, home)) return false;
+	if (s.held) return true;
 	return (
-		!!s.held || s.lastKeyAt === undefined || now - s.lastKeyAt >= KEY_PAUSE_MS
+		beenRead(s, now) &&
+		(s.lastKeyAt === undefined || now - s.lastKeyAt >= KEY_PAUSE_MS)
 	);
 }
+
+/** Whether the panel gets this key. Typing only ever types, so it needs no pause. */
+export const panelTakes = (
+	s: ViewState,
+	k: Key,
+	home: HomeView,
+	now: number,
+): boolean =>
+	k.name === "char" || k.name === "paste"
+		? panelUp(s, home)
+		: panelHasKeys(s, home, now);
+
+/** Whether ⏎ would send now, what with the pause and what there is to send. */
+export function canSend(s: ViewState, home: HomeView, now: number): boolean {
+	const q = shownQuestion(s, home);
+	if (!q || !panelHasKeys(s, home, now) || !beenRead(s, now)) return false;
+	return s.ask?.text ? !!s.ask.text.trim() : !!q.options?.length;
+}
+
+/** When the guard on ⏎ lifts, for painting the moment it does. */
+export function guardEnds(s: ViewState): number {
+	const up = s.ask && s.ask.choice === undefined ? s.ask.takenAt : 0;
+	const keys = s.held ? 0 : (s.lastKeyAt ?? 0);
+	return Math.max(up, keys) + KEY_PAUSE_MS;
+}
+
+/** A ⏎ on the heels of another, with no other key between. */
+export const enterRepeats = (s: ViewState, now: number): boolean =>
+	s.enterAt !== undefined && now - s.enterAt < ENTER_REPEAT_MS;
+
+/** A send was recorded: the question and the keys both go, so the next waits for the pause. */
+export const sentAsk = (s: ViewState): ViewState => ({
+	...s,
+	ask: undefined,
+	held: undefined,
+});
+
+/** esc on the panel: the keys go to the list, and nothing about them is kept to come back to. */
+const dismiss = (s: ViewState, home: HomeView, ask: Ask | undefined) => ({
+	...s,
+	ask: ask && { ...ask, text: "", choice: undefined },
+	held: undefined,
+	dismissed: setOf(questionsOf(home)),
+});
 
 /** Records a send `answerPark` refused: the panel and its text stay, with the reason. */
 export function refuseAsk(
@@ -173,7 +263,12 @@ const cleanPaste = (t: string) =>
 		.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "");
 
 /** A key the panel has: all of them but ^c and ^z, which stay with the view. */
-export function panelKey(s: ViewState, k: Key, home: HomeView): Reduced {
+export function panelKey(
+	s: ViewState,
+	k: Key,
+	home: HomeView,
+	now: number,
+): Reduced {
 	const a = s.ask;
 	const q = shownQuestion(s, home);
 	if (!a || !q) return { state: s, effects: [] };
@@ -191,20 +286,15 @@ export function panelKey(s: ViewState, k: Key, home: HomeView): Reduced {
 	});
 	switch (k.name) {
 		case "esc": {
-			if (typing && opts.length && !a.refused) return edit("");
+			if (typing && opts.length) return edit("");
 			// A refused question may have gone: nothing is left to hold it open for.
-			const base: ViewState = a.refused
-				? { ...s, ask: undefined }
-				: { ...s, ask: { ...a, text: "" } };
-			return st({
-				...base,
-				held: undefined,
-				dismissed: setOf(questionsOf(home)),
-			});
+			return st(dismiss(s, home, a.refused ? undefined : a));
 		}
 		case "enter": {
+			// Typed text too: `j j ⏎` meant for the list shows as text, and is still unread.
 			const text = typing ? a.text.trim() : opts[chosenOf(q, a)];
-			return text ? { state: held, effects: [send(text)] } : st(held);
+			if (!text || !beenRead(s, now) || enterRepeats(s, now)) return st(s);
+			return { state: held, effects: [send(text)] };
 		}
 		case "up":
 		case "down": {
@@ -224,8 +314,10 @@ export function panelKey(s: ViewState, k: Key, home: HomeView): Reduced {
 			if (!next || same(a, next)) return st(held);
 			return st({
 				...held,
-				ask: askFor(next, a.first),
-				selection: { ...s.selection, "home:runs": next.run },
+				ask: askFor(next, now, a.first),
+				selection: s.filter
+					? s.selection
+					: { ...s.selection, "home:runs": next.run },
 			});
 		}
 		case "pgup":
@@ -239,8 +331,10 @@ export function panelKey(s: ViewState, k: Key, home: HomeView): Reduced {
 			return edit([...a.text].slice(0, -1).join(""));
 		case "char":
 			return edit(a.text + (k.ch ?? ""));
-		case "paste":
-			return edit(a.text + cleanPaste(k.text ?? ""));
+		case "paste": {
+			const text = cleanPaste(k.text ?? "");
+			return text ? edit(a.text + text) : st(s);
+		}
 		default:
 			return st(held);
 	}
@@ -248,22 +342,27 @@ export function panelKey(s: ViewState, k: Key, home: HomeView): Reduced {
 
 /**
  * ⏎ and esc on Home's list while a question shows and the keys are still the list's.
- * After esc, ⏎ on a waiting run's row takes the keys back for its question. In the pause
- * before a new question takes the keys, ⏎ does nothing: held down, or pressed twice, it
- * must not reach the question. Undefined leaves the key to the list.
+ * After esc, ⏎ on a waiting run's row comes back to its question, and starts the pause
+ * rather than ending it. In the pause before a question takes the keys, ⏎ does nothing:
+ * held down, or pressed twice, it must not reach the question. Undefined leaves the key
+ * to the list.
  */
 export function listKeyOnQuestion(
 	s: ViewState,
 	k: Key,
 	home: HomeView,
+	now: number,
 ): ViewState | undefined {
-	if (s.screen !== "home" || s.overlay || s.filter || s.command || !s.ask)
+	if (
+		s.screen !== "home" ||
+		s.overlay ||
+		s.filter?.editing ||
+		s.command ||
+		!s.ask
+	)
 		return undefined;
 	const dismissed = dismissedNow(s, home);
-	if (k.name === "esc")
-		return dismissed
-			? undefined
-			: { ...s, held: undefined, dismissed: setOf(questionsOf(home)) };
+	if (k.name === "esc") return dismissed ? undefined : dismiss(s, home, s.ask);
 	if (k.name !== "enter") return undefined;
 	const sel = selectedRun(s, home);
 	const q = inOrder(questionsOf(home), sel)[0];
@@ -272,7 +371,6 @@ export function listKeyOnQuestion(
 	return {
 		...s,
 		dismissed: undefined,
-		held: true,
-		ask: s.ask.run === sel ? s.ask : askFor(q, sel),
+		ask: s.ask.run === sel ? { ...s.ask, takenAt: now } : askFor(q, now, sel),
 	};
 }

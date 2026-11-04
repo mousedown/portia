@@ -2,8 +2,11 @@ import { tokens } from "../../model/format";
 import { runProgress } from "../../model/progress";
 import type { ChildView, RunView } from "../../model/types";
 import {
-	KEY_PAUSE_MS,
+	canSend,
+	dismissedNow,
+	guardEnds,
 	panelHasKeys,
+	panelUp,
 	questionsOf,
 	shownQuestion,
 } from "../../runtime/ask";
@@ -68,7 +71,7 @@ import {
 	truncate,
 } from "../text";
 import { phaseWord } from "./children";
-import { askPanel, askPanelLeast, DOCK_AT } from "./panel";
+import { askPanel, DOCK_AT } from "./panel";
 
 export const GROUP_LABEL = {
 	waiting: "WAITING ON YOU",
@@ -572,16 +575,19 @@ const STRIP_MIN_ROWS = 20;
 const LIST_LEAST = 3;
 const LIST_WANTED = 5;
 
-/** The panel's keys, for what it is doing now. */
-function panelHints(ctx: Ctx): Line {
-	const q = shownQuestion(ctx.state, home(ctx));
+/** The panel's keys, for what works this moment: during the pause, only typing and esc. */
+function panelHints(ctx: Ctx, focused: boolean): Line {
+	const h = home(ctx);
 	const typing = !!ctx.state.ask?.text;
-	const choices = !!q?.options?.length;
+	const choices = !!shownQuestion(ctx.state, h)?.options?.length;
+	const esc = typing && choices ? "esc choices" : "esc list";
+	if (!focused) return hints(ctx, ["type to answer", esc]);
+	const send = canSend(ctx.state, h, ctx.tick.now);
 	return hints(ctx, [
 		choices && !typing ? "↑↓ choose" : "",
-		"⏎ send",
-		!typing && questionsOf(home(ctx)).length > 1 ? "tab next" : "",
-		typing && choices ? "esc choices" : "esc list",
+		send ? "⏎ send" : !choices && !typing ? "type to answer" : "",
+		!typing && questionsOf(h).length > 1 ? "tab next" : "",
+		esc,
 	]);
 }
 
@@ -609,29 +615,25 @@ export function homeScreen(ctx: Ctx): Line[] {
 	const listK = Math.max(8, ...h.runs.map((r) => r.key.length));
 	const q = shownQuestion(ctx.state, h);
 	const focused = panelHasKeys(ctx.state, h, ctx.tick.now);
-	const { lastKeyAt } = ctx.state;
-	// Paint again the moment the pause ends, when that is what the panel waits for.
-	if (q && !focused && lastKeyAt !== undefined)
-		if (lastKeyAt + KEY_PAUSE_MS > ctx.tick.now)
-			deadline(ctx, lastKeyAt + KEY_PAUSE_MS);
+	const up = panelUp(ctx.state, h);
+	// Paint again the moment the guard lifts, when that is what the panel waits for.
+	if (up && guardEnds(ctx.state) > ctx.tick.now)
+		deadline(ctx, guardEnds(ctx.state));
 	// The panel grows as far as the list allows; past that its question scrolls inside it.
 	const dockFor = (top: number): Line[] => {
 		if (!q) return dock(ctx, selRun, listK);
 		const most = ctx.size.rows - top - 2 - LIST_LEAST;
 		const wanted = ctx.size.rows - top - 2 - LIST_WANTED;
-		return askPanel(
-			ctx,
-			q,
-			listK,
-			focused,
-			Math.min(most, Math.max(wanted, askPanelLeast(q))),
-		);
+		// The list keeps its spare rows only if the whole question fits beside them.
+		const whole = askPanel(ctx, q, listK, focused).length <= wanted;
+		return askPanel(ctx, q, listK, focused, whole ? wanted : most);
 	};
+	// ⏎ on a row answers only once the panel has let go of the keys: see `listKeyOnQuestion`.
 	const offered =
-		!ctx.state.filter && !!q && questionsOf(h).some((x) => x.run === sel);
+		dismissedNow(ctx.state, h) && questionsOf(h).some((x) => x.run === sel);
 	const foot = footer(
 		ctx,
-		focused ? panelHints(ctx) : hints(ctx, HOME_HINTS(offered)),
+		up ? panelHints(ctx, focused) : hints(ctx, HOME_HINTS(offered)),
 		{
 			m: runs.length,
 			n: h.runs.length,

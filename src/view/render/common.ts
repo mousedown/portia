@@ -291,7 +291,7 @@ export function hints(ctx: Ctx, list: string[], withLive = true): Line {
 					{
 						text: keyNames(
 							ctx,
-							`! ${asks} ${asks === 1 ? "question" : "questions"} · ← home`,
+							`! ${asks} ${asks === 1 ? "question" : "questions"} on Home`,
 						),
 						role: "parked" as const,
 					},

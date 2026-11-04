@@ -27,4 +27,4 @@
   11:17  ACME-418  ! parked       May I add the search index migrati… ⏎
                                                              ↓ 180 more
 
-  ↑↓ move · ← home · ? help · q quit     ! 1 question · ← home   ● live
+  ↑↓ move · ← home · ? help · q quit      ! 1 question on Home   ● live

@@ -1,4 +1,4 @@
-import { settleAsk } from "../runtime/ask";
+import { KEY_PAUSE_MS, settleAsk } from "../runtime/ask";
 import type { ViewState } from "../runtime/state";
 import {
 	type Ctx,
@@ -82,7 +82,13 @@ export function render(
 	size: Size,
 	tick: Tick,
 ): RenderOut {
-	const shown = settleAsk(state, models.home);
+	// The live view has settled already. A frozen frame has no time to pass, so it shows the
+	// panel as it is once the pause is over.
+	const shown = settleAsk(
+		state,
+		models.home,
+		tick.frozen ? tick.now - KEY_PAUSE_MS : tick.now,
+	);
 	const ctx = makeCtx(shown, models, effectiveInk(ink, shown), size, tick);
 	const spans = screen(ctx).map((l) =>
 		lineWidth(l) > ctx.W ? truncate(l, ctx.W) : l,

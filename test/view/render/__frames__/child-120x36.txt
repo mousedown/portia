@@ -33,4 +33,4 @@
    session       runs inside the orchestrator's Claude Code session
                                                                                                                ↓ 5 more
 
-   ↑↓ move · ⏎ expand · y copy worktree · e editor · ← back · ? help                     ! 1 question · ← home   ● live
+   ↑↓ move · ⏎ expand · y copy worktree · e editor · ← back · ? help                      ! 1 question on Home   ● live

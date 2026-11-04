@@ -27,4 +27,4 @@
   process   pid 48211 . alive . started 13:58 . log quiet 12s
                                                                v 4 more
 
-  up/dn move . left back . ? help     ! 1 question . left home   * live
+  up/dn move . left back . ? help         ! 1 question on Home   * live

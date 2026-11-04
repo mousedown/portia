@@ -144,7 +144,8 @@ describe("the key map", () => {
 				expect(where(press([key], at)), `${name} ${key}`).toBe(to);
 			for (const key of ["tab", "stab", "[", "]", "4", "5"]) {
 				const r = press([key], at);
-				expect(r.s, `${name} ${key}`).toEqual(at);
+				// Any other key ends a run of ⏎, which is all it may change.
+				expect({ ...r.s, enterAt: at.enterAt }, `${name} ${key}`).toEqual(at);
 				expect(r.effects, `${name} ${key}`).toEqual([]);
 			}
 		}

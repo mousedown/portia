@@ -25,7 +25,7 @@ import { detectInk, type Ink } from "../render/ink";
 import { arrivalAt } from "../render/logo";
 import { answerPark } from "./answer";
 import { archiveRun } from "./archive";
-import { refuseAsk, settleAsk } from "./ask";
+import { refuseAsk, sentAsk, settleAsk } from "./ask";
 import { decode, type Key } from "./keys";
 import {
 	diskPaths,
@@ -374,7 +374,7 @@ export async function runView(o: {
 		if (arrivalStart !== undefined && !arrival) arrivalStart = undefined;
 		const home = homeAt(now);
 		findRepos(home.runs);
-		state = settleAsk(state, home);
+		state = settleAsk(state, home, now);
 		const out = render(
 			state,
 			{
@@ -525,7 +525,7 @@ export async function runView(o: {
 					state = refuseAsk(state, homeAt(Date.now()), (err as Error).message);
 					return full();
 				}
-				state = { ...state, ask: undefined, held: undefined };
+				state = sentAsk(state);
 				loadAll();
 				homeAt(Date.now(), true);
 				toast("saved · its session picks it up, or portia resume", "dim");

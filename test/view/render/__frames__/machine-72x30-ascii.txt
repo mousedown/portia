@@ -27,4 +27,4 @@
   ACME-506    3.9 GB  #######=
                                                               v 10 more
 
-  left home . ? help . q quit         ! 1 question . left home   * live
+  left home . ? help . q quit             ! 1 question on Home   * live

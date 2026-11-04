@@ -16,6 +16,7 @@ import {
 	strWidth,
 	truncate,
 	wrap,
+	wrapWhole,
 } from "../text";
 
 /** The list's key column: the dock's key and marks start here, a child's glyph two before. */
@@ -26,9 +27,6 @@ const RECOMMENDED = " (recommended)";
 const printable = (t: string) =>
 	// biome-ignore lint/suspicious/noControlCharactersInRegex: stripping them is the point
 	t.replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/g, " ");
-
-/** The fewest rows the panel can show itself in: its head, a line and a marker, the choices and the typing line. */
-export const askPanelLeast = (q: Question) => 4 + (q.options?.length ?? 0);
 
 function optionRow(
 	ctx: Ctx,
@@ -100,7 +98,7 @@ export function askPanel(
 	];
 	const head = lr(truncate(left, ctx.W - lineWidth(place) - 2), place, ctx.W);
 	const question = wrap(printable(q.text), w);
-	const answer = typing ? wrap(`${typed}${ctx.g.caret}`, w) : [];
+	const answer = typing ? wrapWhole(`${typed}${ctx.g.caret}`, w) : [];
 	const refused = a?.refused?.message;
 
 	// What always shows: the head, the choices, and the typing line.
