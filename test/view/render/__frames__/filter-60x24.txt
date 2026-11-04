@@ -1,0 +1,24 @@
+ ◆ PORTIA                            ⠋ 1 live · ! 2 · 14:02
+  cpu  ━───   37%   mem  ━━╸─   64%   disk ━━╸─   69%
+ ──────────────────────────────────────────────────────────
+                                          2 of 6 runs match
+  waiting on you                                          1
+▌ ! ACME-410  1 question …  ━━━━━━━━─  8/9    9h17m   2.77M
+
+  awaiting judgement                                      1
+  ✗ ACME-366  —             ━━━━━━───  2/3    4h49m    610k
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────
+   ACME-410             epic/ACME-410 · started 12h 02m ago
+   ✓ ✓✓✓ ✓✓! ✓✓   #398 · ACME-418 parked · 2h
+   ! ACME-418  parked     try 1 opus              Backfill…
+
+  / state:parked state:failed▏  2 of 6 · ⏎ keep · esc clear

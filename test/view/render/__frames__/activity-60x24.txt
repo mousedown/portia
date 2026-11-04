@@ -1,0 +1,24 @@
+ ◆ PORTIA › activity                 ⠋ 1 live · ! 2 · 14:02
+ ──────────────────────────────────────────────────────────
+
+
+  today                                           following
+▌ 14:02  ACME-505  ✓ task gate    type ✓ lint ✓ rel-u ✓
+  13:58  ACME-506  ▸ dispatched   attempt 1 · opus
+  13:58  ACME-506  ↑ env up       epic/ACME-506 · port 3…
+  13:50  ACME-505  ▸ dispatched   attempt 2 · sonnet
+  13:50  ACME-505  ↻ retry        failed attempt · autom…
+  13:49  ACME-505  ✗ land failed  exit gate failed on th… ⏎
+  13:49  ACME-505  ✗ exit gate    type ✓ lint ✓ unit ✗
+  13:31  ACME-504  ↓ env down     port 3103 released
+  13:31  ACME-504  ✓ landed       #427 · 3f9e2c1
+  13:26  ACME-504  ● result done  evidence for R4 · 88k … ⏎
+  13:25  ACME-504  ✓ exit gate    7 of 7 steps passed
+  13:22  ACME-505  ≡ files ok     outside paths accepted…
+  13:22  ACME-505  ● result done  evidence for R5 · 127k… ⏎
+  13:21  ACME-505  ✓ exit gate    7 of 7 steps passed
+  13:20  ACME-504  ✓ task gate    type ✓ lint ✓ rel-u ✓
+  13:12  ACME-505  ✓ task gate    type ✓ lint ✓ rel-u ✓
+                                                 ↓ 185 more
+
+  ↑↓ move · ⏎ expand · ← home · ? help · q quit      ● live

@@ -1,0 +1,9 @@
+{
+	"number": 4,
+	"id": 5812257462,
+	"title": "B",
+	"body": "Child B.\n\n```portia\nwave: 1\nneeds: GH-2 # reads the spine\nsize: S\ntouches: src/b.ts\nrequirements: F1\nevidence: bun test\n```\n",
+	"state": "open",
+	"repository_url": "https://api.github.com/repos/mousedown/portia-fixture",
+	"labels": []
+}

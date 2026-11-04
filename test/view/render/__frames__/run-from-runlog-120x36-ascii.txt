@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-366                                                                         x needs you . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+   epic     #359 . epic/ACME-366 . started 7h 52m ago . from the runlog
+   progress 2 of 3 landed . 610k tokens
+   rework   28% tokens 38% time . first pass 2/2 . critical path 31m54s of 1h22m . 0 decisions
+   machine  mem 64% . cpu 37% . disk 312G free
+
+      KEY       SUM~  PHASE       GATES        PR     MODEL                  TIME    TOK
+   unplanned                                                         2/3    4h49m   610k
+    + ACME-367  -     landed      ### #######  #357   opus     attempt 1   40m00s   241k
+    + ACME-368  -     landed      ### #######  #358   sonnet   attempt 1   40m00s   201k
+>   x ACME-369  -     failed      ### #######  #360   sonnet   attempt 1   59m39s   168k
+
+   epic gate   not run yet . runs once every child has landed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-369 . attempt 1 . failed . sonnet . epic/ACME-369 . port 3100 . #360
+   last exit gate   typecheck +  lint +  unit +  integration +  acceptance +  e2e +  debt +
+   | CI failed on PR #360
+
+   up/dn move . right open . g gate matrix . o PR . / filter . left back . ? help                                * live

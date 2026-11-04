@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-500  >  ACME-505                                                  | exit gate . 12m 04s . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+
+   child    ACME-505 . wave 2
+            Team admins download an invoice as PDF
+   state    | running . attempt 2 . sonnet . 12m 04s . 127k tokens before this attempt
+   pr       no PR yet
+
+   needs    + ACME-502  Price a line item from the plan catalogue
+
+   evidence                                                                                        0 of 1 proven so far
+
+>  R5  .  a team admin downloads an invoice as PDF
+          | attempt 1, not landed: invoice-pdf.spec.ts 5 passed
+
+   gates
+
+   task   attempt 2  typecheck +  lint +  related-unit +                                                14:02 . 11m 52s
+   exit   attempt 2  running 12s
+          attempt 1  typecheck +  lint +  unit x  integration .  acceptance .  e2e .  debt .            13:49 . 27m 10s
+                     | exit gate failed on the rebased head: unit
+                     | 2 suites failed: invoice/pdf.spec.ts and invoice/period.spec.ts, both rounding half-cents the
+                     | wrong way.                                                                                     +
+
+   files
+
+   changed 1 file outside its 1 declared path, approved by a person on Oct 20:
+     . src/invoice/render/pdf.ts - the PDF renderer lives beside the HTML one
+
+   worker                                                                                                      subagent
+
+   session       runs inside the orchestrator's Claude Code session
+   orchestrator  pid 4242 . alive . ttys003 . switch to that terminal
+                                                                                                               v 5 more
+
+   up/dn move . enter expand . y copy worktree . e editor . left back . ? help                                   * live

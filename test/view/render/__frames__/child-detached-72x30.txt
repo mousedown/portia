@@ -1,0 +1,30 @@
+ ◆ PORTIA › ACME-500 › ACME-506                                  ⠏ 3:51
+ ──────────────────────────────────────────────────────────────────────
+
+  ACME-506  ·  wave 2
+  Email the invoice when a billing period closes
+
+  ⠏ running · attempt 1 · opus · 3:51
+  no PR yet
+
+  needs     ✓ ACME-503
+
+  evidence                                         0 of 1 proven so far
+
+▌ R6  ·  the invoice is emailed when a period closes
+         no evidence reported yet
+
+  gates
+
+  no gate has run yet
+
+  files
+
+  declares 1 path · checked when the worker reports
+
+  worker                                                       detached
+
+  process   pid 48211 · alive · started 13:58 · log quiet 12s
+                                                               ↓ 4 more
+
+  ↑↓ move · ⏎ expand · w worker log · ← back · ? help            ● live

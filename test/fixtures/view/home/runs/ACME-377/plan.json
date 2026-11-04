@@ -1,0 +1,162 @@
+{
+	"version": 1,
+	"at": "2026-10-19T17:00:00.000Z",
+	"plan": {
+		"key": "ACME-377",
+		"summary": "Notification preferences per channel",
+		"scope": "notifications",
+		"scenarios": [
+			{
+				"id": "N1",
+				"text": "notification scenario 1"
+			},
+			{
+				"id": "N2",
+				"text": "notification scenario 2"
+			},
+			{
+				"id": "N3",
+				"text": "notification scenario 3"
+			},
+			{
+				"id": "N4",
+				"text": "notification scenario 4"
+			},
+			{
+				"id": "N5",
+				"text": "notification scenario 5"
+			},
+			{
+				"id": "N6",
+				"text": "notification scenario 6"
+			},
+			{
+				"id": "N7",
+				"text": "notification scenario 7"
+			}
+		],
+		"children": [
+			{
+				"key": "ACME-378",
+				"summary": "Preference model per channel",
+				"wave": 0,
+				"needs": [],
+				"touches": ["src/acme-378/**"],
+				"requirements": ["N1"],
+				"evidence": "bun test acme-378",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": []
+			},
+			{
+				"key": "ACME-379",
+				"summary": "Email channel honours preferences",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-378",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-379/**"],
+				"requirements": ["N2"],
+				"evidence": "bun test acme-379",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-378"]
+			},
+			{
+				"key": "ACME-380",
+				"summary": "Push channel honours preferences",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-378",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-380/**"],
+				"requirements": ["N3"],
+				"evidence": "bun test acme-380",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-378"]
+			},
+			{
+				"key": "ACME-381",
+				"summary": "Preferences page",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-379",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-381/**"],
+				"requirements": ["N4"],
+				"evidence": "bun test acme-381",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-379"]
+			},
+			{
+				"key": "ACME-382",
+				"summary": "Digest frequency per channel",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-379",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-382/**"],
+				"requirements": ["N5"],
+				"evidence": "bun test acme-382",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-379"]
+			},
+			{
+				"key": "ACME-383",
+				"summary": "Quiet hours",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-380",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-383/**"],
+				"requirements": ["N6"],
+				"evidence": "bun test acme-383",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-380"]
+			},
+			{
+				"key": "ACME-384",
+				"summary": "Defaults for new members",
+				"wave": 3,
+				"needs": [
+					{
+						"key": "ACME-381",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-384/**"],
+				"requirements": ["N7"],
+				"evidence": "bun test acme-384",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-381"]
+			}
+		]
+	}
+}

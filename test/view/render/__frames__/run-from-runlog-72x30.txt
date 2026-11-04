@@ -1,0 +1,30 @@
+ ◆ PORTIA › ACME-366                                            ✗ 14:02
+ ──────────────────────────────────────────────────────────────────────
+  epic     #359 · epic/ACME-366 · 7h 52m · from the runlog
+  progress 2/3 landed · 610k tokens
+  rework   28% · 1st pass 2/2 · path 31m54s of 1h22m · 0 decisions
+
+    KEY       SUM…  PHASE                 TIME    TOK
+  unplanned                       2/3    4h49m   610k
+  ✓ ACME-367  —     landed      try 1   40m00s   241k
+  ✓ ACME-368  —     landed      try 1   40m00s   201k
+▌ ✗ ACME-369  —     failed      try 1   59m39s   168k
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────
+  ACME-369 · try 1 · failed · sonnet · port 3100 · #360
+  last exit  type ✓ lint ✓ unit ✓ intg ✓ acpt ✓ e2e ✓ debt ✓
+  ▎ CI failed on PR #360
+
+  ↑↓ move · → open · g gate matrix · o PR · ← back · ? help      ● live

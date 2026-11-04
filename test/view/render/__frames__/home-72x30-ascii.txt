@@ -1,0 +1,30 @@
+
+          o
+     _____|_____    ######=  ######= ######= ########=##= #####=
+      /\  |  /\     ##===##=##====##=##===##====##====##|##===##=
+     /  \ | /  \    ######==##|   ##|######==   ##|   ##|#######|
+     \__/ | \__/    ##===== ##|   ##|##===##=   ##|   ##|##===##|
+        __|__       ##|     =######==##|  ##|   ##|   ##|##|  ##|
+      '-------'     ===      ======= ===  ===   ===   ======  ===
+                    the quality of mercy is not strained
+
+
+  cpu  ==----   37%   mem  ===---   64%   disk ====--   69%
+  | 1 in session . ! 2 need you . 14:02
+  waiting on you                                                      1
+> ! ACME-410  1 question for you     ===========-  8/9    9h17m   2.77M
+
+  in session                                                          1
+  \ ACME-500  Self-serve invoices ~  ======------  4/8    6h41m    662k
+
+  awaiting judgement                                                  1
+  x ACME-366  -                      ========----  2/3    4h49m    610k
+                                                               v 3 more
+
+
+ ----------------------------------------------------------------------
+   ACME-410                         epic/ACME-410 . started 12h 02m ago
+   + +++ ++! ++   #398 . ACME-418 parked . 2h
+   ! ACME-418  parked     try 1 opus              Backfill the index f~
+
+  up/dn move . right open . a activity . ? help . q quit         * live

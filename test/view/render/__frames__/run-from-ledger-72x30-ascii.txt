@@ -1,0 +1,30 @@
+ o PORTIA > ACME-410                                            ! 14:02
+ ----------------------------------------------------------------------
+  epic     #398 . epic/ACME-410 . 12h 02m . from the ledger
+  progress 8/9 landed . 2.77M tokens
+  rework   0% . 1st pass 8/8 . path 2h08m of 4h40m . 1 decision
+
+    KEY       SUMMARY                 PHASE                 TIME    TOK
+  wave 0  spine                                     1/1   45m00s   351k
+  + ACME-411  Search index schema f~  landed      try 1   45m00s   351k
+  wave 1                                            3/3    2h45m   956k
+  + ACME-412  Index archived projec~  landed      try 1   45m00s   298k
+  + ACME-413  Rank results by last ~  landed      try 1   45m00s   313k
+  + ACME-414  Highlight the matched~  landed      try 1   45m00s   345k
+  wave 2                                            2/3    5h17m   803k
+  + ACME-415  Filter by archive date  landed      try 1   45m00s   331k
+  + ACME-416  Search box on the arc~  landed      try 1   45m00s   378k
+> ! ACME-418  Backfill the index fo~  parked      try 1   24m43s    95k
+              waiting on you . 2h44m  May I add the search index migra~
+  wave 3                                            2/2    1h45m   664k
+  + ACME-417  Empty state for no re~  landed      try 1   45m00s   301k
+  + ACME-419  Keyboard shortcuts in~  landed      try 1   45m00s   362k
+
+
+ ----------------------------------------------------------------------
+  ACME-418 . try 1 . parked . opus . port 3101
+
+  proves     F9 . . not yet
+  | May I add the search index migration to my paths?
+
+  up/dn move . right open . g gate matrix . left back . ? help   * live

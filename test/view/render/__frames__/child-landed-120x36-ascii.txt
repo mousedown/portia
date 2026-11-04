@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-500  >  ACME-503                                                               + landed . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+
+   child    ACME-503 . wave 1
+            Tax rules per billing country
+   state    + landed . attempt 2 . opus . 1h 12m . 211k tokens
+   pr       #421 . 5035035
+   | done; evidence for R3
+
+   needs    + ACME-501  Invoice model and line items
+
+   evidence                                                                                               1 of 1 proven
+
+>  R3  +  tax follows the billing country
+          | tax.itest.ts 6 passed
+
+   gates
+
+   task   attempt 2  typecheck +  lint +  related-unit +                                                08:50 . 13m 00s
+   exit   attempt 2  typecheck +  lint +  unit +  integration +  acceptance +  e2e +  debt +             08:59 . 9m 03s
+
+   files
+
+   changed 2 files outside its 1 declared path, both approved by a person on Oct 20:
+     . src/tax/rates.ts - the shared rate table had to learn about reverse charge
+     . specs/tax/rates.spec.ts - its test moves with it
+
+   worker                                                                                                      subagent
+
+   session       ran inside the orchestrator's Claude Code session
+   worktree      removed 09:17 (was /home/acme/.portia/worktrees/acme-app/ACME-503)
+   branch        epic/ACME-503    port 3102    db portia_acme_503    torn down 09:17
+
+                                                                                                               v 9 more
+
+   up/dn move . enter expand . o PR . left back . ? help                                                         * live

@@ -1,0 +1,31 @@
+[
+	[
+		{
+			"number": 2,
+			"id": 5812192900,
+			"title": "Spine",
+			"body": "Spine of the fixture plan.\n\n```portia\nwave: 0\nsize: S\ntouches: src/spine.ts, test/spine.test.ts\nrequirements: F1\nacceptance: F1 = test/spine.test.ts\nevidence: bun test\n```\n",
+			"state": "open",
+			"repository_url": "https://api.github.com/repos/mousedown/portia-fixture",
+			"labels": []
+		},
+		{
+			"number": 3,
+			"id": 5812193072,
+			"title": "A",
+			"body": "Child A.\n\n```portia\nwave: 1\nneeds: GH-2 # reads the spine\nsize: S\ntouches: src/a.ts, test/spine.test.ts\nrequirements: F1\nevidence: bun test\n```\n",
+			"state": "open",
+			"repository_url": "https://api.github.com/repos/mousedown/portia-fixture",
+			"labels": []
+		},
+		{
+			"number": 4,
+			"id": 5812257462,
+			"title": "B",
+			"body": "Child B.\n\n```portia\nwave: 1\nneeds: GH-2 # reads the spine\nsize: S\ntouches: src/b.ts\nrequirements: F1\nevidence: bun test\n```\n",
+			"state": "open",
+			"repository_url": "https://api.github.com/repos/mousedown/portia-fixture",
+			"labels": []
+		}
+	]
+]

@@ -1,0 +1,1 @@
+{ "breaks": false, "check": "bun check.mjs" }

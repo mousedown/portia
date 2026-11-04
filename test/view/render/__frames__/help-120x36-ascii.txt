@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-500  Self-serve invoices for team accounts                                 \ in session . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+   epic     #412 . epic/ACME-500 . started 6h 41m ago . plan 2m old
+                           +---------------------------- keys -----------------------------+
+                           |                                                               |
+                           |  pages          Home > Run > Child > Worker                   |
+                           |                                                               |
+                           |  move          up dn  j k       top / bottom   home  end      |
+                           |  open          right  enter  l  back           left  esc  h   |
+                           |  activity      a                machine        m              |
+                           |  gate matrix   g                worker log     w              |
+                           |  filter        /                next match     n  N           |
+                           |  open the PR   o                epic diff      d              |
+                           |  copy          y                editor         e              |
+                           |  follow        f                sort runs      s              |
+                           |  new run       n                re-read        r              |
+                           |  half page     ^d  ^u           archive run    x x            |
+                           |  quit          q                                              |
+                           |                                                               |
+                           |  filter words   state:parked  wave:2  model:opus  live        |
+                           |  glyphs   . pending  o ready  | running  ! parked  x failed   |
+                           |           * done  + landed  - closed  ~ quiet                 |
+                           |  waves    + landed  - working  . pending  gap: next wave      |
+                           |  gate pips  task ###  exit ####x..  one per step              |
+                           |                                                               |
+                           |             the quality of mercy is not strained              |
+                           +---------------------------------------------------------------+
+   epic gate   not run yet . runs once every child has landed
+
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-505 . attempt 2 . exit gate 12s . sonnet . epic/ACME-505 . port 3101
+   last exit gate . attempt 1   typecheck +  lint +  unit x  integration .  acceptance .  e2e .  debt .
+   proves           R5 . a team admin downloads an invoice as PDF . not yet
+
+
+   esc or ? closes

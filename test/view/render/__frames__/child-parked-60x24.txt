@@ -1,0 +1,24 @@
+ ◆ PORTIA › ACME-410 › ACME-418                     ! 14:02
+ ──────────────────────────────────────────────────────────
+  ACME-418 · wave 2  Backfill the index for old archives
+  ! parked · attempt 1 · opus · 24:43
+  95k tokens · no PR yet
+  waiting on you · 2h44m
+  ▎ May I add the search index migration to my paths?
+  ▎ The backfill needs
+  ▎ db/migrations/0042_archive_index.sql, which is
+  ▎ outside my declared paths.
+  ▎ Without it the index cannot be built on an existing
+  ▎ database.
+
+  evidence                             0 of 1 proven so far
+
+▌ F9  ·
+         no evidence reported yet
+
+  gates
+
+  task  try 1  typecheck ✓ lint ✓ related-unit ✓
+                                                   ↓ 6 more
+
+  ↑↓ move · ⏎ expand · ← back · ? help               ● live

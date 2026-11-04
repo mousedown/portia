@@ -1,0 +1,371 @@
+[
+	{
+		"key": "ACME-501",
+		"fields": {
+			"summary": "Spine: checklist core and failing acceptance tests",
+			"description": {
+				"type": "doc",
+				"version": 1,
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Slice of ACME-401."
+							}
+						]
+					},
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "The spine also writes e2e/onboarding/personas.ts, exporting newMember (and partialProfile), each seeding a fresh test user and signing in; the acceptance tests and child C's design check reuse them."
+							}
+						]
+					},
+					{
+						"type": "codeBlock",
+						"attrs": {
+							"language": "portia"
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "wave: 0\ntier: high\nsize: S\ntouches: src/lib/onboarding/types.ts, src/lib/onboarding/registry.ts, src/lib/onboarding/rank.ts, src/lib/onboarding/index.ts, src/lib/onboarding/steps/index.ts, specs/lib/onboarding/core/**, e2e/onboarding/checklist.e2e.ts, e2e/onboarding/personas.ts\nevidence: bunx jest specs/lib/onboarding/core\nacceptance: F1 = e2e/onboarding/checklist.e2e.ts\nacceptance: F2 = e2e/onboarding/checklist.e2e.ts\nacceptance: F3 = e2e/onboarding/checklist.e2e.ts\nacceptance: F4 = e2e/onboarding/checklist.e2e.ts\nacceptance: F5 = e2e/onboarding/checklist.e2e.ts"
+							}
+						]
+					}
+				]
+			},
+			"issuelinks": [
+				{
+					"type": {
+						"name": "Relates",
+						"inward": "relates to",
+						"outward": "relates to"
+					},
+					"outwardIssue": {
+						"key": "ACME-401"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"outwardIssue": {
+						"key": "ACME-502"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"outwardIssue": {
+						"key": "ACME-503"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"outwardIssue": {
+						"key": "ACME-504"
+					}
+				}
+			],
+			"status": {
+				"name": "To Do",
+				"statusCategory": {
+					"key": "new",
+					"name": "To Do"
+				}
+			}
+		}
+	},
+	{
+		"key": "ACME-502",
+		"fields": {
+			"summary": "A: set-up progress computed on read",
+			"description": {
+				"type": "doc",
+				"version": 1,
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Slice of ACME-402."
+							}
+						]
+					},
+					{
+						"type": "codeBlock",
+						"attrs": {
+							"language": "portia"
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "wave: 1\nneeds: ACME-501 # reads the MemberState type\nsize: S\ntouches: src/server/repositories/member-state.ts, src/lib/onboarding/state/**, specs/server/repositories/member-state.spec.ts\nrequirements: F1, F3\nevidence: bunx jest specs/server/repositories/member-state.spec.ts"
+							}
+						]
+					}
+				]
+			},
+			"issuelinks": [
+				{
+					"type": {
+						"name": "Relates",
+						"inward": "relates to",
+						"outward": "relates to"
+					},
+					"outwardIssue": {
+						"key": "ACME-402"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"inwardIssue": {
+						"key": "ACME-501"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"outwardIssue": {
+						"key": "ACME-505"
+					}
+				}
+			],
+			"status": {
+				"name": "To Do",
+				"statusCategory": {
+					"key": "new",
+					"name": "To Do"
+				}
+			}
+		}
+	},
+	{
+		"key": "ACME-503",
+		"fields": {
+			"summary": "B: set-up step rules",
+			"description": {
+				"type": "doc",
+				"version": 1,
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Slice of ACME-403."
+							}
+						]
+					},
+					{
+						"type": "codeBlock",
+						"attrs": {
+							"language": "portia"
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "wave: 1\nneeds: ACME-501 # registers steps in the spine's registry\nsize: S\ntouches: src/lib/onboarding/steps/index.ts, src/lib/onboarding/steps/setup*.ts, specs/lib/onboarding/steps/setup*.spec.ts, src/i18n/messages/en/onboarding.json\nrequirements: F1, F2, F3\nevidence: bunx jest specs/lib/onboarding/steps"
+							}
+						]
+					}
+				]
+			},
+			"issuelinks": [
+				{
+					"type": {
+						"name": "Relates",
+						"inward": "relates to",
+						"outward": "relates to"
+					},
+					"outwardIssue": {
+						"key": "ACME-403"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"inwardIssue": {
+						"key": "ACME-501"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"outwardIssue": {
+						"key": "ACME-505"
+					}
+				}
+			],
+			"status": {
+				"name": "To Do",
+				"statusCategory": {
+					"key": "new",
+					"name": "To Do"
+				}
+			}
+		}
+	},
+	{
+		"key": "ACME-504",
+		"fields": {
+			"summary": "C: the dashboard renders the checklist",
+			"description": {
+				"type": "doc",
+				"version": 1,
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Slice of ACME-404."
+							}
+						]
+					},
+					{
+						"type": "codeBlock",
+						"attrs": {
+							"language": "portia"
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "wave: 1\nneeds: ACME-501 # calls nextStep from the spine\nsize: S\ntouches: src/app/dashboard/_components/checklist.tsx, src/app/dashboard/_lib/load-next-step.ts, src/app/dashboard/page.tsx, src/i18n/messages/en/dashboard.json, specs/app/dashboard/checklist.spec.tsx\nrequirements: F1, F3, F4\nevidence: bunx jest specs/app/dashboard\ndesign: https://example.com/designs/checklist route=/dashboard persona=new-member frames=checklist-1440,checklist-390"
+							}
+						]
+					}
+				]
+			},
+			"issuelinks": [
+				{
+					"type": {
+						"name": "Relates",
+						"inward": "relates to",
+						"outward": "relates to"
+					},
+					"outwardIssue": {
+						"key": "ACME-404"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"inwardIssue": {
+						"key": "ACME-501"
+					}
+				}
+			],
+			"status": {
+				"name": "To Do",
+				"statusCategory": {
+					"key": "new",
+					"name": "To Do"
+				}
+			}
+		}
+	},
+	{
+		"key": "ACME-505",
+		"fields": {
+			"summary": "D: the demo as the one suggestion",
+			"description": {
+				"type": "doc",
+				"version": 1,
+				"content": [
+					{
+						"type": "paragraph",
+						"content": [
+							{
+								"type": "text",
+								"text": "Slice of ACME-405."
+							}
+						]
+					},
+					{
+						"type": "codeBlock",
+						"attrs": {
+							"language": "portia"
+						},
+						"content": [
+							{
+								"type": "text",
+								"text": "wave: 2\nneeds: ACME-502 # reads set-up state\nneeds: ACME-503 # extends the steps index\nsize: S\ntouches: src/server/repositories/demo.ts, src/lib/onboarding/steps/demo.ts, src/lib/onboarding/steps/index.ts, specs/lib/onboarding/steps/demo.spec.ts, specs/server/repositories/demo.spec.ts\nrequirements: F5\nevidence: bunx jest specs/lib/onboarding/steps/demo.spec.ts"
+							}
+						]
+					}
+				]
+			},
+			"issuelinks": [
+				{
+					"type": {
+						"name": "Relates",
+						"inward": "relates to",
+						"outward": "relates to"
+					},
+					"outwardIssue": {
+						"key": "ACME-405"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"inwardIssue": {
+						"key": "ACME-502"
+					}
+				},
+				{
+					"type": {
+						"name": "Blocks",
+						"inward": "is blocked by",
+						"outward": "blocks"
+					},
+					"inwardIssue": {
+						"key": "ACME-503"
+					}
+				}
+			],
+			"status": {
+				"name": "To Do",
+				"statusCategory": {
+					"key": "new",
+					"name": "To Do"
+				}
+			}
+		}
+	}
+]

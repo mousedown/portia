@@ -1,0 +1,36 @@
+  ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   ACME-500  ›  ACME-506                                           ⠏ working · 3m 51s · 14:02
+ ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 child    2 worker
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+   child    ACME-506 · wave 2
+            Email the invoice when a billing period closes
+   state    ⠏ running · attempt 1 · opus · 3m 51s
+   pr       no PR yet
+
+   needs    ✓ ACME-503  Tax rules per billing country
+
+   evidence                                                                                        0 of 1 proven so far
+
+▌  R6  ·  the invoice is emailed when a period closes
+          no evidence reported yet
+
+   gates
+
+   no gate has run yet
+
+   files
+
+   declares 1 path · checked when the worker reports
+
+   worker                                                                                                      detached
+
+   process       pid 48211 · alive · started 13:58 · log quiet 12s
+   worktree      /home/acme/.portia/worktrees/acme-app/ACME-506
+   branch        epic/ACME-506    port 3102    db portia_acme_506    up since 13:58
+
+   ▎ ‹ error: expected 1 email, received 0
+   ▎ The subscriber is registered after the event fires in the test. Moving the registration into the module's init.
+   ▎ › Edit  src/invoice/mail/on-close.ts
+                                                                                                               ↓ 4 more
+
+   ↑↓ move · ⏎ expand · w worker log · y copy worktree · e editor · ← back · ? help                              ● live

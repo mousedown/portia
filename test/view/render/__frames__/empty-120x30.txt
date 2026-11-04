@@ -1,0 +1,30 @@
+
+
+
+
+
+                                    ◆
+                               ▀▀▀▀▀█▀▀▀▀▀    ██████╗  ██████╗ ██████╗ ████████╗██╗ █████╗
+                                ╱╲  █  ╱╲     ██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║██╔══██╗
+                               ╱  ╲ █ ╱  ╲    ██████╔╝██║   ██║██████╔╝   ██║   ██║███████║
+                               ▀▀▀▀ █ ▀▀▀▀    ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██╔══██║
+                                  ▄▄█▄▄       ██║     ╚██████╔╝██║  ██║   ██║   ██║██║  ██║
+                                ▀▀▀▀▀▀▀▀▀     ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝
+                                              the quality of mercy is not strained
+
+
+                             No runs yet in /fx. Start one with n, or /portia <KEY> in Claude Code;
+                             this screen lights up as it works.
+
+                             host     acme-build-01 · Linux 6.8 · up 3d 4h
+                             cpu      ━━━━────────   37%  load 2.1 of 8 cores
+                             memory   ━━━━━━━╸────   64%  41.2/64 GB · swap 205 MB
+                             disk     ━━━━━━━━────   69%  312 GB free · slots 3/5
+
+
+
+
+
+
+
+   n new run · ? help · q quit

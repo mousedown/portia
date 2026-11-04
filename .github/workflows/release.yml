@@ -1,0 +1,76 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+# Nothing by default: each job asks for only what it uses. No job restores a cache, and the
+# job that can publish installs nothing and runs no project code.
+permissions: {}
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.2.17"
+          no-cache: true
+      - run: bun install --frozen-lockfile
+      - name: Tag matches every declared version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          check() {
+            [ "$1" = "$tag" ] || { echo "$2 is $1, tag is $tag"; exit 1; }
+          }
+          check "$(jq -r .version package.json)" package.json
+          check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
+          check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run test
+      - run: bun run test:acceptance
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Give this environment required reviewers and restrict it to v* tags in the repo settings.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # npm provenance and trusted publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+          registry-url: "https://registry.npmjs.org"
+      # No install step: the package ships source, and no dependency's script runs beside the token.
+      - run: npm publish --provenance --access public --ignore-scripts
+        env:
+          # Only the first publish needs it. Once the package exists, turn on trusted
+          # publishing for this workflow on npmjs.com and delete the secret.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

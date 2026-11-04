@@ -1,0 +1,36 @@
+  ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   ACME-500  Self-serve invoices for team accounts                       ⠙ in session · 14:02
+ ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 children    2 gate matrix
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   epic     #412 · epic/ACME-500 · started 6h 41m ago · plan 2m old
+   progress 4 of 8 landed · 662k tokens
+   rework   36% tokens 29% time · first pass 3/4 · critical path 1h48m of 2h24m · 0 decisions
+   machine  mem 64% · cpu 37% · disk 312G free
+
+             tries task  │ type  lint  unit  intg  acpt  e2e   debt  │ last
+   ACME-501    1     ✓   │   ✓     ✓     ✓     ✓     ✓     ✓     ✓   │ 7m 49s
+   ACME-502    1     ✓   │   ✓     ✓     ✓     ✓     ✓     ✓     ✓   │ 6m 12s
+   ACME-503    2     ✓   │   ✓     ✓     ✓     ✓     ✓     ✓     ✓   │ 9m 03s
+   ACME-504    1     ✓   │   ✓     ✓     ✓     ✓     ✓     ✓     ✓   │ 5m 40s
+▌  ACME-505    2     ✓   │   ✓     ✓     ✗     ·     ·     ·     ·   │ running
+   ACME-506    1     ·   │   ·     ·     ·     ·     ·     ·     ·   │ working
+
+   epic gate    not run yet · runs once every child has landed
+   often fails  integration ✗ in 1 of 7 exit gates, unit ✗ in 1 of 7 exit gates · every other step clean
+   baseline     clean · no step was failing on the base branch before the run
+
+   ACME-505 · attempt 1 · exit gate stopped at unit; steps after it never ran (·)
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   ACME-505 · attempt 2 · exit gate 12s · sonnet · epic/ACME-505 · port 3101
+   last exit gate · attempt 1   typecheck ✓  lint ✓  unit ✗  integration ·  acceptance ·  e2e ·  debt ·
+   proves           R5 · a team admin downloads an invoice as PDF · not yet
+
+
+   ↑↓ move · → open · g children · / filter · ← back · ? help                                                    ● live

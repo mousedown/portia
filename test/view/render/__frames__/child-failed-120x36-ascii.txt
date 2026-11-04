@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-366  >  ACME-369                                                               x failed . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+
+   child    ACME-369 . wave 0
+            -
+   state    x failed . attempt 1 . sonnet . 59m 39s . 168k tokens
+   pr       #360 . land failed
+   | CI failed on PR #360
+
+   evidence
+
+>  A3  .  reported, not in the plan
+          | attempt 1, not landed: export.spec.ts 4 passed
+
+   gates
+
+   task   attempt 1  typecheck +  lint +  related-unit +                                                10:20 . 19m 55s
+   exit   attempt 1  typecheck +  lint +  unit +  integration +  acceptance +  e2e +  debt +            10:31 . 11m 00s
+
+   files
+
+   stayed inside its declared paths
+
+   worker                                                                                                      subagent
+
+   session       ran inside the orchestrator's Claude Code session
+   worktree      /home/acme/.portia/worktrees/acme-app/ACME-369
+   branch        epic/ACME-369    port 3100    db portia_acme_369    up since 10:00
+
+   y copies the worktree . e opens it in $EDITOR
+
+   attempts                                                                                                           1
+
+                                                                                                               v 7 more
+
+   up/dn move . enter expand . o PR . y copy worktree . e editor . left back . ? help                            * live

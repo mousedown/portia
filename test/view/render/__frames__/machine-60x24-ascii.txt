@@ -1,0 +1,24 @@
+ o PORTIA > machine                  | 1 live . ! 2 . 14:02
+ ----------------------------------------------------------
+  acme-build-01 . Linux 6.8 . up 3d 4h . 8 cores
+
+  workers
+  2 running across 1 run
+  slots  3/5 . cap 5 . memory fits 3 more at 6.0 GB
+
+  memory                                   41.2/64 GB used
+  used   ============================----------------  64%
+  avail  22.8 GB . floor 6.0 GB (profile)
+  swap   =-------------------------------------------   2%
+  trend  .---~---.....--~======~~~~~~=++*****+++=+  52-65%
+
+  disk                                         312 GB free
+  used   ==============================--------------  69%
+  free   312 GB of 1.0 TB
+
+  cpu                                                  37%
+  .-+=-......-~=-.______-==-......-=+=-.......==-......-=+
+  10 min ago                                           now
+                                                  v 16 more
+
+  up/dn scroll . left home . ? help . q quit         * live

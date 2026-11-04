@@ -1,0 +1,41 @@
+{
+	"key": "ACME-500",
+	"fields": {
+		"summary": "Onboarding checklist on the dashboard",
+		"description": {
+			"type": "doc",
+			"version": 1,
+			"content": [
+				{
+					"type": "paragraph",
+					"content": [
+						{
+							"type": "text",
+							"text": "A first-run checklist on the dashboard, sliced into five sub-tasks."
+						}
+					]
+				},
+				{
+					"type": "codeBlock",
+					"attrs": {
+						"language": "portia"
+					},
+					"content": [
+						{
+							"type": "text",
+							"text": "scope: onboarding\nscenario: F1 = Given a new member with no team, When they open the dashboard, Then they see sample projects and \"Invite your team\" in the checklist\nscenario: F2 = Given a member with two unfinished set-up steps, When they open the dashboard, Then only one set-up step is shown\nscenario: F3 = Given a member whose profile is partial, When they open the dashboard, Then the checklist asks them to finish the profile\nscenario: F4 = Given a member with nothing left to set up, When they open the dashboard, Then the page shows real content and never an empty page\nscenario: F5 = Given a member who has finished set-up and never booked a demo, When they open the dashboard, Then the demo is the one suggestion, and it stops once one is booked"
+						}
+					]
+				}
+			]
+		},
+		"issuelinks": [],
+		"status": {
+			"name": "To Do",
+			"statusCategory": {
+				"key": "new",
+				"name": "To Do"
+			}
+		}
+	}
+}

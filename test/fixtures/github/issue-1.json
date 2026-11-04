@@ -1,0 +1,9 @@
+{
+	"number": 1,
+	"id": 5812192677,
+	"title": "Fixture parent",
+	"body": "Fixture parent for the Portia GitHub tracker.\n\n```portia\nscope: fixture\nscenario: F1 = Given the fixture, When Portia runs, Then the children land\n```\n",
+	"state": "open",
+	"repository_url": "https://api.github.com/repos/mousedown/portia-fixture",
+	"labels": []
+}

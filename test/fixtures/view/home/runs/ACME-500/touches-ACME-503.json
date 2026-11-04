@@ -1,0 +1,14 @@
+[
+	{
+		"glob": "src/tax/rates.ts",
+		"at": "2026-10-20T09:12:00.000Z",
+		"by": "person",
+		"why": "the shared rate table had to learn about reverse charge"
+	},
+	{
+		"glob": "specs/tax/rates.spec.ts",
+		"at": "2026-10-20T09:12:00.000Z",
+		"by": "person",
+		"why": "its test moves with it"
+	}
+]

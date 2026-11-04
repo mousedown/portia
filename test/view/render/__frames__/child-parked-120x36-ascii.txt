@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-410  >  ACME-418                                                               ! parked . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+
+   child    ACME-418 . wave 2
+            Backfill the index for old archives
+   state    ! parked . attempt 1 . opus . 24m 43s . 95k tokens
+   pr       no PR yet
+   waiting on you . 2h44m
+   | May I add the search index migration to my paths?
+   | The backfill needs db/migrations/0042_archive_index.sql, which is outside my declared paths.
+   | Without it the index cannot be built on an existing database.
+
+   evidence                                                                                        0 of 1 proven so far
+
+>  F9  .
+          no evidence reported yet
+
+   gates
+
+   task   attempt 1  typecheck +  lint +  related-unit +                                                 11:02 . 9m 12s
+
+   files
+
+   checked when the worker reports
+
+   worker                                                                                                      subagent
+
+   session       runs inside the orchestrator's Claude Code session
+   orchestrator  pid not recorded . switch to the terminal that ran /portia
+   worktree      /home/acme/.portia/worktrees/acme-app/ACME-418
+   branch        epic/ACME-418    port 3101    db portia_acme_418    up since 10:52
+
+   y copies the worktree . e opens it in $EDITOR
+                                                                                                               v 5 more
+
+   up/dn move . enter expand . y copy worktree . e editor . left back . ? help                                   * live

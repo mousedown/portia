@@ -1,0 +1,15 @@
+{
+	"default": "2026-10-20T13:02:31Z",
+	"paths": {
+		"runs/ACME-352": "2026-10-16T14:02:31Z",
+		"runs/ACME-377/ledger-body.md": "2026-10-20T13:58:31Z",
+		"runs/ACME-410/ledger-body.md": "2026-10-20T13:58:31Z",
+		"runs/ACME-500/ledger-body.md": "2026-10-20T13:58:31Z",
+		"runs/ACME-500/worker-ACME-506-1.log": "2026-10-20T14:02:19Z"
+	},
+	"alive": [4242, 48211],
+	"procs": {
+		"4242": { "start": "Tue Oct 20 08:00:00 2026", "tty": "ttys003" },
+		"48211": { "start": "Tue Oct 20 13:58:41 2026", "tty": "??" }
+	}
+}

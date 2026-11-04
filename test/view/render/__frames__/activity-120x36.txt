@@ -1,0 +1,36 @@
+  ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   activity                         ⠋ 1 in session · ! 2 need you · cpu 37% · mem 64% · 14:02
+ ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 runs    2 activity    3 machine
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   every run, newest first
+
+   today                                                                                         following · f to pause
+▌  14:02:19   ACME-500  ACME-505   ✓ task gate    typecheck ✓  lint ✓  related-unit ✓                           11m 52s
+   13:58:40   ACME-500  ACME-506   ▸ dispatched   attempt 1 · opus
+   13:58:36   ACME-500  ACME-506   ↑ env up       epic/ACME-506 · port 3102 · db portia_acme_506
+   13:50:27   ACME-500  ACME-505   ▸ dispatched   attempt 2 · sonnet
+   13:50:11   ACME-500  ACME-505   ↻ retry        failed attempt · automatically · attempt 1 of 2
+   13:49:58   ACME-500  ACME-505   ✗ land failed  exit gate failed on the rebased head: unit                          ⏎
+   13:49:40   ACME-500  ACME-505   ✗ exit gate    typecheck ✓  lint ✓  unit ✗                                   27m 10s
+   13:31:20   ACME-500  ACME-504   ↓ env down     port 3103 released
+   13:31:02   ACME-500  ACME-504   ✓ landed       #427 · 3f9e2c1
+   13:26:10   ACME-500  ACME-504   ● result done  evidence for R4 · 88k tokens · stayed in its paths                  ⏎
+   13:25:40   ACME-500  ACME-504   ✓ exit gate    7 of 7 steps passed                                            5m 40s
+   13:22:30   ACME-500  ACME-505   ≡ files ok     outside paths accepted · automatically
+   13:22:15   ACME-500  ACME-505   ● result done  evidence for R5 · 127k tokens · changed files outside its pa…       ⏎
+   13:21:07   ACME-500  ACME-505   ✓ exit gate    7 of 7 steps passed                                            8m 36s
+   13:20:00   ACME-500  ACME-504   ✓ task gate    typecheck ✓  lint ✓  related-unit ✓                           21m 58s
+   13:12:31   ACME-500  ACME-505   ✓ task gate    typecheck ✓  lint ✓  related-unit ✓                            8m 51s
+   13:03:40   ACME-500  ACME-505   ▸ dispatched   attempt 1 · sonnet
+   13:03:30   ACME-500  ACME-505   ↑ env up       epic/ACME-505 · port 3101 · db portia_acme_505
+   12:58:02   ACME-500  ACME-504   ▸ dispatched   attempt 1 · sonnet
+   12:57:55   ACME-500  ACME-504   ↑ env up       epic/ACME-504 · port 3103 · db portia_acme_504
+   ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  1h 40m quiet  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+   11:17:40   ACME-410  ACME-418   ! parked       May I add the search index migration to my paths?                   ⏎
+   11:02:09   ACME-410  ACME-418   ✓ task gate    typecheck ✓  lint ✓  related-unit ✓                            9m 12s
+   11:00:12   ACME-390  ACME-394   ✓ exit gate    7 of 7 steps passed                                            8m 12s
+   10:59:44   ACME-366  ACME-369   ✗ land failed  CI failed on PR #360
+   10:52:57   ACME-410  ACME-418   ▸ dispatched   attempt 1 · opus
+   10:52:50   ACME-410  ACME-418   ↑ env up       epic/ACME-418 · port 3101 · db portia_acme_418
+                                                                                                             ↓ 175 more
+
+   ↑↓ move · ⏎ expand · → open child · f follow · / filter · m machine · ← home · ? help · q quit                ● live

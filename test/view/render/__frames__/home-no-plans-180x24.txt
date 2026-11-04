@@ -1,0 +1,24 @@
+ ◆ P O R T I A                                                                                                                    ⠋ 1 in session · ! 2 need you · 7.56M tok · 14:02
+   cpu  ━━━━────────   37% load 2.1/8c    mem  ━━━━━━━╸────   64% 41.2/64 GB   disk ━━━━━━━━────   69% 312G free · slots 3/5
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+   waiting on you                                                                                                                                                                 1
+▌ ! ACME-410  1 question for you   ━━━━━━━━━━━━━━━━━╸──   8/9    9h17m   2.77M tokens    #398   ACME-418 parked
+
+   in session                                                                                                                                                                     1
+  ⠙ ACME-500  —                    ━━━━━━━━━━──────────   4/8    6h41m    662k tokens    #412   ACME-505 task gate ✓ 3/3
+
+   awaiting judgement                                                                                                                                                             1
+  ✗ ACME-366  —                    ━━━━━━━━━━━━━───────   2/3    4h49m    610k tokens    #359   ACME-369 land failed
+
+   at rest                                                                                                                                                                        2
+  ◐ ACME-390  —                    ━━━━━━━━━━──────────   2/4    5h00m    709k tokens    #381   ACME-394 quiet 3h
+  ○ ACME-352  —                    ────────────────────     —                            —      not started
+                                                                                                                                                                           ↓ 1 more
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   ACME-410                                                                                                                                     epic/ACME-410 · started 12h 02m ago
+     ✓ ✓✓✓ ✓✓! ✓✓   #398 · ACME-418 parked · 2h
+     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+
+   ↑↓ move · → open · a activity · m machine · / filter · o epic PR · n new run · x archive · s sort · ? help · q quit                                                       ● live

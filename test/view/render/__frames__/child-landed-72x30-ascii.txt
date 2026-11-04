@@ -1,0 +1,30 @@
+ o PORTIA > ACME-500 > ACME-503                                 + 14:02
+ ----------------------------------------------------------------------
+
+  ACME-503  .  wave 1
+  Tax rules per billing country
+
+  + landed . attempt 2 . opus . 1h12
+  211k tokens . #421 . 5035035
+  | done; evidence for R3
+
+  needs     + ACME-501
+
+  evidence                                                1 of 1 proven
+
+> R3  +  tax follows the billing country
+         | tax.itest.ts 6 passed
+
+  gates
+
+  task  try 2  typecheck + lint + related-unit +
+  exit  try 2  type + lint + unit + intg + acpt + e2e + debt +
+
+  files
+
+  changed 2 files outside its 1 declared path, both approved by a pers~
+    . src/tax/rates.ts
+      | the shared rate table had to learn about reverse charge
+                                                              v 10 more
+
+  up/dn move . enter expand . o PR . left back . ? help          * live

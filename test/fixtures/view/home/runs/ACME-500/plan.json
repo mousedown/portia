@@ -1,0 +1,184 @@
+{
+	"version": 1,
+	"at": "2026-10-20T14:00:31.000Z",
+	"plan": {
+		"key": "ACME-500",
+		"summary": "Self-serve invoices for team accounts",
+		"scope": "billing",
+		"scenarios": [
+			{
+				"id": "R1",
+				"text": "an invoice lists every line item of a billing period"
+			},
+			{
+				"id": "R2",
+				"text": "a line item is priced from the plan catalogue"
+			},
+			{
+				"id": "R3",
+				"text": "tax follows the billing country"
+			},
+			{
+				"id": "R4",
+				"text": "a team admin sees every invoice of the team"
+			},
+			{
+				"id": "R5",
+				"text": "a team admin downloads an invoice as PDF"
+			},
+			{
+				"id": "R6",
+				"text": "the invoice is emailed when a period closes"
+			},
+			{
+				"id": "R7",
+				"text": "a credit note reverses a paid line item"
+			},
+			{
+				"id": "R8",
+				"text": "metered usage becomes invoice lines"
+			}
+		],
+		"children": [
+			{
+				"key": "ACME-501",
+				"summary": "Invoice model and line items",
+				"wave": 0,
+				"needs": [],
+				"touches": ["src/acme-501/**"],
+				"requirements": ["R1"],
+				"evidence": "bun test acme-501",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": []
+			},
+			{
+				"key": "ACME-502",
+				"summary": "Price a line item from the plan catalogue",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-501",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-502/**"],
+				"requirements": ["R2"],
+				"evidence": "bun test acme-502",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-501"]
+			},
+			{
+				"key": "ACME-503",
+				"summary": "Tax rules per billing country",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-501",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-503/**"],
+				"requirements": ["R3"],
+				"evidence": "bun test acme-503",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-501"]
+			},
+			{
+				"key": "ACME-504",
+				"summary": "Invoice list for team admins",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-502",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-504/**"],
+				"requirements": ["R4"],
+				"evidence": "bun test acme-504",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-502"]
+			},
+			{
+				"key": "ACME-505",
+				"summary": "Team admins download an invoice as PDF",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-502",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-505/**"],
+				"requirements": ["R5"],
+				"evidence": "bun test acme-505",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-502"]
+			},
+			{
+				"key": "ACME-506",
+				"summary": "Email the invoice when a billing period closes",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-503",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-506/**"],
+				"requirements": ["R6"],
+				"evidence": "bun test acme-506",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-503"]
+			},
+			{
+				"key": "ACME-507",
+				"summary": "Credit notes reverse a paid line item",
+				"wave": 3,
+				"needs": [
+					{
+						"key": "ACME-504",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-507/**"],
+				"requirements": ["R7"],
+				"evidence": "bun test acme-507",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-504"]
+			},
+			{
+				"key": "ACME-508",
+				"summary": "Usage-based lines from metered events",
+				"wave": 4,
+				"needs": [
+					{
+						"key": "ACME-506",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-508/**"],
+				"requirements": ["R8"],
+				"evidence": "bun test acme-508",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-506"]
+			}
+		]
+	}
+}

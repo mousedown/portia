@@ -1,0 +1,36 @@
+  ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   machine                          ⠋ 1 in session · ! 2 need you · cpu 37% · mem 64% · 14:02
+ ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 runs    2 activity    3 machine
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   acme-build-01 · Linux 6.8 · up 3d 4h · 8 cores
+
+   cpu                                                 37%    workers
+   ▂▃▆▅▃▂▂▂▂▂▂▃▅▅▃▂▁▁▁▁▁▂▄▅▄▂▂▂▂▂▂▂▄▆▅▃▂▂▂▂▂▂▂▄▅▄▂▂▂▂▂▂▃▅▆    2 running across 1 run
+   10 min ago                                          now    slots  3/5 · cap 5 · memory fits 3 more at 6.0 GB
+   cores  ▄ ▃ ▇ ▂ ▁ ▂ ▆ ▃  busiest 92%
+   load   2.1  1.8  1.6   1 · 5 · 15 min, of 8 cores          worktrees                                    4 · 12.3 GB
+                                                              ACME-505    4.1 GB  ████████
+   memory                                  41.2/64 GB used    ACME-506    3.9 GB  ███████▌
+   used   ━━━━━━━━━━━━━━━━━━━━━━━━━━━╸───────────────  64%    ACME-394    2.6 GB  █████
+   avail  22.8 GB · floor 6.0 GB (profile)                    ACME-418    1.7 GB  ███▎
+   swap   ━──────────────────────────────────────────   2%
+   trend  ▂▃▃▄▄▃▃▃▂▂▂▂▂▃▄▄▅▅▅▅▅▅▄▄▄▄▄▅▅▆▇▇▇▇▇▆▆▆▅▆  52–65%    top processes                                  by memory
+                                                                  PID  NAME                          MEM    CPU
+   disk                                        312 GB free      41233  node                       3.4 GB   112%
+   used   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸─────────────  69%      41018  bun                        2.1 GB    37%
+   free   312 GB of 1.0 TB                                      40877  claude                     1.6 GB     8%
+                                                                40950  claude                     1.4 GB     6%
+                                                                 1288  postgres                   912 MB     3%
+                                                                40871  tsserver                   840 MB     1%
+                                                                  977  dockerd                    412 MB     0%
+                                                                 1301  postgres                   288 MB     0%
+                                                                  812  sshd                        12 MB     0%
+                                                                    1  systemd                     11 MB     0%
+
+
+
+
+
+
+
+
+   ↑↓ scroll · a activity · ← home · ? help · q quit                                                             ● live

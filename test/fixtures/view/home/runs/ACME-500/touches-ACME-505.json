@@ -1,0 +1,8 @@
+[
+	{
+		"glob": "src/invoice/render/**",
+		"at": "2026-10-20T13:20:00.000Z",
+		"by": "person",
+		"why": "the PDF renderer lives beside the HTML one"
+	}
+]

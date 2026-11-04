@@ -1,0 +1,30 @@
+ o PORTIA > ACME-366 > ACME-369                                 x 14:02
+ ----------------------------------------------------------------------
+
+  ACME-369  .  wave 0
+  -
+
+  x failed . attempt 1 . sonnet . 59:39
+  168k tokens . #360 . land failed
+  | CI failed on PR #360
+
+  evidence
+
+> A3  .  reported, not in the plan
+         | attempt 1, not landed: export.spec.ts 4 passed
+
+  gates
+
+  task  try 1  typecheck + lint + related-unit +
+  exit  try 1  type + lint + unit + intg + acpt + e2e + debt +
+
+  files
+
+  stayed inside its declared paths
+
+  worker                                                       subagent
+
+  session   ran inside the orchestrator's session
+                                                               v 7 more
+
+  up/dn move . enter expand . o PR . left back . ? help          * live

@@ -1,0 +1,64 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.2.17"
+      - run: bun install --frozen-lockfile
+      # The design checks launch headless Chromium.
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run typecheck
+      - run: bun run lint
+      # Includes test/e2e/fixture.test.ts in local mode: no network, no model calls.
+      - run: bun run test
+      - if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        run: bun run test:acceptance
+
+  # The one-line install on a clean machine: an empty home and no Bun on PATH, so the
+  # installer has to fetch Bun, clone the source and leave a working CLI and skills.
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: runner.os == 'Linux'
+        run: shellcheck scripts/install.sh
+      - name: Install as a new user would
+        run: |
+          home="$(mktemp -d)"
+          echo "CLEAN_HOME=$home" >> "$GITHUB_ENV"
+          # Piped, as in the README, so the script cannot rely on being a checkout.
+          HOME="$home" PORTIA_REPO_URL="file://$PWD" PORTIA_REF="$GITHUB_SHA" \
+            bash < scripts/install.sh
+      - name: The CLI runs and the skills are linked
+        run: |
+          # A new terminal has this from the shell profile Bun's installer edits.
+          HOME="$CLEAN_HOME" PATH="$CLEAN_HOME/.bun/bin:$PATH" portia version
+          test -f "$CLEAN_HOME/.claude/skills/portia/SKILL.md"
+          test -f "$CLEAN_HOME/.claude/skills/portia-setup/SKILL.md"
+      - name: Uninstall removes the links
+        run: |
+          HOME="$CLEAN_HOME" bash scripts/install.sh --uninstall
+          test ! -e "$CLEAN_HOME/.bun/bin/portia"
+          test ! -e "$CLEAN_HOME/.claude/skills/portia"

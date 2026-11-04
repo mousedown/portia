@@ -1,0 +1,17 @@
+{
+	"name": "portia",
+	"version": "0.1.0",
+	"description": "Take one epic or story from Jira or GitHub Issues, in any repository, to one reviewed PR: a spine first, then parallel waves of worktree workers.",
+	"author": { "name": "Chris Anthony", "url": "https://github.com/mousedown" },
+	"homepage": "https://portia.run",
+	"repository": "https://github.com/mousedown/portia",
+	"license": "Apache-2.0",
+	"keywords": [
+		"epic",
+		"orchestration",
+		"worktrees",
+		"jira",
+		"github-issues",
+		"pull-request"
+	]
+}

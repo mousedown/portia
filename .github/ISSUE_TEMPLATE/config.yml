@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://portia.run
+    about: How a run works, every profile field and the CLI.
+  - name: Report a security vulnerability
+    url: https://github.com/mousedown/portia/security/advisories/new
+    about: Please report vulnerabilities privately, not in a public issue.

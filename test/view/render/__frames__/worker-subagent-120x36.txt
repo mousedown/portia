@@ -1,0 +1,36 @@
+  ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   ACME-500  ›  ACME-505  ›  worker                                         ⠇ running · 14:02
+ ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 child    2 worker
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+   This worker is a subagent: it runs inside the orchestrator's Claude Code session
+   and keeps no log of its own. Open that session to see it work.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ↑↓ scroll · end follow · / search · y copy worktree · e editor · ← back · ? help                              ● live

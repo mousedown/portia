@@ -1,0 +1,142 @@
+{
+	"version": "v1",
+	"description": "The first suite: ACME's mail-order shop, the fixture world the site already uses. The repo and its tracker are the next child of the eval epic; the scenarios are fixed here first so the hidden specs can be written against them.",
+	"model": "sonnet",
+	"limits": {
+		"usd": 40,
+		"minutes": 180,
+		"reviews": 3
+	},
+	"tickets": "tickets",
+	"repos": [
+		{
+			"name": "acme-shop",
+			"source": "../../acme-shop",
+			"remote": "git@github.com:mousedown/acme-shop.git",
+			"main": "main",
+			"setup": "bun install",
+			"test": "bun test {file}",
+			"checks": ["bun run lint", "bun run typecheck", "bun test"],
+			"epics": [
+				{
+					"key": "ACME-400",
+					"title": "Rocket delivery quotes and order history",
+					"tracker": "github",
+					"hidden": "hidden/ACME-500",
+					"expect": "delivered",
+					"scenarios": [
+						{
+							"id": "R1",
+							"text": "a delivery order lists every crate on the manifest"
+						},
+						{
+							"id": "R2",
+							"text": "a delivery is priced from the mesa zone table"
+						},
+						{
+							"id": "R3",
+							"text": "a canyon surcharge follows the delivery county"
+						},
+						{
+							"id": "R4",
+							"text": "a customer sees every order they have placed"
+						}
+					],
+					"children": [
+						{
+							"key": "ACME-401",
+							"touches": ["src/delivery/**", "specs/delivery/**"]
+						},
+						{
+							"key": "ACME-402",
+							"touches": ["src/pricing/**", "specs/pricing/**"]
+						},
+						{
+							"key": "ACME-403",
+							"touches": ["src/surcharge/**", "specs/surcharge/**"]
+						},
+						{
+							"key": "ACME-404",
+							"touches": ["src/orders/**", "specs/orders/**"]
+						}
+					]
+				},
+				{
+					"key": "ACME-500",
+					"title": "Rocket delivery to remote mesas",
+					"tracker": "github",
+					"hidden": "hidden/ACME-500",
+					"expect": "delivered",
+					"scenarios": [
+						{
+							"id": "R1",
+							"text": "a delivery order lists every crate on the manifest"
+						},
+						{
+							"id": "R2",
+							"text": "a delivery is priced from the mesa zone table"
+						},
+						{
+							"id": "R3",
+							"text": "a canyon surcharge follows the delivery county"
+						},
+						{
+							"id": "R4",
+							"text": "a customer sees every order they have placed"
+						},
+						{
+							"id": "R5",
+							"text": "a customer downloads a signed receipt as PDF"
+						},
+						{
+							"id": "R6",
+							"text": "the customer gets a telegram when the rocket is airborne"
+						},
+						{
+							"id": "R7",
+							"text": "an order that misses its target is refunded"
+						},
+						{
+							"id": "R8",
+							"text": "rocket telemetry becomes live tracking"
+						}
+					],
+					"children": [
+						{
+							"key": "ACME-501",
+							"touches": ["src/delivery/**", "specs/delivery/**"]
+						},
+						{
+							"key": "ACME-502",
+							"touches": ["src/pricing/**", "specs/pricing/**"]
+						},
+						{
+							"key": "ACME-503",
+							"touches": ["src/surcharge/**", "specs/surcharge/**"]
+						},
+						{
+							"key": "ACME-504",
+							"touches": ["src/orders/**", "specs/orders/**"]
+						},
+						{
+							"key": "ACME-505",
+							"touches": ["src/receipt/**", "specs/receipt/**"]
+						},
+						{
+							"key": "ACME-506",
+							"touches": ["src/launch/**", "specs/launch/**"]
+						},
+						{
+							"key": "ACME-507",
+							"touches": ["src/refunds/**", "specs/refunds/**"]
+						},
+						{
+							"key": "ACME-508",
+							"touches": ["src/tracking/**", "specs/tracking/**"]
+						}
+					]
+				}
+			]
+		}
+	]
+}

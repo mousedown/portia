@@ -1,0 +1,22 @@
+{
+	"name": "portia-eval",
+	"private": true,
+	"type": "module",
+	"bin": {
+		"eval": "src/cli.ts"
+	},
+	"scripts": {
+		"eval": "bun src/cli.ts",
+		"test": "bun test",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"picomatch": "^4.0.7",
+		"zod": "^4.6.7"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.4.2",
+		"@types/picomatch": "^4.0.3",
+		"typescript": "^7.0.2"
+	}
+}

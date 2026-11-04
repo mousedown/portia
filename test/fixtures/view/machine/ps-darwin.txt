@@ -1,0 +1,4 @@
+    1  24576   0.0 /sbin/launchd
+  412 1048576  18.2 /Applications/Acme Browser.app/Contents/MacOS/Acme Browser
+  988 524288   0.7 /usr/libexec/acmed
+ 4401 2097152  41.0 /opt/homebrew/bin/bun

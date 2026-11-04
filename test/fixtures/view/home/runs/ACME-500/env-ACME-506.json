@@ -1,0 +1,7 @@
+{
+	"worktree": "/home/acme/.portia/worktrees/acme-app/ACME-506",
+	"branch": "epic/ACME-506",
+	"db": "portia_acme_506",
+	"port": 3102,
+	"envFile": "/home/acme/.portia/worktrees/acme-app/ACME-506/.env.portia"
+}

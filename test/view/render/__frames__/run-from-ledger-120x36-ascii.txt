@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-410                                                                    ! waiting on you . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+   epic     #398 . epic/ACME-410 . started 12h 02m ago . from the ledger
+   progress 8 of 9 landed . 2.77M tokens
+   rework   0% tokens 0% time . first pass 8/8 . critical path 2h08m of 4h40m . 1 decision
+   machine  mem 64% . cpu 37% . disk 312G free
+
+   spine       wave 1      wave 2      wave 3
+   + 411 -+--> + 412
+          +--> + 413
+          +--> + 414
+          +--------------> + 415
+          +--------------> + 416
+          +--------------> ! 418
+          +--------------------------> + 417
+          +--------------------------> + 419
+
+                                                                                                               ^ 1 more
+   wave 1                                                                                           3/3    2h45m   956k
+    + ACME-412  Index archived projects nightly      landed      ### #######  #381   sonnet   attempt 1   45m00s   298k
+    + ACME-413  Rank results by last activity        landed      ### #######  #382   sonnet   attempt 1   45m00s   313k
+    + ACME-414  Highlight the matched words          landed      ### #######  #383   opus     attempt 1   45m00s   345k
+   wave 2                                                                                           2/3    5h17m   803k
+    + ACME-415  Filter by archive date               landed      ### #######  #384   sonnet   attempt 1   45m00s   331k
+    + ACME-416  Search box on the archive page       landed      ### #######  #385   opus     attempt 1   45m00s   378k
+>   ! ACME-418  Backfill the index for old archives  parked      ### .......         opus     attempt 1   24m43s    95k
+                waiting on you . 2h44m  May I add the search index migration to my paths?
+   wave 3                                                                                           2/2    1h45m   664k
+                                                                                                               v 2 more
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-418 . attempt 1 . parked . opus . epic/ACME-418 . port 3101
+
+   proves           F9 . . not yet
+   | May I add the search index migration to my paths?
+
+   up/dn move . right open . g gate matrix . / filter . left back . ? help                                       * live

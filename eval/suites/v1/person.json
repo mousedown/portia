@@ -1,0 +1,18 @@
+{
+	"description": "The scripted person every arm gets. Portia reads it through PORTIA_EVAL_ANSWERS . `unscripted` answers any arm whose session stops on a question no script covers; each answer counts as a decision.",
+	"unscripted": {
+		"answer": "Take the option you recommend and carry on to the end without asking again.",
+		"max": 3
+	},
+	"plan": { "approve": true },
+	"signoff": { "approve": true },
+	"parked": {
+		"default": "Use what the tickets say; if they don't say, take the simplest reading, note what you assumed in your commit message, and carry on.",
+		"byPattern": [
+			{
+				"match": "secret|credential|token|password",
+				"answer": "No. Leave that out and park again if you cannot finish without it."
+			}
+		]
+	}
+}

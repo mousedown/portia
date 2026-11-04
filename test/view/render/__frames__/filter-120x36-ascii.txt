@@ -1,0 +1,36 @@
+
+          o
+     _____|_____    ######=  ######= ######= ########=##= #####=         runs     ! 2 need you . | 1 in session
+      /\  |  /\     ##===##=##====##=##===##====##====##|##===##=        children 2 running . 23 landed this week
+     /  \ | /  \    ######==##|   ##|######==   ##|   ##|#######|        tokens   7.56M . /fx . 14:02
+     \__/ | \__/    ##===== ##|   ##|##===##=   ##|   ##|##===##|
+        __|__       ##|     =######==##|  ##|   ##|   ##|##|  ##|        host     acme-build-01 . up 3d 4h
+      '-------'     ===      ======= ===  ===   ===   ======  ===        cpu      ==------   37%  load 2.1/8c
+                    the quality of mercy is not strained                 memory   =====---   64%  41.2/64 GB
+                                                                         disk     =====---   69%  312G free . slots 3/5
+
+                                                                                                      2 of 6 runs match
+   waiting on you                                                                                                     1
+> ! ACME-410  1 question for you                      ==================--   8/9    9h17m   2.77M tokens
+
+   awaiting judgement                                                                                                 1
+  x ACME-366  -                                       =============-------   2/3    4h49m    610k tokens
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-410                                                                         epic/ACME-410 . started 12h 02m ago
+     + +++ ++! ++   #398 . ACME-418 parked . 2h
+     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+
+  / state:parked state:failed|                                                          2 of 6 . enter keep . esc clear

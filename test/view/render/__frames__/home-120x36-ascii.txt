@@ -1,0 +1,36 @@
+
+          o
+     _____|_____    ######=  ######= ######= ########=##= #####=         runs     ! 2 need you . | 1 in session
+      /\  |  /\     ##===##=##====##=##===##====##====##|##===##=        children 2 running . 23 landed this week
+     /  \ | /  \    ######==##|   ##|######==   ##|   ##|#######|        tokens   7.56M . /fx . 14:02
+     \__/ | \__/    ##===== ##|   ##|##===##=   ##|   ##|##===##|
+        __|__       ##|     =######==##|  ##|   ##|   ##|##|  ##|        host     acme-build-01 . up 3d 4h
+      '-------'     ===      ======= ===  ===   ===   ======  ===        cpu      ==------   37%  load 2.1/8c
+                    the quality of mercy is not strained                 memory   =====---   64%  41.2/64 GB
+                                                                         disk     =====---   69%  312G free . slots 3/5
+
+
+   waiting on you                                                                                                     1
+> ! ACME-410  1 question for you                      ==================--   8/9    9h17m   2.77M tokens
+
+   in session                                                                                                         1
+  \ ACME-500  Self-serve invoices for team accounts   ==========----------   4/8    6h41m    662k tokens
+
+   awaiting judgement                                                                                                 1
+  x ACME-366  -                                       =============-------   2/3    4h49m    610k tokens
+
+   at rest                                                                                                            2
+  ~ ACME-390  Saved carts follow every device         =======-------------   2/6    5h00m    709k tokens
+  o ACME-352  -                                       --------------------     -
+
+   delivered                                                                                                          1
+  * ACME-377  Notification preferences per channel    ====================   7/7   10h55m   2.80M tokens
+
+
+
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-410                                                                         epic/ACME-410 . started 12h 02m ago
+     + +++ ++! ++   #398 . ACME-418 parked . 2h
+     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+
+   up/dn move . right open . a activity . m machine . / filter . o epic PR . n new run . ? help . q quit         * live

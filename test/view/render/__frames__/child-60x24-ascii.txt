@@ -1,0 +1,24 @@
+ o PORTIA > ACME-500 > ACME-505                     | 12:04
+ ----------------------------------------------------------
+  ACME-505 . wave 2  Team admins download an invoice as PDF
+  | running . attempt 2 . sonnet . 12:04
+  127k tokens before . no PR yet
+
+  needs     + ACME-502
+
+  evidence                             0 of 1 proven so far
+
+> R5  .  a team admin downloads an invoice as PDF
+         | attempt 1, not landed: invoice-pdf.spec.ts 5
+         | passed
+
+  gates
+
+  task  try 2  typecheck + lint + related-unit +
+  exit  try 2  running 12s
+        try 1  typecheck + lint + unit x ~
+               | exit gate failed on the rebased head:
+               | unit
+                                                   v 6 more
+
+  up/dn move . enter expand . left back . ? help     * live

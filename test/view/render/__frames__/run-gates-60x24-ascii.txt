@@ -1,0 +1,24 @@
+ o PORTIA > ACME-500  Self-serve invoices for tea~  \ 14:02
+ ----------------------------------------------------------
+  epic     #412 . epic/ACME-500 . 6h 41m . plan 2m old
+  progress 4/8 landed . 662k tokens
+
+            try task type lint unit intg acpt e2e  debt
+  ACME-501   1    +    +    +    +    +    +    +    +
+  ACME-502   1    +    +    +    +    +    +    +    +
+  ACME-503   2    +    +    +    +    +    +    +    +
+  ACME-504   1    +    +    +    +    +    +    +    +
+> ACME-505   2    +    +    +    x    .    .    .    .
+  ACME-506   1    .    .    .    .    .    .    .    .
+
+  epic gate   not run yet
+  often fails intg x 1 of 7, unit x 1 of 7
+  baseline    clean
+                                                     v more
+ ----------------------------------------------------------
+  ACME-505 . try 2 . exit gate 12s . sonnet . port 3101
+  last exit . try 1  typecheck + lint + unit x ~
+  proves     R5 . a team admin downloads an invoice as PDF~
+
+
+  up/dn move . right open . left back . ? help       * live

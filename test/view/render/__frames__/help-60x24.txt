@@ -1,0 +1,24 @@
+ ◆ PORTIA › ACME-500  Self-serve invoices for tea…  ⠙ 14:02
+ ──────────────────────────────────────────────────────────
+  epic     #412 · epic/ACME-500 · 6h 41m · plan 2m old
+ ╭───────────────────────── keys ─────────────────────────╮
+ │                                                        │
+ │  pages          Home › Run › Child › Worker            │
+ │                                                        │
+ │  move          ↑ ↓  j k         top / bottom   home  e…│
+ │  open          →  ⏎  l          back           ←  esc …│
+ │  activity      a                machine        m       │
+ │  gate matrix   g                worker log     w       │
+ │  filter        /                next match     n  N    │
+ │  open the PR   o                epic diff      d       │
+ │  copy          y                editor         e       │
+ │  follow        f                sort runs      s       │
+ │  new run       n                re-read        r       │
+ │  half page     ^d  ^u           archive run    x x     │
+ │  quit          q                                       │
+ │                                                        │
+ │  filter words   state:parked  wave:2  model:opus  live │
+ │  glyphs   · pending  ○ ready  ⠹ running  ! parked  ✗ f…│
+ │           ● done  ✓ landed  – closed  ◐ quiet          │
+
+  esc or ? closes

@@ -1,0 +1,132 @@
+{
+	"version": 1,
+	"at": "2026-10-20T09:00:00.000Z",
+	"plan": {
+		"key": "ACME-390",
+		"summary": "Saved carts follow every device",
+		"scope": "checkout",
+		"scenarios": [
+			{
+				"id": "C1",
+				"text": "a cart saved on one device appears on another"
+			},
+			{
+				"id": "C2",
+				"text": "a guest cart merges into the account cart"
+			},
+			{
+				"id": "C3",
+				"text": "merging keeps the newest quantity"
+			},
+			{
+				"id": "C4",
+				"text": "a removed item stays removed everywhere"
+			}
+		],
+		"children": [
+			{
+				"key": "ACME-391",
+				"summary": "Cart sync contract",
+				"wave": 0,
+				"needs": [],
+				"touches": ["src/acme-391/**"],
+				"requirements": ["C1"],
+				"evidence": "bun test acme-391",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": []
+			},
+			{
+				"key": "ACME-392",
+				"summary": "Store carts per account",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-391",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-392/**"],
+				"requirements": ["C1"],
+				"evidence": "bun test acme-392",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-391"]
+			},
+			{
+				"key": "ACME-394",
+				"summary": "Push cart changes to other sessions",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-391",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-394/**"],
+				"requirements": ["C4"],
+				"evidence": "bun test acme-394",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-391"]
+			},
+			{
+				"key": "ACME-393",
+				"summary": "Merge a guest cart on sign-in",
+				"wave": 1,
+				"needs": [
+					{
+						"key": "ACME-391",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-393/**"],
+				"requirements": ["C2", "C3"],
+				"evidence": "bun test acme-393",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-391"]
+			},
+			{
+				"key": "ACME-395",
+				"summary": "Cart badge shows the synced count",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-394",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-395/**"],
+				"requirements": ["C1"],
+				"evidence": "bun test acme-395",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-394"]
+			},
+			{
+				"key": "ACME-396",
+				"summary": "Conflict notice when two devices disagree",
+				"wave": 2,
+				"needs": [
+					{
+						"key": "ACME-393",
+						"reason": "builds on its contract"
+					}
+				],
+				"touches": ["src/acme-396/**"],
+				"requirements": ["C3"],
+				"evidence": "bun test acme-396",
+				"tier": "standard",
+				"size": "S",
+				"acceptance": {},
+				"blockedBy": ["ACME-393"]
+			}
+		]
+	}
+}

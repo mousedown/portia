@@ -1,0 +1,44 @@
+name: e2e-live
+# Runs test/e2e/fixture.test.ts against GitHub: issues, branches and PRs on
+# mousedown/portia-fixture. It cleans up the branches, open PRs, labels and comments it made.
+#
+# FIXTURE_TOKEN: a fine-grained PAT for mousedown/portia-fixture only, with read/write on
+# contents (branches), pull requests and issues, and read on commit statuses and actions
+# (gh pr checks). Without the secret the job skips.
+permissions:
+  contents: read
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+concurrency:
+  group: e2e-live
+  cancel-in-progress: false
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FIXTURE_TOKEN: ${{ secrets.FIXTURE_TOKEN }}
+    steps:
+      - if: env.FIXTURE_TOKEN == ''
+        run: echo "FIXTURE_TOKEN is not set; skipping the live end-to-end run"
+      - if: env.FIXTURE_TOKEN != ''
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: env.FIXTURE_TOKEN != ''
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.2.17"
+      - if: env.FIXTURE_TOKEN != ''
+        run: bun install --frozen-lockfile
+      - if: env.FIXTURE_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ secrets.FIXTURE_TOKEN }}
+        run: gh auth setup-git
+      - if: env.FIXTURE_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ secrets.FIXTURE_TOKEN }}
+          PORTIA_E2E_LIVE: "1"
+        run: bunx vitest run test/e2e/fixture.test.ts

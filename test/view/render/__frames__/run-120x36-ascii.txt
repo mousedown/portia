@@ -1,0 +1,36 @@
+ o P O R T I A  >  ACME-500  Self-serve invoices for team accounts                                 \ in session . 14:02
+ ----------------------------------------------------------------------------------------------------------------------
+   epic     #412 . epic/ACME-500 . started 6h 41m ago . plan 2m old
+   progress 4 of 8 landed . 662k tokens
+   rework   36% tokens 29% time . first pass 3/4 . critical path 1h48m of 2h24m . 0 decisions
+   machine  mem 64% . cpu 37% . disk 312G free
+
+   spine       wave 1      wave 2      wave 3      wave 4
+   + 501 -+--> + 502 -+--> + 504 ----> . 507
+          |           +--> | 505
+          +--> + 503 ----> / 506 ----------------> . 508
+
+      KEY       SUMMARY                             PHASE       GATES        PR     MODEL                  TIME    TOK
+   wave 0  spine                                                                                   1/1   41m09s   139k
+    + ACME-501  Invoice model and line items        landed      ### #######  #415   opus     attempt 1   41m00s   139k
+   wave 1                                                                                          2/2    1h12m   308k
+    + ACME-502  Price a line item from the plan c~  landed      ### #######  #418   sonnet   attempt 1   28m00s    96k
+    + ACME-503  Tax rules per billing country       landed      ### #######  #421   opus     attempt 2    1h12m   211k
+   wave 2         2 running                                                                        1/3    1h04m   215k
+    + ACME-504  Invoice list for team admins        landed      ### #######  #427   sonnet   attempt 1   33m00s    88k
+>   | ACME-505  Team admins download an invoice a~  exit gate   ### :::::::         sonnet   attempt 2   12m04s   127k+
+    / ACME-506  Email the invoice when a billing ~  working     ::: .......         opus     attempt 1    3m51s
+   wave 3         pending                                                                          0/1
+    . ACME-507  Credit notes reverse a paid line ~  pending
+   wave 4         pending                                                                          0/1
+    . ACME-508  Usage-based lines from metered ev~  pending     needs ACME-506
+
+   epic gate   not run yet . runs once every child has landed
+
+ ----------------------------------------------------------------------------------------------------------------------
+   ACME-505 . attempt 2 . exit gate 12s . sonnet . epic/ACME-505 . port 3101
+   last exit gate . attempt 1   typecheck +  lint +  unit x  integration .  acceptance .  e2e .  debt .
+   proves           R5 . a team admin downloads an invoice as PDF . not yet
+
+
+   up/dn move . right open . g gate matrix . / filter . left back . ? help                                       * live

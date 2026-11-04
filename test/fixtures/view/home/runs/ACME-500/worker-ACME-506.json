@@ -1,0 +1,10 @@
+{
+	"child": "ACME-506",
+	"attempt": 1,
+	"pid": 48211,
+	"proc": "Tue Oct 20 13:58:41 2026",
+	"worktree": "/home/acme/.portia/worktrees/acme-app/ACME-506",
+	"log": "/home/acme/.portia/runs/ACME-500/worker-ACME-506-1.log",
+	"result": "/home/acme/.portia/runs/ACME-500/result-ACME-506-1.json",
+	"startedAt": "2026-10-20T13:58:41.000Z"
+}
