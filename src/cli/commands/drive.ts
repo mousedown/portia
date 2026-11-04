@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { PortiaProblem } from "../../core/exit";
-import { answerable } from "../../core/park";
-import { appendRow, readRows } from "../../core/runlog";
+import { recordParkAnswer } from "../../core/park-answer";
 import { drive } from "../../drive/run";
 import {
 	type DriveResult,
@@ -34,11 +33,6 @@ async function recordAnswer(
 	const { plan, dir } = await loadForCli(parent);
 	if (!plan.children.some((c) => c.key === key))
 		throw new PortiaProblem(`${key} is not a child of ${parent}`);
-	const wait = answerable(readRows(dir).rows.filter((r) => r.child === key));
-	if (!wait)
-		throw new PortiaProblem(
-			`${key} is not parked on a question, nor a park or failure put to a person`,
-		);
 	let answer: string;
 	try {
 		answer = readFileSync(noteFile, "utf8").trim();
@@ -48,13 +42,7 @@ async function recordAnswer(
 		);
 	}
 	if (!answer) throw new PortiaProblem(`the answer file ${noteFile} is empty`);
-	appendRow(dir, {
-		child: key,
-		attempt: wait.attempt,
-		stage: "decision",
-		status: "answer",
-		data: { kind: "parked", by: "person", answer, why: wait.text },
-	});
+	recordParkAnswer(dir, key, answer);
 }
 
 /**
