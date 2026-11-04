@@ -34,7 +34,22 @@ Named for the judge in *The Merchant of Venice*, who hears the evidence before a
 
 ## Install
 
-Portia runs on macOS, Linux and WSL. Installing takes about a minute.
+Portia runs on macOS, Linux and WSL. You need [Claude Code](https://docs.claude.com/claude-code) and the [GitHub CLI](https://cli.github.com), logged in. The installer tells you if either is missing, and adds everything else. Installing takes about a minute.
+
+```sh
+# 1. Install
+curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/install.sh | bash
+
+# 2. In a new terminal, from your repository: the setup wizard detects your settings, press Enter to accept
+portia init
+```
+
+```text
+# 3. In Claude Code, from your repository: run an epic
+/portia PROJ-123
+```
+
+That is all most people need. The steps below say the same thing with more detail.
 
 ### 1. Check what you need
 
@@ -73,7 +88,7 @@ Then start a new Claude Code session and type `/portia-setup`: the skill should 
 
 ### 4. Set up your repository
 
-From the root of your repository, in a terminal:
+The setup wizard writes a profile for your repository. From its root, in a terminal:
 
 ```sh
 portia init
@@ -208,8 +223,10 @@ portia view PROJ-123 PROJ-130  # one child: evidence, gates, files, worker, atte
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/images/home-light.png">
-  <img alt="portia view home: the Portia banner, the build machine's load, and runs grouped as waiting on you, in session, awaiting judgement and at rest" src="docs/images/home.png">
+  <img alt="portia view home: the Portia banner, the build machine's load, runs grouped as waiting on you, in session and awaiting judgement, and a worker's parked question ready to answer" src="docs/images/home.png">
 </picture>
+
+When a worker parks with a question, Home shows it, and you can type your answer right there.
 
 Press `g` on a run for the gate matrix, which shows every child's gates step by step, the steps that fail most often, and whether the base was already failing.
 
