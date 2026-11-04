@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { buildLabel } from "../../core/build";
 import type { Profile } from "../../core/config";
 import { stateFor, type ViewArgs } from "../args";
 import { nodeFs, type ViewFs } from "../model/fs";
@@ -122,6 +123,7 @@ export async function runView(o: {
 	const { stdin, stdout } = process;
 	const homePath = o.home;
 	const runsDir = join(homePath, "runs");
+	const build = buildLabel();
 
 	let reply: string | undefined;
 	let queued = "";
@@ -380,6 +382,7 @@ export async function runView(o: {
 				machine: sampler.view(),
 				repos: repoUrls,
 				jira: o.env.JIRA_BASE_URL,
+				build,
 			},
 			ink,
 			term.size(),

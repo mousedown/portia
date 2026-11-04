@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readHome } from "../../../src/view/model/home";
+import { render } from "../../../src/view/render";
 import {
 	linked,
 	makeCtx,
@@ -128,5 +129,23 @@ describe("the tab bar", () => {
 			"--ascii",
 		]);
 		expect(ascii.split("\n")[0]).toMatch(/^ o P O R T I A {2}> {2}ACME-500 /);
+	});
+});
+
+describe("the build in the footer", () => {
+	const footerOf = (cols: number, build?: string) =>
+		render(
+			initialState(),
+			{ home, build },
+			ink({ depth: 0 }),
+			{ cols, rows: 36 },
+			{ now: NOW, frozen: true },
+		).lines.join("\n");
+	it("names what is running, beside the live mark", () => {
+		expect(footerOf(120, "v0.1.0 cc5400f")).toContain("v0.1.0 cc5400f");
+	});
+	it("leaves it out when narrow, and when the runtime gives none", () => {
+		expect(footerOf(60, "v0.1.0 cc5400f")).not.toContain("cc5400f");
+		expect(footerOf(120)).not.toContain("v0.1.0");
 	});
 });

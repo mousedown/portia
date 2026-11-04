@@ -48,6 +48,8 @@ export interface Models {
 	repos?: Record<string, string>;
 	/** The Jira site, for links to its issues. */
 	jira?: string;
+	/** What this view runs, fixed when it started, so an old view shows as one. */
+	build?: string;
 }
 export interface Ctx {
 	state: ViewState;
@@ -254,7 +256,11 @@ export function live(ctx: Ctx): Line {
 		ctx.tick.now - at < 300 &&
 		ctx.ink.depth !== 0;
 	if (lit) ctx.flags.animating = true;
+	const build = ctx.models.build;
 	return [
+		...(build && !ctx.narrow
+			? [{ text: `${build} · `, role: "faint" as const }]
+			: []),
 		{ text: ctx.g.heartbeat, role: lit ? "accentBright" : "dim" },
 		{ text: " live", role: "dim" },
 	];

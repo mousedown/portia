@@ -43,8 +43,7 @@ const tall = run(
 );
 
 describe("compactMap", () => {
-	it("draws a run too tall for the full map, wave by wave with counts", () => {
-		expect(runMap(ctxOf(), tall, 110)).toEqual([]);
+	it("draws each wave with its counts", () => {
 		const lines = compactMap(ctxOf(), tall, 110).map(text);
 		expect(lines).toHaveLength(1);
 		expect(lines[0]).toMatch(
@@ -85,8 +84,20 @@ describe("compactMap", () => {
 describe("the Run page's shape", () => {
 	const page = (r: RunView, cols = 120, rows = 34) =>
 		runScreen(ctxOf(cols, rows), r).map(text).join("\n");
-	it("falls back to the compact map when the full one is too tall", () => {
-		expect(page(tall)).toMatch(/spine .*▶ wave 1 .*▶ wave 2 .*▶ wave 3/);
+	it("falls back to the compact map only when the tree leaves the list too little", () => {
+		expect(page(tall, 120, 24)).toMatch(
+			/spine .*▶ wave 1 .*▶ wave 2 .*▶ wave 3/,
+		);
+	});
+	it("draws the whole tree for a run with many children when there is room", () => {
+		const out = page(tall, 120, 44);
+		expect(out).not.toMatch(/spine .*▶ wave 1/);
+		for (const k of ["00", "10", "15", "20", "29", "30", "31"])
+			expect(out).toMatch(new RegExp(`(^|[^0-9])${k}( |$)`, "m"));
+		expect(runMap(ctxOf(), tall, 110).length).toBeGreaterThan(8);
+	});
+	it("gives up the tree when the terminal is too narrow, as ever", () => {
+		expect(runMap(ctxOf(), tall, 20)).toEqual([]);
 	});
 	it("keeps the full map when it fits", () => {
 		const small = run(

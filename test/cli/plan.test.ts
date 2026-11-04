@@ -621,3 +621,21 @@ it("writes the plan page, and says which link it already has", async () => {
 	);
 	expect(JSON.parse(again.out)).toEqual({ out: file, url: ARTIFACT });
 });
+
+it("refuses a run another repository owns, for a command that only reads it and one that writes", async () => {
+	const dir = runDir("ACME-187");
+	writeFileSync(join(dir, "repo.json"), JSON.stringify({ repo: "other-repo" }));
+	const out = join(tmpdir(), `portia-ctx-${process.pid}.json`);
+	for (const r of [
+		await portia("plan", "context", "ACME-187", "--out", out),
+		await portia(
+			"plan",
+			"link",
+			"ACME-187",
+			"https://claude.ai/code/artifact/0b1c2d3e-aaaa-bbbb-cccc-123456789abc",
+		),
+	]) {
+		expect(r.code).toBe(11);
+		expect(r.err).toMatch(/ACME-187 is a run of other-repo/);
+	}
+});
