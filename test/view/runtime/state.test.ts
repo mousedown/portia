@@ -535,7 +535,11 @@ describe("Q across runs, and spec claims", () => {
 			HOME,
 			Date.parse(at("14:00:00")),
 		);
-	const ctxOf = (h: typeof home) => ({ home: h, now: Date.parse(at("14:00:00")), rows: 36 });
+	const ctxOf = (h: typeof home) => ({
+		home: h,
+		now: Date.parse(at("14:00:00")),
+		rows: 36,
+	});
 	const Q: Key = { name: "char", ch: "Q" };
 
 	it("Q picks the oldest question across two runs, not the first run's", () => {
@@ -545,11 +549,19 @@ describe("Q across runs, and spec claims", () => {
 		});
 		const r = reduce(initialState(), Q, ctxOf(h));
 		expect(r.state.runKey).toBe("ACME-800");
-		expect(r.state.answer).toMatchObject({ run: "ACME-800", child: "ACME-801" });
+		expect(r.state.answer).toMatchObject({
+			run: "ACME-800",
+			child: "ACME-801",
+		});
 	});
 
 	it("Q skips a spec claim, which is settled by amendment, not by an answer", () => {
-		const claim = { path: "a.feature", scenario: "s", assertion: "a", evidence: "e" };
+		const claim = {
+			path: "a.feature",
+			scenario: "s",
+			assertion: "a",
+			evidence: "e",
+		};
 		const h = homeOf({
 			"ACME-700": [
 				line("ACME-701", "12:00:00", { message: "cannot pass", spec: claim }),
@@ -573,7 +585,11 @@ describe("Q across runs, and spec claims", () => {
 			"ACME-700": [line("ACME-701", "12:00:00", { message: "which?" })],
 		});
 		let st = reduce(initialState(), Q, ctxOf(h)).state;
-		st = reduce(st, { name: "paste", text: "a\r\nb\rc\u001b[31m\u0007\td" }, ctxOf(h)).state;
+		st = reduce(
+			st,
+			{ name: "paste", text: "a\r\nb\rc\u001b[31m\u0007\td" },
+			ctxOf(h),
+		).state;
 		expect(st.answer?.text).toBe("a\nb\nc[31m\td");
 	});
 });

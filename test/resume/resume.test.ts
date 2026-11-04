@@ -1,4 +1,3 @@
-import { recordParkAnswer } from "../../src/core/park-answer";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,6 +5,7 @@ import { expect, it } from "vitest";
 import { recordLandFailure } from "../../src/cli/commands/land";
 import { resumeExit } from "../../src/cli/commands/resume";
 import { testProfile } from "../../src/core/config";
+import { recordParkAnswer } from "../../src/core/park-answer";
 import { appendRow, readRows } from "../../src/core/runlog";
 import {
 	answerQuestions,
