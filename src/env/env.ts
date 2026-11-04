@@ -405,7 +405,14 @@ export async function provision(
 		const steps = await Promise.allSettled([
 			...(d ? [cloneDb(d)] : []),
 			...services.map(startService),
-			must(exec, "bun", ["install", "--frozen-lockfile"], { cwd: worktree }),
+			// A repository with no package.json has nothing for bun to install.
+			...(existsSync(join(worktree, "package.json"))
+				? [
+						must(exec, "bun", ["install", "--frozen-lockfile"], {
+							cwd: worktree,
+						}),
+					]
+				: []),
 		]);
 		const failed = steps.find((r) => r.status === "rejected");
 		if (failed) throw failed.reason;

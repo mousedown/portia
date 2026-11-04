@@ -1,10 +1,10 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "portia",
       "dependencies": {
+        "@clack/core": "^1.5.1",
         "@clack/prompts": "^1.8.1",
         "picomatch": "^4.0.7",
         "pixelmatch": "^8.0.0",

@@ -230,13 +230,34 @@ describe("envUp", () => {
 		).rejects.toThrow(/free memory/);
 		expect(calls).toHaveLength(0);
 	});
-	it("creates the worktree, database, env file and installs; no search service for non-search touches", async () => {
+	it("skips the dependency install in a repository with no package.json", async () => {
 		const { dir, repoRoot, profile } = setup();
 		const { exec, calls, line } = fakeExec((c) => {
 			if (c.cmd === "git" && c.args[0] === "worktree")
 				mkdirSync(join(c.args.at(-2) as string, "packages/acme-web"), {
 					recursive: true,
 				});
+			return undefined;
+		});
+		await envUp(child("ACME-2"), "ACME-0", {
+			exec,
+			profile,
+			repoRoot,
+			dir,
+			freeMb: () => 99_999,
+		});
+		expect(calls.map(line)).not.toContain("bun install --frozen-lockfile");
+	});
+
+	it("creates the worktree, database, env file and installs; no search service for non-search touches", async () => {
+		const { dir, repoRoot, profile } = setup();
+		const { exec, calls, line } = fakeExec((c) => {
+			if (c.cmd === "git" && c.args[0] === "worktree") {
+				mkdirSync(join(c.args.at(-2) as string, "packages/acme-web"), {
+					recursive: true,
+				});
+				writeFileSync(join(c.args.at(-2) as string, "package.json"), "{}");
+			}
 			return undefined;
 		});
 		const env = await envUp(child("ACME-2"), "ACME-0", {
@@ -331,10 +352,12 @@ describe("envDown state", () => {
 
 describe("envUp extras", () => {
 	const wt = (c: { cmd: string; args: string[] }) => {
-		if (c.cmd === "git" && c.args[0] === "worktree" && c.args[1] === "add")
+		if (c.cmd === "git" && c.args[0] === "worktree" && c.args[1] === "add") {
 			mkdirSync(join(c.args.at(-2) as string, "packages/acme-web"), {
 				recursive: true,
 			});
+			writeFileSync(join(c.args.at(-2) as string, "package.json"), "{}");
+		}
 		return undefined;
 	};
 	it("starts the search service for search touches and writes its ports", async () => {
@@ -408,6 +431,7 @@ describe("envUp extras", () => {
 		const { dir, repoRoot, profile } = setup();
 		const worktree = join(profile.worktreesDir, "wt");
 		mkdirSync(join(worktree, "packages/acme-web"), { recursive: true });
+		writeFileSync(join(worktree, "package.json"), "{}");
 		const { exec, calls, line } = fakeExec((c) =>
 			c.cmd === "bun" ? { code: 1, stderr: "boom" } : undefined,
 		);
@@ -435,6 +459,7 @@ describe("envUp extras", () => {
 		const { dir, repoRoot, profile } = setup();
 		const worktree = join(profile.worktreesDir, "wt");
 		mkdirSync(join(worktree, "packages/acme-web"), { recursive: true });
+		writeFileSync(join(worktree, "package.json"), "{}");
 		let inFlight = 0;
 		let most = 0;
 		const exec: Exec = async () => {

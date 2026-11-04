@@ -94,12 +94,16 @@ The setup wizard writes a profile for your repository. From its root, in a termi
 portia init
 ```
 
-Or run `/portia-setup` in Claude Code. Either one detects your tracker, checks and machine, shows them, and asks whether to change anything. Press Enter to accept a default.
+Or run `/portia-setup` in Claude Code. Either one detects your checks and machine, asks whether your tickets live in GitHub Issues or Jira, shows the result, and asks whether to change anything. Press Enter to accept a suggestion, or Tab to edit it.
 
 ```text
-◆  Detected settings
+◆  Where do your tickets live?
+│  ● GitHub Issues (origin is acme/widget) / ○ Jira
+│
+◆  Settings
 │  Tracker        GitHub Issues (acme/widget)
 │  Checks         bun run lint, bun run typecheck, bun run test
+│  Landing        each ticket's PR waits for CI
 │  Workers        4 at once
 │  Models         opus for hard tickets, sonnet for routine ones
 │  Branch prefix  epic/<KEY>
@@ -109,7 +113,7 @@ Or run `/portia-setup` in Claude Code. Either one detects your tracker, checks a
 │  ○ Yes / ● No
 ```
 
-For Jira, set these first so `portia init` can find your tracker:
+For Jira, set these first, then pick Jira when asked:
 
 ```sh
 export JIRA_BASE_URL=https://your-team.atlassian.net

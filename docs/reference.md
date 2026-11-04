@@ -241,7 +241,7 @@ A fully commented profile for a fictional monorepo, showing every option (Postgr
 | `askOnce` | `false` | Ask every open question before wave 0: `portia questions` collects them, `dispatch` refuses until `portia answer` has recorded an answer to each, and each brief carries the answers. See [Open questions](#open-questions). |
 | `denyRules` | — | Claude Code permission deny rules `portia permissions` adds to the checkout's local settings. |
 | `notify` | `{ remindMin: 30 }` | How a park for the person is announced: a desktop notification, then once more after `remindMin` minutes if still unanswered. `onPark` replaces the desktop notification with a command (`{parent}`, `{child}`, `{question}`, `{attempt}`); `false` switches it off. See [Parked questions](#parked-questions). |
-| `workers` | `{ mode: "subagent" }` | How workers run. `mode`: `"subagent"` (a background subagent in the orchestrator's session) or `"detached"` (a headless process the CLI starts; see [Detached workers](#detached-workers); `portia drive` requires it). `command` (default `"claude"`), `args` (default `["--output-format", "stream-json", "--verbose"]`; Portia adds `--settings <file> --add-dir <run dir> --tools <role's tools> --strict-mcp-config --mcp-config <file> -p --model <model>` after them) `stallMin` (default `20`; keep it longer than your slowest quiet command), `accounts` (default `[]`), `limitCooldownMin` (default `60`) and `roles` (default `{}`) apply only to detached workers; see [Accounts](#accounts) and [Worker tools](#worker-tools). |
+| `workers` | `{ mode: "subagent" }`; `portia init` writes `"detached"` | How workers run. `mode`: `"subagent"` (a background subagent in the orchestrator's session) or `"detached"` (a headless process the CLI starts; see [Detached workers](#detached-workers); `portia drive` requires it). `command` (default `"claude"`), `args` (default `["--output-format", "stream-json", "--verbose"]`; Portia adds `--settings <file> --add-dir <run dir> --tools <role's tools> --strict-mcp-config --mcp-config <file> -p --model <model>` after them) `stallMin` (default `20`; keep it longer than your slowest quiet command), `accounts` (default `[]`), `limitCooldownMin` (default `60`) and `roles` (default `{}`) apply only to detached workers; see [Accounts](#accounts) and [Worker tools](#worker-tools). |
 
 ### GitHub keys
 
@@ -393,7 +393,7 @@ The skill plans, then runs `portia drive` and acts only on the stop it names (se
 
 ### Detached workers
 
-By default each worker is a background subagent in the orchestrator's Claude Code session, so it stops when that session does. With `workers.mode: "detached"`, the CLI starts each worker itself as a headless process that outlives the orchestrator:
+Without a `workers` setting, each worker is a background subagent in the orchestrator's Claude Code session, so it stops when that session does. `portia init` writes `workers.mode: "detached"`, and `portia drive` requires it. With that mode, the CLI starts each worker itself as a headless process that outlives the orchestrator:
 
 1. `portia dispatch` adds `"worker":"detached"` to its JSON, which tells the skill to start no subagent.
 2. `portia worker start <KEY> --parent <PARENT>` renders the brief and runs `<command> <args…> --settings <file> --add-dir <run dir> -p --model <model>` in the child's worktree, with the brief on stdin and its output appended to a log in the run directory. It records the pid, the process's start time, the log, the result file and the start time in `worker-<KEY>.json`. The brief tells the worker to write its one JSON result to `result-<KEY>-<attempt>.json` as well as sending it; when that file is missing, the text of the log's final `result` line is read instead. `--note-file <file>` appends the file to the brief under "Answer from the person", for a redispatch that carries a person's answer or notes. It refuses an attempt whose worker still runs or has finished uncollected, and stops an older attempt's worker (SIGTERM, then SIGKILL) before starting a newer one in the same worktree.
@@ -603,8 +603,8 @@ Every command runs from the target repository's root.
 | `portia design check <KEY> --parent <PARENT>` | Compare the child's rendered route against its design frames. |
 | `portia ledger <KEY> [--print]` | Rewrite the ledger region of the epic PR body (or print it). |
 | `portia epic <PARENT>` | Run the epic gate and mark the epic PR ready for review. |
-| `portia init [--yes [--answers <file>]] [--force]` | Interview the person and write a profile; `--yes` takes the detected defaults, overlaid with a JSON file of answers. |
-| `portia init --detect` | Print the detected defaults and the two profile paths as JSON; writes nothing. |
+| `portia init [--yes [--answers <file>]] [--force]` | Interview the person and write a profile at the repository's root; `--yes` takes the detected defaults, overlaid with a JSON file of answers, and refuses when the tracker is ambiguous and the answers name none. Check commands come from `package.json`, a `Makefile`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Package.swift` or an Xcode project. With no CI config it writes `directLand`. |
+| `portia init --detect` | Print the detected defaults, the tracker signal, the check candidates and the two profile paths as JSON; writes nothing. |
 | `portia view [RUN [CHILD]] [--plain\|--json\|--frame]` | Read-only: browse every run, one run or one child, live. Plain tables when piped. See [Watching runs](#watching-runs-portia-view). |
 | `portia version` | Print the version. |
 
