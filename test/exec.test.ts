@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
 	existsSync,
 	mkdirSync,
@@ -58,16 +58,17 @@ await spawnExec("sh", ["-c", "echo $$ > ${pidFile}; sleep 30"], { timeoutMs: 60_
 	const exited = new Promise((r) => portia.on("exit", r));
 	portia.kill("SIGTERM");
 	await exited;
-	// The group's end is not instant, and a busy machine takes longer: wait for it, up to a limit.
-	const gone = () => {
-		try {
-			process.kill(-pid, 0);
-			return false;
-		} catch {
-			return true;
-		}
-	};
-	for (let i = 0; i < 100 && !gone(); i++)
+	// Signal 0 also answers for a zombie, which a CI runner's init may never reap, so ask who
+	// is still running. A failure names them, which tells a slow reap from a real survivor.
+	const running = () =>
+		spawnSync("ps", ["-A", "-o", "pgid=,stat=,pid=,command="], {
+			encoding: "utf8",
+		})
+			.stdout.split("\n")
+			.map((l) => l.trim().split(/\s+/))
+			.filter(([pgid, stat]) => Number(pgid) === pid && !stat?.startsWith("Z"))
+			.map((f) => f.join(" "));
+	for (let i = 0; i < 100 && running().length; i++)
 		await new Promise((r) => setTimeout(r, 50));
-	expect(gone()).toBe(true);
+	expect(running()).toEqual([]);
 });
