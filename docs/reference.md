@@ -134,7 +134,7 @@ For a **Jira** tracker you also need `JIRA_BASE_URL`, `JIRA_EMAIL` and `JIRA_API
 
 ## Install
 
-See [Get started](../README.md#get-started) in the README. The one-line `scripts/install.sh` installs Bun if it is missing, clones the latest release into `~/.portia/src`, links `src/cli/main.ts` into `~/.bun/bin/portia` and each skill in `skills/` (`portia`, `portia-setup`) into `$CLAUDE_CONFIG_DIR/skills/` (`~/.claude/skills/` when that is unset). Run from a checkout, it links that checkout instead. `--ref <tag>` picks a version, `--design` adds Chromium, and `--uninstall` removes the links and keeps `~/.portia`. The other route is `bun add -g @mousedown/portia` for the CLI with the Claude Code plugin (`/plugin install portia --marketplace mousedown/portia`) for the skills, namespaced as `/portia:portia` and `/portia:portia-setup`.
+See [Install](../README.md#install) in the README. The one-line `scripts/install.sh` installs Bun if it is missing, clones the latest release into `~/.portia/src`, links `src/cli/main.ts` into `~/.bun/bin/portia` and each skill in `skills/` (`portia`, `portia-setup`) into `$CLAUDE_CONFIG_DIR/skills/` (`~/.claude/skills/` when that is unset). Run from a checkout, it links that checkout instead. `--ref <tag>` picks a version, `--design` adds Chromium, and `--uninstall` removes the links and keeps `~/.portia`. From the first release, `bun add -g @mousedown/portia` will also install the CLI, with the Claude Code plugin (`/plugin install portia --marketplace mousedown/portia`) for the skills, namespaced as `/portia:portia` and `/portia:portia-setup`. Until then the package is not on npm, so use the script.
 
 ---
 
