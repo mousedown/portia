@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { PortiaProblem } from "./exit";
 
 export interface ExecResult {
@@ -36,14 +36,20 @@ const killGroup = (pid: number) => {
  * Timed commands still running. A detached group is out of reach of a Ctrl-C or of the
  * session ending, so while any runs Portia kills them on its own exit or on SIGINT and
  * SIGTERM, then lets the signal take its default course.
+ *
+ * A command holds the listeners from before it is spawned: a stop that arrives once the
+ * child exists must find them in place, or it kills Portia and leaves the group running.
+ * A listener only runs on the event loop, so none can run between the spawn and `groups.add`.
  */
 const groups = new Set<number>();
+let holds = 0;
 const onExit = () => {
 	for (const pid of groups) killGroup(pid);
 };
 const onSignal = (sig: NodeJS.Signals) => {
 	onExit();
 	groups.clear();
+	holds = 0;
 	unlisten();
 	process.kill(process.pid, sig);
 };
@@ -52,28 +58,46 @@ function unlisten() {
 	process.off("SIGINT", onSignal);
 	process.off("SIGTERM", onSignal);
 }
-function watch(pid: number) {
-	if (groups.size === 0) {
+function hold() {
+	if (holds++ === 0) {
 		process.on("exit", onExit);
 		process.on("SIGINT", onSignal);
 		process.on("SIGTERM", onSignal);
 	}
-	groups.add(pid);
 }
-function unwatch(pid: number) {
-	if (groups.delete(pid) && groups.size === 0) unlisten();
+function release() {
+	if (holds > 0 && --holds === 0) unlisten();
 }
 
 export const spawnExec: Exec = (cmd, args, opts = {}) =>
 	new Promise((resolve, reject) => {
+		const timed = opts.timeoutMs !== undefined;
+		if (timed) hold();
+		// `error` and `close` can both fire, and a spawn that throws fires neither.
+		let held = timed;
+		const letGo = () => {
+			if (held) release();
+			held = false;
+		};
 		// A timed command leads its own process group, so a kill reaches what `sh -c` started.
-		const child = spawn(cmd, args, {
-			cwd: opts.cwd,
-			env: { ...process.env, ...opts.env },
-			detached: opts.timeoutMs !== undefined,
-		});
-		const group = opts.timeoutMs !== undefined ? child.pid : undefined;
-		if (group !== undefined) watch(group);
+		let child: ChildProcessWithoutNullStreams;
+		try {
+			child = spawn(cmd, args, {
+				cwd: opts.cwd,
+				env: { ...process.env, ...opts.env },
+				detached: timed,
+			});
+		} catch (e) {
+			letGo();
+			throw e;
+		}
+		const group = timed ? child.pid : undefined;
+		if (group !== undefined) groups.add(group);
+		const done = () => {
+			clearTimeout(timer);
+			if (group !== undefined) groups.delete(group);
+			letGo();
+		};
 		let stdout = "";
 		let stderr = "";
 		let timedOut = false;
@@ -98,13 +122,11 @@ export const spawnExec: Exec = (cmd, args, opts = {}) =>
 			stderr = bound(stderr + d);
 		});
 		child.on("error", (e) => {
-			clearTimeout(timer);
-			if (group !== undefined) unwatch(group);
+			done();
 			reject(e);
 		});
 		child.on("close", (code) => {
-			clearTimeout(timer);
-			if (group !== undefined) unwatch(group);
+			done();
 			stdout = trim(stdout);
 			stderr = trim(stderr);
 			resolve(
