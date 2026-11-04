@@ -18,7 +18,7 @@ import {
 } from "../common";
 import { compose } from "../frame";
 import { GRID_LABEL, machineTail } from "../machine";
-import { runMap } from "../map";
+import { compactMap, runMap } from "../map";
 import { footer } from "../overlays";
 import type { Line, Span } from "../text";
 import { lineWidth, sp } from "../text";
@@ -49,6 +49,8 @@ export function sourceNote(ctx: Ctx, r: RunView): string {
 
 /** Rows the children list keeps under the map before the map gives way. */
 const MAP_MIN_LIST = 16;
+/** The same for the compact map, which costs a row or two and so gives way far later. */
+const COMPACT_MIN_LIST = 8;
 
 type Part = { spans: Span[]; drop: number };
 
@@ -227,17 +229,33 @@ export function runScreen(ctx: Ctx, r: RunView): Line[] {
 		epicRow(ctx, r),
 		progressRow(ctx, r),
 	];
+	if (r.planUrl)
+		top.push(
+			gridRow(ctx, "plan", [
+				{
+					spans: linked([{ text: r.planUrl, role: "accent" }], r.planUrl),
+					drop: 0,
+				},
+			]),
+		);
 	const figs = ctx.size.rows >= 28 ? reworkRow(ctx, r) : undefined;
 	if (figs) top.push(figs);
 	const mach = ctx.size.rows >= 32 ? machineRow(ctx) : undefined;
 	if (mach) top.push(mach);
-	// The run's shape over the list, while the list keeps 12 rows under it.
+	// The run's shape over the list: the full map while the list keeps its rows under it,
+	// else the compact one, so a run with waves always shows them.
 	if (!matrix) {
-		const map = runMap(ctx, r, ctx.W - indent(ctx));
-		if (
-			map.length &&
-			ctx.size.rows - top.length - map.length - 1 >= MAP_MIN_LIST
-		)
+		const room = (m: Line[]) => ctx.size.rows - top.length - m.length - 1;
+		const w = ctx.W - indent(ctx);
+		const full = runMap(ctx, r, w);
+		const compact = compactMap(ctx, r, w);
+		const map =
+			full.length && room(full) >= MAP_MIN_LIST
+				? full
+				: compact.length && room(compact) >= COMPACT_MIN_LIST
+					? compact
+					: [];
+		if (map.length)
 			top.push([], ...map.map((l): Line => [sp(indent(ctx) - 1), ...l]));
 	}
 	if (ctx.state.filter?.text)

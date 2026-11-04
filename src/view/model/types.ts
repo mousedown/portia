@@ -195,6 +195,8 @@ export interface RunView {
 	scope?: string;
 	source: Source;
 	planAt?: string;
+	/** The published page of the plan and its waves, from `portia plan link`. */
+	planUrl?: string;
 	skipped: number;
 	group: Group;
 	glyph: RunGlyph;
