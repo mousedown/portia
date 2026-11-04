@@ -47,10 +47,12 @@ export function sourceNote(ctx: Ctx, r: RunView): string {
 	return "";
 }
 
-/** Rows the children list keeps under the map before the map gives way. */
-const MAP_MIN_LIST = 16;
-/** The same for the compact map, which costs a row or two and so gives way far later. */
-const COMPACT_MIN_LIST = 8;
+/**
+ * Rows the children list keeps under the map before the map gives way. The tree is what
+ * the page is for and the list scrolls, so the tree wins while the list stays usable; below
+ * that the compact map, a row or two, takes its place.
+ */
+const MAP_MIN_LIST = 8;
 
 type Part = { spans: Span[]; drop: number };
 
@@ -252,7 +254,7 @@ export function runScreen(ctx: Ctx, r: RunView): Line[] {
 		const map =
 			full.length && room(full) >= MAP_MIN_LIST
 				? full
-				: compact.length && room(compact) >= COMPACT_MIN_LIST
+				: compact.length && room(compact) >= MAP_MIN_LIST
 					? compact
 					: [];
 		if (map.length)
