@@ -19,7 +19,7 @@ import {
 	previousAttempt,
 	readRows,
 } from "../../src/core/runlog";
-import type { RunRow } from "../../src/core/types";
+import type { ChildPlan, RunRow } from "../../src/core/types";
 import { adfToText } from "../../src/plan/adf";
 import { answersSection } from "../../src/questions/questions";
 import { child, parent, spine } from "../helpers/plan";
@@ -158,7 +158,7 @@ describe("the ticket in the brief", () => {
 
 describe("briefVars", () => {
 	it("gives a wave child only its own scenarios", () => {
-		const v = briefVars(plan, plan.children[1]!, env, "desc");
+		const v = briefVars(plan, plan.children[1] as ChildPlan, env, "desc");
 		expect(v.scenarios).toBe("- F2: two");
 		expect(v.role).toContain("wave 1");
 		expect(v.design).toBe("");
@@ -185,7 +185,7 @@ describe("briefVars", () => {
 		);
 	});
 	it("gives the spine every scenario with its acceptance path", () => {
-		const v = briefVars(plan, plan.children[0]!, env, "desc");
+		const v = briefVars(plan, plan.children[0] as ChildPlan, env, "desc");
 		expect(v.scenarios).toContain(
 			"- F1: one (failing test in packages/acme-web/e2e/a.e2e.ts)",
 		);
@@ -239,9 +239,9 @@ describe("briefVars", () => {
 		expect(v.role).toContain("acceptance tests should reuse");
 	});
 	it("says nothing about personas when no child has a design line", () => {
-		expect(briefVars(plan, plan.children[0]!, env, "d").role).not.toContain(
-			"persona",
-		);
+		expect(
+			briefVars(plan, plan.children[0] as ChildPlan, env, "d").role,
+		).not.toContain("persona");
 	});
 });
 

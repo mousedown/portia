@@ -16,7 +16,7 @@ it("names only commands the CLI has", () => {
 	const named = new Set(
 		[...skill.matchAll(/`portia ([a-z-]+)/g)].map((m) => m[1]),
 	);
-	expect([...named].filter((n) => !(n! in commands))).toEqual([]);
+	expect([...named].filter((n) => !((n as string) in commands))).toEqual([]);
 	expect(named.size).toBeGreaterThan(10);
 });
 it("branches only on exit codes 0, 10 and 11", () => {

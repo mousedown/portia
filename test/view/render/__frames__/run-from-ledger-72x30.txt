@@ -4,6 +4,8 @@
   progress 8/9 landed · 2.77M tokens
   rework   0% · 1st pass 8/8 · path 2h08m of 4h40m · 1 decision
 
+  spine ✓1 ──▶ wave 1 ✓3 ──▶ wave 2 !1 ✓2 ──▶ wave 3 ✓2
+
     KEY       SUMMARY                 PHASE                 TIME    TOK
   wave 0  spine                                     1/1   45m00s   351k
   ✓ ACME-411  Search index schema f…  landed      try 1   45m00s   351k
@@ -19,8 +21,6 @@
   wave 3                                            2/2    1h45m   664k
   ✓ ACME-417  Empty state for no re…  landed      try 1   45m00s   301k
   ✓ ACME-419  Keyboard shortcuts in…  landed      try 1   45m00s   362k
-
-
  ──────────────────────────────────────────────────────────────────────
   ACME-418 · try 1 · parked · opus · port 3101
 

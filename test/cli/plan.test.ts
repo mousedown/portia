@@ -563,3 +563,61 @@ it("plan specs names a spec that requests a route another child delivers, which 
 	expect(text.out).toContain("1 coupling(s)");
 	expect(planned.writes).toEqual([]);
 });
+
+const ARTIFACT =
+	"https://claude.ai/code/artifact/0b1c2d3e-aaaa-bbbb-cccc-123456789abc";
+
+it("records the plan page's link, and refuses anything but an artifact link", async () => {
+	const ok = await portia("plan", "link", "acme-187", ARTIFACT);
+	expect(ok.code, ok.err).toBe(0);
+	const saved = JSON.parse(
+		readFileSync(join(runDir("ACME-187"), "plan-link.json"), "utf8"),
+	);
+	expect(saved.url).toBe(ARTIFACT);
+	const bad = await portia("plan", "link", "ACME-187", "https://example.com/x");
+	expect(bad.code).not.toBe(0);
+	expect(
+		JSON.parse(readFileSync(join(runDir("ACME-187"), "plan-link.json"), "utf8"))
+			.url,
+	).toBe(ARTIFACT);
+});
+
+it("writes the plan page, and says which link it already has", async () => {
+	const draft = join(dir, "draft.json");
+	writeFileSync(
+		draft,
+		JSON.stringify({
+			parent: { block: PARENT_BLOCK },
+			children: [
+				{ key: "ACME-201", block: SPINE_BLOCK, needs: [] },
+				{ key: "ACME-202", block: UI_BLOCK, needs: ["ACME-201", "ACME-150"] },
+			],
+		}),
+	);
+	const wrote = await portia("plan", "write", "ACME-187", "--from", draft);
+	expect(wrote.code, wrote.err).toBe(0);
+	const file = join(dir, "page.html");
+	const first = await portia(
+		"plan",
+		"page",
+		"ACME-187",
+		"--out",
+		file,
+		"--json",
+	);
+	expect(first.code, first.err).toBe(0);
+	expect(JSON.parse(first.out)).toEqual({ out: file, url: null });
+	expect(readFileSync(file, "utf8")).toContain(
+		"<title>ACME-187 wave plan</title>",
+	);
+	await portia("plan", "link", "ACME-187", ARTIFACT);
+	const again = await portia(
+		"plan",
+		"page",
+		"ACME-187",
+		"--out",
+		file,
+		"--json",
+	);
+	expect(JSON.parse(again.out)).toEqual({ out: file, url: ARTIFACT });
+});
