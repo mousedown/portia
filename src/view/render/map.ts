@@ -14,9 +14,6 @@ import { lineWidth, sp, strWidth } from "./text";
 
 /** Cells between two columns: room for a branch, a merge and `▶ `. */
 const GAP = 7;
-/** Rows of nodes the map draws at most; a taller run keeps only its list. */
-export const MAP_MAX_ROWS = 8;
-
 const UP = 1;
 const DOWN = 2;
 const LEFT = 4;
@@ -122,8 +119,8 @@ function place(r: RunView, edges: Map<string, string[]>): Map<string, Node> {
 }
 
 /**
- * The map in lines, or none when it does not fit `w` cells and `MAP_MAX_ROWS` rows,
- * or when the run has a single wave and so no shape to show.
+ * The map in lines, or none when it does not fit `w` cells, or when the run has a single
+ * wave and so no shape to show. How many rows it may take is the page's call.
  */
 export function runMap(ctx: Ctx, r: RunView, w: number): Line[] {
 	const waves = new Set(r.children.map((c) => c.wave));
@@ -131,7 +128,6 @@ export function runMap(ctx: Ctx, r: RunView, w: number): Line[] {
 	const edges = waitEdges(r.children);
 	const nodes = place(r, edges);
 	const rows = Math.max(...[...nodes.values()].map((n) => n.row)) + 1;
-	if (rows > MAP_MAX_ROWS) return [];
 	const short = shortKeys(r.children.map((c) => c.key));
 	const KW = Math.max(...r.children.map((c) => strWidth(short(c.key))));
 	// A node is its glyph, a space and its key.
