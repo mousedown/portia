@@ -94,3 +94,58 @@ describe("recording a person's answer to a parked child", () => {
 		expect(answeredSince(readRows(dir).rows)).toEqual([]);
 	});
 });
+
+describe("a question's suggested answers", () => {
+	const row = (data: Record<string, unknown>) => ({
+		at: "2026-11-03T10:00:00.000Z",
+		child: "A-2",
+		attempt: 1,
+		stage: "result" as const,
+		status: "parked" as const,
+		data: { message: "Which?", ...data },
+	});
+	it("waitOf exposes them from the result row", () => {
+		expect(
+			waitOf([row({ options: ["a", "b"], recommended: 1 })]),
+		).toMatchObject({
+			kind: "question",
+			options: ["a", "b"],
+			recommended: 1,
+		});
+	});
+	it("has none without them, and never parses them out of the prose", () => {
+		const w = waitOf([row({ message: "Which?\n1. a\n2. b\n(recommended)" })]);
+		expect(w).toMatchObject({ kind: "question" });
+		expect(w).not.toHaveProperty("options");
+		expect(w).not.toHaveProperty("recommended");
+	});
+	it("a bad value in the log is dropped when read", () => {
+		const w = waitOf([row({ options: "a,b", recommended: 9 })]);
+		expect(w).toMatchObject({ kind: "question", text: "Which?" });
+		expect(w).not.toHaveProperty("options");
+		expect(waitOf([row({ options: ["a", "b"], recommended: 9 })])).toEqual(
+			expect.not.objectContaining({ recommended: 9 }),
+		);
+	});
+	it("a land's park and a failure decided as park offer none", () => {
+		const land = {
+			...row({}),
+			stage: "land" as const,
+			data: { reason: "conflict", options: ["a", "b"] },
+		};
+		expect(waitOf([land])).not.toHaveProperty("options");
+		const failed = waitOf([
+			{ ...row({ options: ["a", "b"] }), status: "failed" as const },
+			{
+				at: "2026-11-03T10:00:01.000Z",
+				child: "A-2",
+				attempt: 1,
+				stage: "decision" as const,
+				status: "park",
+				data: { kind: "failure", why: "stuck" },
+			},
+		]);
+		expect(failed).toMatchObject({ kind: "question" });
+		expect(failed).not.toHaveProperty("options");
+	});
+});

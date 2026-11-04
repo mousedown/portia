@@ -27,4 +27,4 @@
       ▎ the shared rate table had to learn about reverse charge
                                                               ↓ 10 more
 
-  ↑↓ move · ⏎ expand · o PR · ← back · ? help                    ● live
+  ↑↓ move · ⏎ expand · ← back · ? help   ! 1 question · ← home   ● live

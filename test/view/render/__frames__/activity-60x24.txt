@@ -21,4 +21,4 @@
   13:12  ACME-505  ✓ task gate    type ✓ lint ✓ rel-u ✓
                                                  ↓ 185 more
 
-  ↑↓ move · ⏎ expand · ← home · ? help · q quit      ● live
+  ← home · ? help · q quit   ! 1 question · ← home   ● live

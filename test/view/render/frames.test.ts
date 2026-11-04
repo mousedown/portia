@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { memoryFs } from "../../../src/view/model/fs";
-import { fixtureFs, frame, SCREENS, visible } from "../helpers";
+import { answeredFs, askingFs, frame, SCREENS, visible } from "../helpers";
 
 const SIZES: [number, number][] = [
 	[120, 36],
@@ -84,7 +84,7 @@ describe("frames", () => {
 	});
 
 	it("a home with no plan snapshots keeps each row together at 180 columns", async () => {
-		const fs = fixtureFs({}, (p) => !p.endsWith("plan.json"));
+		const fs = answeredFs((p) => !p.endsWith("plan.json"));
 		const out = frame([...size(180, 24), "--depth", "0"], { fs });
 		await expect(`${out}\n`).toMatchFileSnapshot(file("home-no-plans-180x24"));
 		// No hole after the summary: the bar follows it, every bar in one column, and
@@ -98,6 +98,34 @@ describe("frames", () => {
 		expect(rows.find((l) => l.includes("ACME-500"))).toContain("#412");
 	});
 
+	for (const [w, h] of [...SIZES, [120, 33] as [number, number]]) {
+		const options = {
+			options: [
+				"Allow it, read-only",
+				"Put the migration in another child's paths",
+				"Build the index without a migration",
+			],
+			recommended: 0,
+		};
+		it(`the question panel at ${w}×${h}`, async () => {
+			const fs = askingFs(options);
+			const args = [...size(w, h), "--depth", "0"];
+			await expect(`${frame(args, { fs })}\n`).toMatchFileSnapshot(
+				file(`home-panel-${w}x${h}`),
+			);
+			const ascii = frame([...args, "--ascii"], { fs });
+			expect(/^[\x20-\x7e\n]*$/.test(ascii), ascii).toBe(true);
+			await expect(`${ascii}\n`).toMatchFileSnapshot(
+				file(`home-panel-${w}x${h}-ascii`),
+			);
+		});
+		it(`the dock, with no question waiting, at ${w}×${h}`, async () => {
+			await expect(
+				`${frame([...size(w, h), "--depth", "0"], { fs: answeredFs() })}\n`,
+			).toMatchFileSnapshot(file(`home-dock-${w}x${h}`));
+		});
+	}
+
 	it("keeps the hero over a list too long to fit, which scrolls under it", () => {
 		const at29 = frame([...size(120, 29), "--depth", "0"]).split("\n");
 		expect(at29[2]).toContain("██████╗");
@@ -110,7 +138,9 @@ describe("frames", () => {
 	});
 
 	it("puts the strip under the hero when its graphics do not fit beside it", () => {
-		const out = frame([...size(72, 30), "--depth", "0"]).split("\n");
+		const out = frame([...size(72, 30), "--depth", "0"], {
+			fs: answeredFs(),
+		}).split("\n");
 		expect(out[2]).toContain("██████╗");
 		expect(out[11]).toMatch(/cpu +[━╸─]+.*mem +[━╸─]+.*disk +[━╸─]+/);
 	});

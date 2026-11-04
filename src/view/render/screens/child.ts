@@ -759,7 +759,6 @@ export const CHILD_HINTS = (c: ChildView): string[] => {
 	return [
 		"↑↓ move",
 		"⏎ expand",
-		c.wait?.kind === "question" && !c.wait.claim ? "Q answer" : "",
 		c.worker?.kind === "detached" ? "w worker log" : "",
 		c.pr ? "o PR" : "",
 		here ? "y copy worktree" : "",
@@ -829,12 +828,6 @@ export function childScreen(ctx: Ctx, r: RunView, c: ChildView): Line[] {
 		if (c.wait.text)
 			body.push(
 				...quote(ctx, c.wait.text, at, ask ? 40 : 2, ask ? "parked" : "dim"),
-			);
-		if (ctx.state.answer?.child === c.key)
-			body.push(
-				[],
-				[sp(at), { text: "your answer", role: "accent" }],
-				...quote(ctx, `${ctx.state.answer.text}${ctx.g.caret}`, at, 40, "ink"),
 			);
 	} else {
 		const msg = lastMessage(ctx, c);

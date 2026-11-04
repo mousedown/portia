@@ -25,6 +25,7 @@ import { detectInk, type Ink } from "../render/ink";
 import { arrivalAt } from "../render/logo";
 import { answerPark } from "./answer";
 import { archiveRun } from "./archive";
+import { refuseAsk, settleAsk } from "./ask";
 import { decode, type Key } from "./keys";
 import {
 	diskPaths,
@@ -373,6 +374,7 @@ export async function runView(o: {
 		if (arrivalStart !== undefined && !arrival) arrivalStart = undefined;
 		const home = homeAt(now);
 		findRepos(home.runs);
+		state = settleAsk(state, home);
 		const out = render(
 			state,
 			{
@@ -519,20 +521,14 @@ export async function runView(o: {
 				try {
 					answerPark(runsDir, e.run, e.child, e.since, e.text);
 				} catch (err) {
-					// The box stays open with the text, so nothing typed is lost.
-					toast((err as Error).message, "failed");
+					// The panel stays on the question with the text, so nothing typed is lost.
+					state = refuseAsk(state, homeAt(Date.now()), (err as Error).message);
 					return full();
 				}
-				state = { ...state, answer: undefined };
+				state = { ...state, ask: undefined, held: undefined };
 				loadAll();
-				const left = homeAt(Date.now(), true).runs.reduce(
-					(n, r) => n + r.questions,
-					0,
-				);
-				toast(
-					`saved · its session picks it up, or portia resume${left ? ` · Q next (${left} waiting)` : ""}`,
-					"dim",
-				);
+				homeAt(Date.now(), true);
+				toast("saved · its session picks it up, or portia resume", "dim");
 				return full();
 			}
 			case "refresh":

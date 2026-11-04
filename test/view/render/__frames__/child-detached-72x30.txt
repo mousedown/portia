@@ -27,4 +27,4 @@
   process   pid 48211 · alive · started 13:58 · log quiet 12s
                                                                ↓ 4 more
 
-  ↑↓ move · ⏎ expand · w worker log · ← back · ? help            ● live
+  ↑↓ move · ⏎ expand · ← back · ? help   ! 1 question · ← home   ● live

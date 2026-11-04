@@ -21,4 +21,4 @@
   13:12  ACME-505  + task gate    type + lint + rel-u +
                                                  v 185 more
 
-  up/dn move . left home . ? help . q quit           * live
+  ? help . q quit         ! 1 question . left home   * live

@@ -33,4 +33,4 @@
 
                                                                                                                v 7 more
 
-   up/dn move . enter expand . o PR . y copy worktree . e editor . left back . ? help                            * live
+   up/dn move . enter expand . o PR . y copy worktree . left back . ? help            ! 1 question . left home   * live

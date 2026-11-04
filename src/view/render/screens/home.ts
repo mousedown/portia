@@ -1,9 +1,14 @@
 import { tokens } from "../../model/format";
 import { runProgress } from "../../model/progress";
 import type { ChildView, RunView } from "../../model/types";
+import {
+	KEY_PAUSE_MS,
+	panelHasKeys,
+	questionsOf,
+	shownQuestion,
+} from "../../runtime/ask";
 import { homeRuns, selectedId } from "../../select";
 import {
-	ageOf,
 	breathFrame,
 	type Ctx,
 	childGlyph,
@@ -23,7 +28,6 @@ import {
 	selected,
 	shortPath,
 	spin,
-	startedAgo,
 	ticking,
 	tilde,
 	underlined,
@@ -37,7 +41,7 @@ import {
 	machineStrip,
 	machineTail,
 } from "../machine";
-import { footer } from "../overlays";
+import { deadline, footer } from "../overlays";
 import {
 	BAR_MAX,
 	BAR_MID,
@@ -64,6 +68,7 @@ import {
 	truncate,
 } from "../text";
 import { phaseWord } from "./children";
+import { askPanel, askPanelLeast, DOCK_AT } from "./panel";
 
 export const GROUP_LABEL = {
 	waiting: "WAITING ON YOU",
@@ -407,9 +412,6 @@ function runRow(ctx: Ctx, r: RunView, c: Cols, isSel: boolean): Line {
 }
 
 const DOCK_ORDER = ["running", "parked", "failed", "ready"];
-/** The list's key column: the dock's key and marks start here, a child's glyph two before. */
-const DOCK_AT = 4;
-
 function dockChildren(r: RunView): ChildView[] {
 	return DOCK_ORDER.flatMap((s) =>
 		r.children.filter((c) => c.state === s),
@@ -552,7 +554,7 @@ function subhead(ctx: Ctx, left: Line, m: number, n: number): Line {
 export const HOME_HINTS = (waiting: boolean): string[] => [
 	"↑↓ move",
 	"→ open",
-	waiting ? "Q answer" : "",
+	waiting ? "⏎ answer" : "",
 	"a activity",
 	"/ filter",
 	"n new",
@@ -566,6 +568,22 @@ const HERO_MIN_BODY = 8;
 const DOCK_MAX = 7;
 /** The machine strip under the compact header needs this many rows. */
 const STRIP_MIN_ROWS = 20;
+/** List rows the panel always leaves, and the most it leaves them if its choices still fit. */
+const LIST_LEAST = 3;
+const LIST_WANTED = 5;
+
+/** The panel's keys, for what it is doing now. */
+function panelHints(ctx: Ctx): Line {
+	const q = shownQuestion(ctx.state, home(ctx));
+	const typing = !!ctx.state.ask?.text;
+	const choices = !!q?.options?.length;
+	return hints(ctx, [
+		choices && !typing ? "↑↓ choose" : "",
+		"⏎ send",
+		!typing && questionsOf(home(ctx)).length > 1 ? "tab next" : "",
+		typing && choices ? "esc choices" : "esc list",
+	]);
+}
 
 export function homeScreen(ctx: Ctx): Line[] {
 	const h = home(ctx);
@@ -588,14 +606,40 @@ export function homeScreen(ctx: Ctx): Line[] {
 	);
 	const selRun = runs.find((r) => r.key === sel);
 	const body = runsBody(ctx, runs, sel);
-	const d = dock(ctx, selRun, Math.max(8, ...h.runs.map((r) => r.key.length)));
+	const listK = Math.max(8, ...h.runs.map((r) => r.key.length));
+	const q = shownQuestion(ctx.state, h);
+	const focused = panelHasKeys(ctx.state, h, ctx.tick.now);
+	const { lastKeyAt } = ctx.state;
+	// Paint again the moment the pause ends, when that is what the panel waits for.
+	if (q && !focused && lastKeyAt !== undefined)
+		if (lastKeyAt + KEY_PAUSE_MS > ctx.tick.now)
+			deadline(ctx, lastKeyAt + KEY_PAUSE_MS);
+	// The panel grows as far as the list allows; past that its question scrolls inside it.
+	const dockFor = (top: number): Line[] => {
+		if (!q) return dock(ctx, selRun, listK);
+		const most = ctx.size.rows - top - 2 - LIST_LEAST;
+		const wanted = ctx.size.rows - top - 2 - LIST_WANTED;
+		return askPanel(
+			ctx,
+			q,
+			listK,
+			focused,
+			Math.min(most, Math.max(wanted, askPanelLeast(q))),
+		);
+	};
+	const offered =
+		!ctx.state.filter && !!q && questionsOf(h).some((x) => x.run === sel);
 	const foot = footer(
 		ctx,
-		hints(ctx, HOME_HINTS(h.runs.some((r) => r.questions > 0))),
+		focused ? panelHints(ctx) : hints(ctx, HOME_HINTS(offered)),
 		{
 			m: runs.length,
 			n: h.runs.length,
 		},
+	);
+	const tallest = Math.max(
+		ctx.size.rows < 24 ? 0 : DOCK_MAX,
+		q ? askPanel(ctx, q, listK, focused).length : 0,
 	);
 	// The hero stays while the list keeps a useful window, scrolling under it; the
 	// tallest dock counts, so moving the selection never takes the hero away.
@@ -605,10 +649,7 @@ export function homeScreen(ctx: Ctx): Line[] {
 	const stripUnder = !graphicMach.length && strip.length > 0;
 	const heroFits =
 		ctx.size.cols >= HERO_WIDTH + 6 &&
-		ctx.size.rows -
-			(HERO_ROWS + 3 + (stripUnder ? 1 : 0)) -
-			(ctx.size.rows < 24 ? 0 : DOCK_MAX) -
-			2 >=
+		ctx.size.rows - (HERO_ROWS + 3 + (stripUnder ? 1 : 0)) - tallest - 2 >=
 			HERO_MIN_BODY;
 	if (heroFits) {
 		const art = hero(ctx.ink, {
@@ -678,22 +719,23 @@ export function homeScreen(ctx: Ctx): Line[] {
 			sel: body.sel,
 			items: body.items,
 			scrollKey: "home:runs",
-			dock: d,
+			dock: dockFor(top.length),
 			footer: foot,
 		});
 	}
+	const top: Line[] = [
+		compactHeader,
+		...(strip.length ? [[sp(indent(ctx)), ...strip]] : []),
+		rule(ctx),
+		subhead(ctx, [], runs.length, h.runs.length),
+	];
 	return compose(ctx, {
-		top: [
-			compactHeader,
-			...(strip.length ? [[sp(indent(ctx)), ...strip]] : []),
-			rule(ctx),
-			subhead(ctx, [], runs.length, h.runs.length),
-		],
+		top,
 		body: body.lines,
 		sel: body.sel,
 		items: body.items,
 		scrollKey: "home:runs",
-		dock: d,
+		dock: dockFor(top.length),
 		footer: foot,
 	});
 }

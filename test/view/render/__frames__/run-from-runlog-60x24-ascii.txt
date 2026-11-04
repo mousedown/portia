@@ -21,4 +21,4 @@
   last exit  type + lint + unit + intg + acpt + e2e + debt~
   | CI failed on PR #360
 
-  up/dn move . right open . left back . ? help       * live
+  left back . ? help      ! 1 question . left home   * live

@@ -21,4 +21,4 @@
                ▎ unit
                                                    ↓ 6 more
 
-  ↑↓ move · ⏎ expand · ← back · ? help               ● live
+  ↑↓ move · ← back · ? help  ! 1 question · ← home   ● live

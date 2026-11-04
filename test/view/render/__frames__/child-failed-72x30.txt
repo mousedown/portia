@@ -27,4 +27,4 @@
   session   ran inside the orchestrator's session
                                                                ↓ 7 more
 
-  ↑↓ move · ⏎ expand · o PR · y copy worktree · ← back · ? help  ● live
+  ↑↓ move · ⏎ expand · ← back · ? help   ! 1 question · ← home   ● live

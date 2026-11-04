@@ -33,4 +33,4 @@
    attempts                                                                                                           1
                                                                                                                ↓ 7 more
 
-   ↑↓ move · ⏎ expand · o PR · y copy worktree · e editor · ← back · ? help                                      ● live
+   ↑↓ move · ⏎ expand · o PR · y copy worktree · e editor · ← back · ? help              ! 1 question · ← home   ● live

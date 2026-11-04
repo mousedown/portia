@@ -21,4 +21,4 @@
   task  try 1  typecheck ✓ lint ✓ related-unit ✓
                                                    ↓ 6 more
 
-  ↑↓ move · ⏎ expand · Q answer · ← back · ? help    ● live
+  ↑↓ move · ← back · ? help  ! 1 question · ← home   ● live

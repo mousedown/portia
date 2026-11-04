@@ -1,3 +1,4 @@
+import { settleAsk } from "../runtime/ask";
 import type { ViewState } from "../runtime/state";
 import {
 	type Ctx,
@@ -81,7 +82,8 @@ export function render(
 	size: Size,
 	tick: Tick,
 ): RenderOut {
-	const ctx = makeCtx(state, models, effectiveInk(ink, state), size, tick);
+	const shown = settleAsk(state, models.home);
+	const ctx = makeCtx(shown, models, effectiveInk(ink, shown), size, tick);
 	const spans = screen(ctx).map((l) =>
 		lineWidth(l) > ctx.W ? truncate(l, ctx.W) : l,
 	);

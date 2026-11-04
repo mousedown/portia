@@ -33,4 +33,4 @@
    proves           R5 . a team admin downloads an invoice as PDF . not yet
 
 
-   up/dn move . right open . g gate matrix . / filter . left back . ? help                                       * live
+   up/dn move . right open . g gate matrix . / filter . left back . ? help            ! 1 question . left home   * live

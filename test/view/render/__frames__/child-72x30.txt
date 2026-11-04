@@ -27,4 +27,4 @@
   files
                                                                ↓ 6 more
 
-  ↑↓ move · ⏎ expand · y copy worktree · ← back · ? help         ● live
+  ↑↓ move · ⏎ expand · ← back · ? help   ! 1 question · ← home   ● live

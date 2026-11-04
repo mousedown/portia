@@ -7,18 +7,18 @@
 
   in session                                              1
   ⠙ ACME-500  Self-serve …  ━━━━╸────  4/8    6h41m    662k
+                                                   ↓ 4 more
 
-  awaiting judgement                                      1
-  ✗ ACME-366  —             ━━━━━━───  2/3    4h49m    610k
 
-  at rest                                                 2
-  ◐ ACME-390  Saved carts…  ━━━──────  2/6    5h00m    709k
-  ○ ACME-352  —             ─────────    —
-                                                   ↓ 1 more
  ──────────────────────────────────────────────────────────
-    ACME-410                           #398 · epic/ACME-410
-    ■  ■■■  ■■■  ■■      8 of 9 landed · 1 question for you
+    ACME-418  Backfill the index for old archives    1 of 1
+    May I add the search index migration to my paths?
+    The backfill needs
+    db/migrations/0042_archive_index.sql, which is outside
+    my declared paths.
+    Without it the index cannot be built on an existing
+    database.
 
-  ! ACME-418  parked              Backfill the index for o…
+    type your answer
 
   : run ACME-4▏10                                  ACME-410

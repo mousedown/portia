@@ -2,23 +2,23 @@
    cpu  ━━━━────────   37% load 2.1/8c    mem  ━━━━━━━╸────   64% 41.2/64 GB   disk ━━━━━━━━────   69% 312G free · slots 3/5
  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-   waiting on you                                                                                                                                                                 1
-▌ ! ACME-410  1 question for you   ━━━━━━━━━━━━━━━━━╸──   8/9    9h17m   2.77M tokens    #398   ACME-418 parked
-
    in session                                                                                                                                                                     1
-  ⠙ ACME-500  —                    ━━━━━━━━━━──────────   4/8    6h41m    662k tokens    #412   ACME-505 task gate ✓ 3/3
+▌ ⠙ ACME-500  —   ━━━━━━━━━━──────────   4/8    6h41m    662k tokens    #412   ACME-505 task gate ✓ 3/3
 
-   awaiting judgement                                                                                                                                                             1
-  ✗ ACME-366  —                    ━━━━━━━━━━━━━───────   2/3    4h49m    610k tokens    #359   ACME-369 land failed
+   awaiting judgement                                                                                                                                                             2
+  ! ACME-410  —   ━━━━━━━━━━━━━━━━━╸──   8/9   10h00m   2.77M tokens    #398   ACME-418 answered
+  ✗ ACME-366  —   ━━━━━━━━━━━━━───────   2/3    4h49m    610k tokens    #359   ACME-369 land failed
 
    at rest                                                                                                                                                                        2
-  ◐ ACME-390  —                    ━━━━━━━━━━──────────   2/4    5h00m    709k tokens    #381   ACME-394 quiet 3h
-  ○ ACME-352  —                    ────────────────────     —                            —      not started
+  ◐ ACME-390  —   ━━━━━━━━━━──────────   2/4    5h00m    709k tokens    #381   ACME-394 quiet 3h
+  ○ ACME-352  —   ────────────────────     —                            —      not started
                                                                                                                                                                            ↓ 1 more
+
  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    ACME-410                                                                                                                                                   #398 · epic/ACME-410
-    ■  ■■■  ■■■  ■■                                                                                                                              8 of 9 landed · 1 question for you
+    ACME-500                                                                                                                                                   #412 · epic/ACME-500
+    ■  ■■  ■■■  ·  ·                                                                                                                                      4 of 8 landed · 2 working
 
-  ! ACME-418  parked              Backfill the index for old archives
+  ⠇ ACME-505  exit gate  12m 04s  Team admins download an invoice as PDF
+  ⠏ ACME-506  working     3m 51s  Email the invoice when a billing period closes
 
-   ↑↓ move · → open · Q answer · a activity · / filter · n new · ? help · q quit                                                                                             ● live
+   ↑↓ move · → open · a activity · / filter · n new · ? help · q quit                                                                                                        ● live

@@ -33,4 +33,4 @@
 
 
 
-   up/dn scroll . a activity . left home . ? help . q quit                                                       * live
+   up/dn scroll . a activity . left home . ? help . q quit                            ! 1 question . left home   * live

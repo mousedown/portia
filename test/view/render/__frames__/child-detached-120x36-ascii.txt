@@ -33,4 +33,4 @@
    | < The file src/invoice/mail/on-close.ts has been updated.
                                                                                                                v 4 more
 
-   up/dn move . enter expand . w worker log . y copy worktree . e editor . left back . ? help                    * live
+   up/dn move . enter expand . w worker log . y copy worktree . left back . ? help    ! 1 question . left home   * live

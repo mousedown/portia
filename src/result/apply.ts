@@ -86,6 +86,7 @@ export async function applyOutcome(
 	let touchesMatched: boolean | undefined;
 	let head: string | undefined;
 	let spec: (SpecClaim & { scenario: string }) | undefined;
+	let suggested: { options?: string[]; recommended?: number } = {};
 	if (!outcome.ok) {
 		status = "failed";
 		message = outcome.error;
@@ -142,6 +143,9 @@ export async function applyOutcome(
 				message = `touched files outside its Touches: ${describeBlockers(split.blockers)}`;
 			} else ripples = split.ripples;
 		}
+		// Suggestions answer the worker's own question, not one the run put in its place.
+		if (status === "parked" && r.options && message === r.question)
+			suggested = { options: r.options, recommended: r.recommended };
 	}
 	const dup = await withLock(
 		ctx.dir,
@@ -163,6 +167,7 @@ export async function applyOutcome(
 					evidence: outcome.ok ? outcome.result.evidence : undefined,
 					head,
 					...(spec ? { spec } : {}),
+					...suggested,
 				},
 			});
 			return undefined;

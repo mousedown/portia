@@ -3,6 +3,7 @@ import type { ChildState } from "../../core/types";
 import { age, clock, hhmm, span, tokens } from "../model/format";
 import type { MachineView } from "../model/machine";
 import type { ChildView, HomeView, Role, RunView } from "../model/types";
+import { questionsOf } from "../runtime/ask";
 import type { ViewState } from "../runtime/state";
 import { parseFilter, subsequence } from "../select";
 import { type Glyphs, glyphs, runGlyph, spinner } from "./glyphs";
@@ -283,7 +284,22 @@ const KEEP = /^(\? |← |q |esc )/;
 export function hints(ctx: Ctx, list: string[], withLive = true): Line {
 	const sep = " · ";
 	const at = indent(ctx);
-	const right = withLive ? live(ctx) : [];
+	const asks = ctx.state.screen === "home" ? 0 : questionsOf(home(ctx)).length;
+	const right: Line = [
+		...(asks
+			? [
+					{
+						text: keyNames(
+							ctx,
+							`! ${asks} ${asks === 1 ? "question" : "questions"} · ← home`,
+						),
+						role: "parked" as const,
+					},
+					...(withLive ? [sp(3)] : []),
+				]
+			: []),
+		...(withLive ? live(ctx) : []),
+	];
 	const room = ctx.W - at - lineWidth(right) - 2;
 	const raw = list.filter(Boolean);
 	const width = () => strWidth(raw.map((h) => keyNames(ctx, h)).join(sep));

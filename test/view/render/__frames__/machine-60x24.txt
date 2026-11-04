@@ -21,4 +21,4 @@
   10 min ago                                           now
                                                   ↓ 16 more
 
-  ↑↓ scroll · a activity · ← home · ? help · q quit  ● live
+  ← home · ? help · q quit   ! 1 question · ← home   ● live
