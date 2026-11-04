@@ -291,7 +291,7 @@ export function aggregate(all: RunResult[], suite: string): Report {
 }
 
 const fmt = (c: Cell | undefined, pct = false): string => {
-	if (!c || !c.n) return "—";
+	if (!c?.n) return "—";
 	const f = (x: number) =>
 		pct ? `${(x * 100).toFixed(0)}%` : x >= 100 ? x.toFixed(0) : x.toFixed(2);
 	return c.n > 1
