@@ -33,4 +33,4 @@
 
                                                                                                                ↓ 5 more
 
-   ↑↓ move · ⏎ expand · y copy worktree · e editor · ← back · ? help                                             ● live
+   ↑↓ move · ⏎ expand · Q answer · y copy worktree · e editor · ← back · ? help                                  ● live

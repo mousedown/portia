@@ -403,6 +403,32 @@ describe("the worker", () => {
 	});
 });
 
+describe("the answer box", () => {
+	it("shows your answer and the typed text under the parked question, at 60 and 120 columns", () => {
+		for (const cols of [60, 120]) {
+			const out = frameOf(
+				["ACME-410", "ACME-418"],
+				(s) => ({
+					...s,
+					answer: {
+						run: "ACME-410",
+						child: "ACME-418",
+						since: "x",
+						text: "use the second",
+					},
+				}),
+				fixtureFs(),
+				cols,
+				40,
+			);
+			const at = out.findIndex((l) => l.includes("your answer"));
+			expect(at, `${cols} columns`).toBeGreaterThan(0);
+			expect(out[at + 1]).toContain("use the second");
+			expect(out.at(-1)).toContain("answering ACME-418");
+		}
+	});
+});
+
 describe("accounts", () => {
 	const RECORD = join(HOME, "runs", "ACME-500", "worker-ACME-506.json");
 	const onWork = () => {

@@ -42,6 +42,8 @@ export interface ViewState {
 	scroll: Record<string, number>;
 	filter?: { text: string; editing: boolean };
 	command?: { text: string; hist: number };
+	/** The answer being typed to a parked child, and the question it was typed against. */
+	answer?: { run: string; child: string; since: string; text: string };
 	history: string[];
 	overlay?: "help";
 	toast?: { text: string; role: Role; until: number };
@@ -92,7 +94,8 @@ export type Effect =
 	| { kind: "launch"; key: string; prompt: string; run?: string }
 	| { kind: "refresh" }
 	| { kind: "theme" }
-	| { kind: "archive"; run: string };
+	| { kind: "archive"; run: string }
+	| { kind: "answer"; run: string; child: string; since: string; text: string };
 
 export interface ReduceCtx {
 	home: HomeView;
@@ -748,6 +751,57 @@ function scrollKey(k: Key, ctx: ReduceCtx): number | "top" | "bottom" | 0 {
 	return 0;
 }
 
+/** The question that has waited longest for the person, across every run. */
+function nextQuestion(home: HomeView) {
+	return home.runs
+		.flatMap((r) =>
+			r.children.flatMap((c) =>
+				c.wait?.kind === "question"
+					? [{ run: r.key, child: c.key, since: c.wait.at }]
+					: [],
+			),
+		)
+		.sort((a, b) => a.since.localeCompare(b.since))[0];
+}
+
+function editAnswer(s: ViewState, k: Key): Reduced {
+	const a = s.answer;
+	if (!a) return { state: s, effects: [] };
+	const set = (text: string): Reduced => ({
+		state: { ...s, answer: { ...a, text } },
+		effects: [],
+	});
+	switch (k.name) {
+		case "esc":
+			return { state: { ...s, answer: undefined }, effects: [] };
+		case "enter": {
+			const text = a.text.trim();
+			return text
+				? {
+						state: s,
+						effects: [
+							{
+								kind: "answer",
+								run: a.run,
+								child: a.child,
+								since: a.since,
+								text,
+							},
+						],
+					}
+				: { state: s, effects: [] };
+		}
+		case "backspace":
+			return set([...a.text].slice(0, -1).join(""));
+		case "char":
+			return set(a.text + (k.ch ?? ""));
+		case "paste":
+			return set(a.text + (k.text ?? ""));
+		default:
+			return { state: s, effects: [] };
+	}
+}
+
 export function reduce(prev: ViewState, k: Key, ctx: ReduceCtx): Reduced {
 	// A toast lasts until the next key: whatever the key does next, it has been read.
 	const s = prev.toast ? { ...prev, toast: undefined } : prev;
@@ -756,6 +810,7 @@ export function reduce(prev: ViewState, k: Key, ctx: ReduceCtx): Reduced {
 	// Raw mode turns off ISIG, so ^z arrives as a key and the view suspends itself.
 	if (k.name === "^z") return { state: s, effects: [{ kind: "suspend" }] };
 	if (s.command) return editCommand(s, k, ctx);
+	if (s.answer) return editAnswer(s, k);
 	if (s.filter?.editing) return editFilter(s, k, ctx);
 	if (s.overlay === "help") {
 		if (k.name === "esc" || (k.name === "char" && k.ch === "?"))
@@ -823,6 +878,19 @@ export function reduce(prev: ViewState, k: Key, ctx: ReduceCtx): Reduced {
 			return st({ ...s, overlay: "help" });
 		case "q":
 			return { state: s, effects: [{ kind: "quit" }] };
+		case "Q": {
+			const q = nextQuestion(ctx.home);
+			if (!q) return st(toast(s, "no questions waiting", ctx.now, "dim"));
+			const here = {
+				...s,
+				screen: "child" as const,
+				runKey: q.run,
+				childKey: q.child,
+				filter: undefined,
+				matrix: false,
+			};
+			return st({ ...go(s, here), answer: { ...q, text: "" } });
+		}
 		// The tab bar's numbers: the pages beside this one, as the bar lists them.
 		case "1":
 			if (side)

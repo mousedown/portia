@@ -462,3 +462,49 @@ describe("effects", () => {
 		expect(press(["?"], s).s.overlay).toBeUndefined();
 	});
 });
+
+describe("answering a parked question", () => {
+	const char = (ch: string): Key => ({ name: "char", ch });
+	const parkedKids = (h: typeof home) =>
+		h.runs.flatMap((r) =>
+			r.children
+				.filter((c) => c.wait?.kind === "question")
+				.map((c) => ({ run: r.key, c })),
+		);
+	it("Q opens the oldest waiting question with an answer box", () => {
+		const r = reduce(initialState(), char("Q"), ctx);
+		const oldest = parkedKids(ctx.home).sort((a, b) =>
+			(a.c.wait?.at ?? "").localeCompare(b.c.wait?.at ?? ""),
+		)[0];
+		expect(oldest).toBeDefined();
+		expect(r.state.screen).toBe("child");
+		expect(r.state.runKey).toBe(oldest?.run);
+		expect(r.state.childKey).toBe(oldest?.c.key);
+		expect(r.state.answer).toMatchObject({ child: oldest?.c.key, text: "" });
+	});
+	it("Q says so when nothing waits", () => {
+		const quiet = { ...ctx, home: { ...ctx.home, runs: [] } };
+		const r = reduce(initialState(), char("Q"), quiet);
+		expect(r.state.answer).toBeUndefined();
+		expect(r.state.toast?.text).toBe("no questions waiting");
+	});
+	it("the box takes every key as text, sends on enter and cancels on esc", () => {
+		let s = reduce(initialState(), char("Q"), ctx).state;
+		s = reduce(s, char("q"), ctx).state;
+		s = reduce(s, char("x"), ctx).state;
+		expect(s.answer?.text).toBe("qx");
+		const sent = reduce(s, { name: "enter" }, ctx);
+		expect(sent.effects[0]).toMatchObject({ kind: "answer", text: "qx" });
+		expect(reduce(s, { name: "esc" }, ctx).state.answer).toBeUndefined();
+	});
+	it("backspace and paste edit the text", () => {
+		let s = reduce(initialState(), char("Q"), ctx).state;
+		s = reduce(s, { name: "paste", text: "abc" }, ctx).state;
+		s = reduce(s, { name: "backspace" }, ctx).state;
+		expect(s.answer?.text).toBe("ab");
+	});
+	it("enter on an empty box sends nothing", () => {
+		const s = reduce(initialState(), char("Q"), ctx).state;
+		expect(reduce(s, { name: "enter" }, ctx).effects).toEqual([]);
+	});
+});
