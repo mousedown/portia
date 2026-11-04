@@ -3,10 +3,10 @@
   epic     #412 · epic/ACME-500 · 6h 41m · plan 2m old
   progress 4/8 landed · 662k tokens
 
-                                                     ↑ more
-  wave 0  spine                                1/1   41m09s
-  ✓ ACME-501  Invoice model an…  landed      try 1   41m00s
-  wave 1                                       2/2    1h12m
+  spine ✓1 ──▶ wave 1 ✓2 ──▶ wave 2 ⠇2 ✓1 ──▶ wave 3 ·1
+  wave 4 ·1
+
+                                                   ↑ 1 more
   ✓ ACME-502  Price a line ite…  landed      try 1   28m00s
   ✓ ACME-503  Tax rules per bi…  landed      try 2    1h12m
   wave 2         2 running                     1/3    1h04m

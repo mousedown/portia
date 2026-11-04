@@ -1,8 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { writeFileAtomic } from "../../core/atomic";
 import { isDryRun, must, realExec } from "../../core/exec";
 import { EXIT, PortiaProblem } from "../../core/exit";
-import { runPath } from "../../core/rundir";
+import { isPlanUrl, PLAN_LINK_FILE, planUrlOf } from "../../core/plan-link";
+import { runDir, runPath } from "../../core/rundir";
 import { readRows } from "../../core/runlog";
 import { rippleWarnings } from "../../plan/check";
 import {
@@ -11,6 +13,7 @@ import {
 	specCoupling,
 } from "../../plan/coupling";
 import { planContext, validatePlan, writePlan } from "../../plan/draft";
+import { planPage } from "../../plan/page";
 import { repoFiles, topLevelOf } from "../../plan/repo";
 import { planRipples } from "../../plan/ripple";
 import { cliContext, loadForCli } from "../context";
@@ -18,7 +21,59 @@ import type { Command } from "../main";
 import { flag } from "./env";
 
 const USAGE =
-	"usage: portia plan context <PARENT> --out <file> | portia plan write <PARENT> --from <file> [--json] | portia plan specs <PARENT> [--dir <checkout>] [--json]";
+	"usage: portia plan context <PARENT> --out <file> | portia plan write <PARENT> --from <file> [--json] | portia plan specs <PARENT> [--dir <checkout>] [--json] | portia plan page <PARENT> --out <file> [--json] | portia plan link <PARENT> <url>";
+
+/** The link `plan link` recorded for this run, if any. Read-only. */
+function recordedLink(key: string): string | undefined {
+	try {
+		return planUrlOf(
+			JSON.parse(readFileSync(join(runPath(key), PLAN_LINK_FILE), "utf8")),
+		);
+	} catch {
+		return undefined;
+	}
+}
+
+/** Writes the plan's page for the Artifact tool to publish, and names the link it already has. */
+async function pageCommand(
+	key: string,
+	out: string,
+	json: boolean,
+	io: Parameters<Command>[1],
+): Promise<number> {
+	// A run under way may hold findings; the page shows the plan whatever they say.
+	const { plan } = await loadForCli(key, { allowFindings: true });
+	writeFileSync(out, planPage(plan, new Date().toISOString()));
+	const url = recordedLink(key);
+	io.out(
+		json
+			? JSON.stringify({ out, url: url ?? null })
+			: `${key}: plan page -> ${out}${url ? ` (published at ${url})` : ""}`,
+	);
+	return EXIT.OK;
+}
+
+/** Records where the plan's page was published, for `portia view` to link. */
+function linkCommand(
+	key: string,
+	url: string,
+	io: Parameters<Command>[1],
+): number {
+	if (!isPlanUrl(url))
+		throw new PortiaProblem(
+			`not a Claude artifact link: ${url} (expected https://claude.ai/artifact/<id> or https://claude.ai/code/artifact/<id>)`,
+		);
+	if (isDryRun()) {
+		io.out(`${key}: would record the plan page ${url}`);
+		return EXIT.OK;
+	}
+	writeFileAtomic(
+		join(runDir(key), PLAN_LINK_FILE),
+		`${JSON.stringify({ url, at: new Date().toISOString() })}\n`,
+	);
+	io.out(`${key}: plan page ${url}`);
+	return EXIT.OK;
+}
 
 /**
  * Read-only: the acceptance specs a spine wrote, checked for a scenario whose spec reaches
@@ -86,6 +141,9 @@ export const planCommand: Command = async (args, io) => {
 	const from = flag(args, "--from");
 	if (key && sub === "specs")
 		return specsCommand(key, flag(args, "--dir"), args.includes("--json"), io);
+	if (key && sub === "page" && out)
+		return pageCommand(key, out, args.includes("--json"), io);
+	if (key && sub === "link" && args[2]) return linkCommand(key, args[2], io);
 	if (!key || !((sub === "context" && out) || (sub === "write" && from)))
 		throw new PortiaProblem(USAGE);
 	const { profile, tracker } = await cliContext();

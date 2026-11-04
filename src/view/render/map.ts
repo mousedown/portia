@@ -1,8 +1,9 @@
+import { waitEdges } from "../../core/plan-edges";
 import type { ChildView, Role, RunView } from "../model/types";
 import type { Ctx } from "./common";
 import { childGlyph, STATE_ROLE } from "./common";
 import type { Line, Span } from "./text";
-import { sp, strWidth } from "./text";
+import { lineWidth, sp, strWidth } from "./text";
 
 /**
  * The Run page's map: the run's shape at a glance. Waves are columns, children are
@@ -76,35 +77,6 @@ interface Node {
 	col: number;
 }
 
-/** Which children each child waits on, inside this run: its needs, else the spine. */
-function edgesOf(r: RunView): Map<string, string[]> {
-	const inRun = new Set(r.children.map((c) => c.key));
-	const spine = r.children.filter((c) => c.wave === 0).map((c) => c.key);
-	const out = new Map<string, string[]>();
-	for (const c of r.children) {
-		const named = (c.needs ?? [])
-			.map((n) => n.key)
-			.filter((k) => inRun.has(k) && k !== c.key);
-		out.set(c.key, named.length || c.wave === 0 ? named : spine);
-	}
-	// A need another need already waits on adds no line: 503 needing the spine and
-	// 502, which needs the spine too, draws only 502 ──▶ 503.
-	const reach = (from: string, seen = new Set<string>()): Set<string> => {
-		for (const k of out.get(from) ?? [])
-			if (!seen.has(k)) {
-				seen.add(k);
-				reach(k, seen);
-			}
-		return seen;
-	};
-	for (const [key, needs] of out)
-		out.set(
-			key,
-			needs.filter((k) => !needs.some((o) => o !== k && reach(o).has(k))),
-		);
-	return out;
-}
-
 /**
  * Rows: a child carries on the row of the first child it waits on while that row ends
  * there, so a chain reads along one line; otherwise it starts a row of its own.
@@ -156,7 +128,7 @@ function place(r: RunView, edges: Map<string, string[]>): Map<string, Node> {
 export function runMap(ctx: Ctx, r: RunView, w: number): Line[] {
 	const waves = new Set(r.children.map((c) => c.wave));
 	if (waves.size < 2) return [];
-	const edges = edgesOf(r);
+	const edges = waitEdges(r.children);
 	const nodes = place(r, edges);
 	const rows = Math.max(...[...nodes.values()].map((n) => n.row)) + 1;
 	if (rows > MAP_MAX_ROWS) return [];
@@ -274,4 +246,61 @@ export function runMap(ctx: Ctx, r: RunView, w: number): Line[] {
 		lines.push(out);
 	}
 	return lines;
+}
+
+/** The order a wave's counts read in: what needs attention first. */
+const COUNT_ORDER = (c: ChildView) => -rank(lineRole(c));
+
+/**
+ * The shape of a run the full map cannot hold, in a line or two: each wave with how many
+ * of its children are in each state, `spine ✓1 ──▶ wave 1 ⋮2 ·4 ──▶ wave 2 ·10`. It wraps
+ * at an arrow, so it holds at any width. None for a single wave, as with the full map.
+ */
+export function compactMap(ctx: Ctx, r: RunView, w: number): Line[] {
+	const waves = [...new Set(r.children.map((c) => c.wave))].sort(
+		(a, b) => a - b,
+	);
+	if (waves.length < 2) return [];
+	const segments = waves.map((wv) => {
+		const list = r.children.filter((c) => c.wave === wv);
+		const counts = new Map<string, { c: ChildView; n: number }>();
+		for (const c of [...list].sort((a, b) => COUNT_ORDER(a) - COUNT_ORDER(b))) {
+			const seen = counts.get(c.state);
+			if (seen) seen.n++;
+			else counts.set(c.state, { c, n: 1 });
+		}
+		const spans: Span[] = [
+			{ text: wv === 0 ? "spine" : `wave ${wv}`, role: "dim" },
+		];
+		for (const { c, n } of counts.values())
+			spans.push(sp(1), childGlyph(ctx, c), {
+				text: String(n),
+				role: STATE_ROLE[c.state],
+			});
+		// The arrow into a wave takes the colour of the busiest child in it.
+		const lead = [...list].sort((a, b) => COUNT_ORDER(a) - COUNT_ORDER(b))[0];
+		return { spans, into: lead ? lineRole(lead) : ("faint" as Role) };
+	});
+	const arrow = ctx.ink.unicode ? " ──▶ " : " --> ";
+	// One cell in, as the full map's rows are.
+	const fit = w - 1;
+	const lines: Line[] = [];
+	let line: Span[] = [];
+	segments.forEach((seg, i) => {
+		const sep: Span[] = i ? [{ text: arrow, role: seg.into }] : [];
+		if (
+			line.length &&
+			lineWidth(line) + lineWidth(sep) + lineWidth(seg.spans) > fit
+		) {
+			// The arrow ends the line it leaves, trimmed of the space before the next wave.
+			if (sep[0] && lineWidth(line) + arrow.trimEnd().length <= fit)
+				line.push({ text: arrow.trimEnd(), role: seg.into });
+			lines.push(line);
+			line = [...seg.spans];
+			return;
+		}
+		line.push(...sep, ...seg.spans);
+	});
+	if (line.length) lines.push(line);
+	return lines.map((l): Line => [sp(1), ...l]);
 }

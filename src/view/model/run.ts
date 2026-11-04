@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { runMetrics } from "../../core/metrics";
 import { waitOf } from "../../core/park";
+import { PLAN_LINK_FILE, planUrlOf } from "../../core/plan-link";
 import { deriveStates } from "../../core/state";
 import type {
 	ChildPlan,
@@ -62,6 +63,8 @@ export interface RunFiles {
 	ledger?: string;
 	ledgerMtime?: number;
 	epic?: string;
+	/** `plan-link.json`: where the plan's page was published. */
+	planLink?: string;
 	/** The epic PR's title, asked for only when there is no plan snapshot to title the run. */
 	epicTitle?: string;
 	ports?: string;
@@ -152,6 +155,7 @@ export function gatherRun(
 		ledger: read(LEDGER),
 		ledgerMtime: fs.stat(join(dir, LEDGER))?.mtimeMs,
 		epic,
+		planLink: read(PLAN_LINK_FILE),
 		epicTitle:
 			plan === undefined && epicPr !== undefined
 				? fs.prTitle?.(
@@ -678,6 +682,7 @@ export function buildRun(f: RunFiles, now: number): RunView {
 		scope: source === "plan" ? plan.scope : titled?.scope,
 		source,
 		planAt: snap?.at,
+		planUrl: planUrlOf(json(f.planLink)),
 		skipped: f.log?.skipped ?? 0,
 		group,
 		glyph,
