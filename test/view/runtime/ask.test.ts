@@ -523,7 +523,7 @@ describe("a key pressed without reading the question sends nothing", () => {
 		expect(moved.held).toBeUndefined();
 		expect(panelHasKeys(moved, TWO, NOW + 100)).toBe(false);
 	});
-	it("tab shows a question to read: ⏎ waits, ↑↓ does not, and ↓ ⏎ sends", () => {
+	it("tab shows a question to read: ⏎ waits, whatever ↑↓ chose, until it has been up", () => {
 		const both = homeOf({
 			"ACME-700": [
 				parked("ACME-701", "12:00:00", { message: "a?", options: OPTS }),
@@ -535,9 +535,24 @@ describe("a key pressed without reading the question sends nothing", () => {
 		expect(r.effects).toEqual([]);
 		const again = press(["tab", "tab"], both);
 		expect(again.s.ask?.child).toBe("ACME-701");
-		expect(press(["tab", "down", "enter"], both).effects).toMatchObject([
-			{ child: "ACME-702", text: "Copy it" },
-		]);
+		const chosen = press(["tab", "down", "enter"], both);
+		expect(chosen.s.ask?.choice).toBe(1);
+		expect(chosen.effects).toEqual([]);
+		const tabbed = press(["tab"], both).s;
+		const later = (steps: [string, number][]) =>
+			timed(steps, both, tabbed, NOW).effects;
+		expect(
+			later([
+				["down", 30],
+				["enter", 30],
+			]),
+		).toEqual([]);
+		expect(
+			later([
+				["down", 1000],
+				["enter", 1100],
+			]),
+		).toMatchObject([{ child: "ACME-702", text: "Copy it" }]);
 		expect(press(["tab"], both).s.lastKeyAt).toBe(NOW);
 	});
 	it("a dismissal ended by a new question does not hand over the old one at once", () => {

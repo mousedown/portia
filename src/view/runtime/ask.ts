@@ -260,7 +260,7 @@ const cleanPaste = (t: string) =>
 	t
 		.replace(/\r\n?/g, "\n")
 		// biome-ignore lint/suspicious/noControlCharactersInRegex: stripping them is the point
-		.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "");
+		.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, "");
 
 /** A key the panel has: all of them but ^c and ^z, which stay with the view. */
 export function panelKey(
@@ -293,7 +293,9 @@ export function panelKey(
 		case "enter": {
 			// Typed text too: `j j ⏎` meant for the list shows as text, and is still unread.
 			const text = typing ? a.text.trim() : opts[chosenOf(q, a)];
-			if (!text || !beenRead(s, now) || enterRepeats(s, now)) return st(s);
+			// Choosing is not reading: ⏎ always waits for the question's own time on screen.
+			if (!text || now - a.takenAt < KEY_PAUSE_MS || enterRepeats(s, now))
+				return st(s);
 			return { state: held, effects: [send(text)] };
 		}
 		case "up":
