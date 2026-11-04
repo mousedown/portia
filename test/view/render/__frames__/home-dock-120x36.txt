@@ -1,0 +1,36 @@
+
+          ◆
+     ▀▀▀▀▀█▀▀▀▀▀    ██████╗  ██████╗ ██████╗ ████████╗██╗ █████╗         runs     ! 2 need you · ⠋ 1 in session
+      ╱╲  █  ╱╲     ██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║██╔══██╗        children 2 running · 23 landed this week
+     ╱  ╲ █ ╱  ╲    ██████╔╝██║   ██║██████╔╝   ██║   ██║███████║        tokens   7.56M · /fx · 14:02
+     ▀▀▀▀ █ ▀▀▀▀    ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██╔══██║
+        ▄▄█▄▄       ██║     ╚██████╔╝██║  ██║   ██║   ██║██║  ██║        host     acme-build-01 · up 3d 4h
+      ▀▀▀▀▀▀▀▀▀     ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝        cpu      ━━╸─────   37%  load 2.1/8c
+                    the quality of mercy is not strained                 memory   ━━━━━───   64%  41.2/64 GB
+                                                                         disk     ━━━━━╸──   69%  312G free · slots 3/5
+
+
+   in session                                                                                                         1
+▌ ⠙ ACME-500  Self-serve invoices for team accounts   ━━━━━━━━━━──────────   4/8    6h41m    662k tokens
+
+   awaiting judgement                                                                                                 2
+  ! ACME-410  —                                       ━━━━━━━━━━━━━━━━━╸──   8/9   10h00m   2.77M tokens
+  ✗ ACME-366  —                                       ━━━━━━━━━━━━━───────   2/3    4h49m    610k tokens
+
+   at rest                                                                                                            2
+  ◐ ACME-390  Saved carts follow every device         ━━━━━━╸─────────────   2/6    5h00m    709k tokens
+  ○ ACME-352  —                                       ────────────────────     —
+
+   delivered                                                                                                          1
+  ● ACME-377  Notification preferences per channel    ━━━━━━━━━━━━━━━━━━━━   7/7   10h55m   2.80M tokens
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    ACME-500  Self-serve invoices for team accounts                                                #412 · epic/ACME-500
+    ■  ■■  ■■■  ·  ·                                                                          4 of 8 landed · 2 working
+
+  ⠇ ACME-505  exit gate  12m 04s  Team admins download an invoice as PDF
+  ⠏ ACME-506  working     3m 51s  Email the invoice when a billing period closes
+
+   ↑↓ move · → open · a activity · / filter · n new · ? help · q quit                                            ● live

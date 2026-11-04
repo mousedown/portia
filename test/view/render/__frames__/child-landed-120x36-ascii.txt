@@ -33,4 +33,4 @@
 
                                                                                                                v 9 more
 
-   up/dn move . enter expand . o PR . left back . ? help                                                         * live
+   up/dn move . enter expand . o PR . left back . ? help                                  ! 1 question on Home   * live

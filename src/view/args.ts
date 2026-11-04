@@ -156,7 +156,12 @@ export function stateFor(a: ViewArgs, home: HomeView, now: number): ViewState {
 				const r = home.runs.find((y) => y.key === run);
 				return r?.events[Number(n)]?.child === want;
 			});
-		if (id) s = { ...s, selection: { ...s.selection, [list]: id } };
+		if (id)
+			s = {
+				...s,
+				selection: { ...s.selection, [list]: id },
+				pinned: list === "home:runs" || undefined,
+			};
 	}
 	return s;
 }

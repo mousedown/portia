@@ -33,4 +33,4 @@
    last exit gate   typecheck ✓  lint ✓  unit ✓  integration ✓  acceptance ✓  e2e ✓  debt ✓
    ▎ CI failed on PR #360
 
-   ↑↓ move · → open · g gate matrix · o PR · / filter · ← back · ? help                                          ● live
+   ↑↓ move · → open · g gate matrix · o PR · / filter · ← back · ? help                   ! 1 question on Home   ● live

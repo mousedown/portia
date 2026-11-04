@@ -19,12 +19,6 @@ export function footer(
 ): Line {
 	const { state } = ctx;
 	const at = indent(ctx) === 3 ? 2 : 2;
-	if (state.answer)
-		return lr(
-			[sp(at), { text: `answering ${state.answer.child}`, role: "accent" }],
-			[{ text: `${ctx.g.keys.enter} send · esc cancel`, role: "dim" }],
-			ctx.W,
-		);
 	if (state.command) return commandLine(ctx);
 	if (state.filter?.editing) {
 		const right: Line = match
@@ -91,7 +85,7 @@ const ROWS: [string, string, string, string][] = [
 	["follow", "f", "sort runs", "s"],
 	["new run", "n", "re-read", "r"],
 	["half page", "^d  ^u", "archive run", "x x"],
-	["answer", "Q", "quit", "q"],
+	["question text", "PgUp  PgDn", "quit", "q"],
 ];
 const EPIGRAPH = "the quality of mercy is not strained";
 

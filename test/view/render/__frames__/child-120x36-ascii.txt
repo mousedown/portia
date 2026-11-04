@@ -33,4 +33,4 @@
    orchestrator  pid 4242 . alive . ttys003 . switch to that terminal
                                                                                                                v 5 more
 
-   up/dn move . enter expand . y copy worktree . e editor . left back . ? help                                   * live
+   up/dn move . enter expand . y copy worktree . e editor . left back . ? help            ! 1 question on Home   * live

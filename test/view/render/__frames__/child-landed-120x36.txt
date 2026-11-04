@@ -33,4 +33,4 @@
    branch        epic/ACME-503    port 3102    db portia_acme_503    torn down 09:17
                                                                                                                ↓ 9 more
 
-   ↑↓ move · ⏎ expand · o PR · ← back · ? help                                                                   ● live
+   ↑↓ move · ⏎ expand · o PR · ← back · ? help                                            ! 1 question on Home   ● live

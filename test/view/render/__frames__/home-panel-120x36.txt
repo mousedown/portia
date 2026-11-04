@@ -1,0 +1,36 @@
+
+          ◆
+     ▀▀▀▀▀█▀▀▀▀▀    ██████╗  ██████╗ ██████╗ ████████╗██╗ █████╗         runs     ! 2 need you · ⠋ 1 in session
+      ╱╲  █  ╱╲     ██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝██║██╔══██╗        children 2 running · 23 landed this week
+     ╱  ╲ █ ╱  ╲    ██████╔╝██║   ██║██████╔╝   ██║   ██║███████║        tokens   7.56M · /fx · 14:02
+     ▀▀▀▀ █ ▀▀▀▀    ██╔═══╝ ██║   ██║██╔══██╗   ██║   ██║██╔══██║
+        ▄▄█▄▄       ██║     ╚██████╔╝██║  ██║   ██║   ██║██║  ██║        host     acme-build-01 · up 3d 4h
+      ▀▀▀▀▀▀▀▀▀     ╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝        cpu      ━━╸─────   37%  load 2.1/8c
+                    the quality of mercy is not strained                 memory   ━━━━━───   64%  41.2/64 GB
+                                                                         disk     ━━━━━╸──   69%  312G free · slots 3/5
+
+
+   waiting on you                                                                                                     1
+▌ ! ACME-410  1 question for you                      ━━━━━━━━━━━━━━━━━╸──   8/9    9h17m   2.77M tokens
+
+   in session                                                                                                         1
+  ⠙ ACME-500  Self-serve invoices for team accounts   ━━━━━━━━━━──────────   4/8    6h41m    662k tokens
+
+   awaiting judgement                                                                                                 1
+  ✗ ACME-366  —                                       ━━━━━━━━━━━━━───────   2/3    4h49m    610k tokens
+
+   at rest                                                                                                            2
+  ◐ ACME-390  Saved carts follow every device         ━━━━━━╸─────────────   2/6    5h00m    709k tokens
+                                                                                                               ↓ 2 more
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    ACME-418  Backfill the index for old archives                                                                1 of 1
+    May I add the search index migration to my paths?
+    The backfill needs db/migrations/0042_archive_index.sql, which is outside my declared paths.
+    Without it the index cannot be built on an existing database.
+
+  ❯ 1  Allow it, read-only (recommended)
+    2  Put the migration in another child's paths
+    3  Build the index without a migration
+    or just type your own answer
+
+   ↑↓ choose · ⏎ send · esc list                                                                                 ● live

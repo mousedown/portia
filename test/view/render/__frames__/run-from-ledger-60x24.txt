@@ -21,4 +21,4 @@
   wave 3                                       2/2    1h45m
                                                    ↓ 2 more
 
-  ↑↓ move · → open · ← back · ? help                 ● live
+  ↑↓ move · ← back · ? help   ! 1 question on Home   ● live

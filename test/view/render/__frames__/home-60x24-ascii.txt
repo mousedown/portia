@@ -7,18 +7,18 @@
 
   in session                                              1
   \ ACME-500  Self-serve ~  =====----  4/8    6h41m    662k
+                                                   v 4 more
 
-  awaiting judgement                                      1
-  x ACME-366  -             ======---  2/3    4h49m    610k
-
-  at rest                                                 2
-  ~ ACME-390  Saved carts~  ===------  2/6    5h00m    709k
-  o ACME-352  -             ---------    -
-                                                   v 1 more
 
  ----------------------------------------------------------
-   ACME-410             epic/ACME-410 . started 12h 02m ago
-   + +++ ++! ++   #398 . ACME-418 parked . 2h
-   ! ACME-418  parked     try 1 opus              Backfill~
+    ACME-418  Backfill the index for old archives    1 of 1
+    May I add the search index migration to my paths?
+    The backfill needs
+    db/migrations/0042_archive_index.sql, which is outside
+    my declared paths.
+    Without it the index cannot be built on an existing
+    database.
 
-  up/dn move . right open . ? help . q quit          * live
+    type your answer
+
+  type to answer . esc list                          * live

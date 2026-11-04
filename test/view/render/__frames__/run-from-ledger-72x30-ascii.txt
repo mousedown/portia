@@ -27,4 +27,4 @@
   proves     F9 . . not yet
   | May I add the search index migration to my paths?
 
-  up/dn move . right open . g gate matrix . left back . ? help   * live
+  up/dn move . left back . ? help         ! 1 question on Home   * live

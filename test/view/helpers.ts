@@ -69,6 +69,39 @@ export function stalledFs(): ViewFs {
 	);
 }
 
+const PARKED_LOG = join(HOME, "runs", "ACME-410", "runlog.jsonl");
+
+/** The fixture home with what ACME-418 parked on changed: its options, or its text. */
+export function askingFs(data: Record<string, unknown>): ViewFs {
+	const log = (fixtureFs().read(PARKED_LOG) ?? "")
+		.split("\n")
+		.map((l) => {
+			if (!l.includes('"stage":"result","status":"parked"')) return l;
+			const row = JSON.parse(l);
+			return JSON.stringify({ ...row, data: { ...row.data, ...data } });
+		})
+		.join("\n");
+	return fixtureFs({ [PARKED_LOG]: log });
+}
+
+/** The fixture home with ACME-418 answered, so no question waits and Home shows its dock. */
+export function answeredFs(keep?: (path: string) => boolean): ViewFs {
+	const row = JSON.stringify({
+		at: "2026-10-20T12:00:00.000Z",
+		child: "ACME-418",
+		attempt: 1,
+		stage: "decision",
+		status: "answer",
+		data: { kind: "parked", by: "person", answer: "yes", why: "?" },
+	});
+	return fixtureFs(
+		{
+			[PARKED_LOG]: `${(fixtureFs().read(PARKED_LOG) ?? "").trimEnd()}\n${row}\n`,
+		},
+		keep,
+	);
+}
+
 /** The invented build machine every frame shows: acme-build-01, 8 cores, 64 GB. */
 export const MACHINE_FIXTURE = join(
 	import.meta.dirname,

@@ -1,11 +1,20 @@
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseViewArgs, stateFor } from "../../../src/view/args";
+import type { ViewFs } from "../../../src/view/model/fs";
 import { readHome } from "../../../src/view/model/home";
 import { render } from "../../../src/view/render";
 import type { Ink } from "../../../src/view/render/ink";
-import type { ViewState } from "../../../src/view/runtime/state";
+import { strWidth } from "../../../src/view/render/text";
+import { refuseAsk, settleAsk } from "../../../src/view/runtime/ask";
 import {
+	initialState,
+	reduce,
+	type ViewState,
+} from "../../../src/view/runtime/state";
+import {
+	answeredFs,
+	askingFs,
 	fixtureFs,
 	frame,
 	HOME,
@@ -373,7 +382,7 @@ describe("the worker", () => {
 		const fs = fixtureFs({ [`${HOME}/runs/ACME-500/epic.diff`]: "diff\n" });
 		expect(lines(frame(["ACME-500"], { fs })).at(-1)).toContain("d epic diff");
 	});
-	it("labels every key in every footer, down to 60 columns, and keeps ? help on Home", () => {
+	it("labels every key in every footer, down to 60 columns, and keeps ? help on Home's list", () => {
 		const pages: string[][] = [
 			[],
 			["--page", "activity"],
@@ -392,40 +401,410 @@ describe("the worker", () => {
 			] as const) {
 				const foot = (lines(frame([...args, ...size(w, h)])).at(-1) ?? "")
 					.replace(/[●*] live\s*$/, "")
+					.replace(/! \d+ questions? on Home\s*$/, "")
 					.trim();
 				const tokens = foot.split(/ {2,}/).filter(Boolean);
 				for (const t of tokens)
 					expect(t, `${args.join(" ")} ${w}x${h}: ${foot}`).toMatch(
 						/^\S+ [a-z$]/,
 					);
-				if (!args.length) expect(foot).toContain("? help");
+				// A question waits on Home, so its keys are the panel's, until esc gives them back.
+				if (!args.length) {
+					expect(foot).toContain("esc list");
+					const list = lines(frame([...size(w, h)], { fs: answeredFs() })).at(
+						-1,
+					);
+					expect(list).toContain("? help");
+				}
 			}
 	});
 });
 
-describe("the answer box", () => {
-	it("shows your answer and the typed text under the parked question, at 60 and 120 columns", () => {
-		for (const cols of [60, 120]) {
-			const out = frameOf(
-				["ACME-410", "ACME-418"],
-				(s) => ({
-					...s,
-					answer: {
-						run: "ACME-410",
-						child: "ACME-418",
-						since: "x",
-						text: "use the second",
-					},
-				}),
-				fixtureFs(),
-				cols,
-				40,
+describe("Home's question panel", () => {
+	const WORDS = Array.from({ length: 400 }, (_, i) => `word${i}`).join(" ");
+	const OPTIONS = [
+		"Allow read-only gh api",
+		"Put copies in the worktree",
+		"Design the motion fresh",
+		`A very long choice that goes on ${WORDS}`,
+	];
+	const asking = askingFs;
+	const withOptions = () => asking({ options: OPTIONS, recommended: 0 });
+	const at = (
+		cols = 120,
+		rows = 33,
+		fs = withOptions(),
+		ch?: (s: ViewState) => ViewState,
+	) => frameOf([], ch ?? ((s) => s), fs, cols, rows);
+	const chosen = (out: string[]) => out.filter((l) => l.includes("❯"));
+
+	it("shows the question, the choices and the keys, on the list's key column", () => {
+		const out = at();
+		const q = out.find((l) => l.includes("May I add the search index")) ?? "";
+		expect(q.search(/May/)).toBe(4);
+		expect(chosen(out)).toHaveLength(1);
+		expect(chosen(out)[0]).toMatch(
+			/^ {2}❯ 1 {2}Allow read-only gh api \(recommended\)$/,
+		);
+		expect(out.join("\n")).toContain("2  Put copies in the worktree");
+		expect(out.join("\n")).toContain("or just type your own answer");
+		expect(out.join("\n")).toMatch(/ACME-418 .*1 of 1/);
+		expect(out.at(-1)).toMatch(/↑↓ choose · ⏎ send · esc list/);
+		expect(out.at(-1)).not.toContain("tab next");
+	});
+	it("offers tab with two questions", () => {
+		const two = fixtureFs({
+			[join(HOME, "runs", "ACME-999", "runlog.jsonl")]: `${JSON.stringify({
+				at: "2026-10-20T09:00:00.000Z",
+				child: "ACME-998",
+				attempt: 1,
+				stage: "result",
+				status: "parked",
+				data: { message: "Another?" },
+			})}\n`,
+		});
+		const out = at(120, 33, two);
+		expect(out.at(-1)).toContain("tab next");
+		expect(out.join("\n")).toMatch(/of 2/);
+	});
+	it("says type your answer, with no choices, and offers no ↑↓", () => {
+		const out = at(120, 33, fixtureFs());
+		expect(out.join("\n")).toContain("type your answer");
+		expect(out.join("\n")).not.toContain("or just type");
+		expect(chosen(out)).toEqual([]);
+		expect(out.at(-1)).toMatch(/esc list/);
+		expect(out.at(-1)).not.toContain("choose");
+	});
+	it("during the pause says what works now, and does not offer ⏎", () => {
+		const out = at(120, 33, withOptions(), (s) => ({
+			...s,
+			lastKeyAt: NOW - 100,
+		}));
+		expect(out.at(-1)).toMatch(/type to answer · esc list/);
+		expect(out.at(-1)).not.toContain("⏎");
+		expect(out.at(-1)).not.toContain("↑↓");
+		expect(out.join("\n")).toContain("May I add the search index");
+	});
+	it("offers ⏎ answer only once dismissed, and only on a waiting run's row", () => {
+		const dismissed = (fs: ViewFs, sel: string) =>
+			at(120, 33, fs, (s) => {
+				const home = readHome(fs, HOME, NOW);
+				const shown = settleAsk(s, home, NOW - 60_000);
+				return {
+					...reduce(shown, { name: "esc" }, { home, now: NOW - 5000, rows: 33 })
+						.state,
+					selection: { "home:runs": sel },
+				};
+			});
+		const on = dismissed(withOptions(), "ACME-410");
+		expect(on.at(-1)).toMatch(/↑↓ move · → open · ⏎ answer · a activity/);
+		const quiet = dismissed(withOptions(), "ACME-500");
+		expect(quiet.at(-1)).toMatch(/↑↓ move · → open · a activity/);
+		expect(quiet.at(-1)).not.toContain("⏎ answer");
+	});
+	it("does not offer ⏎ send over typed text until ⏎ would send it", () => {
+		const fs = withOptions();
+		const home = readHome(fs, HOME, NOW);
+		const typed = reduce(
+			settleAsk(initialState(), home, NOW),
+			{ name: "char", ch: "o" },
+			{ home, now: NOW + 100, rows: 33 },
+		).state;
+		const at2 = (now: number) =>
+			render(
+				typed,
+				{ home, machine: MACHINE },
+				INK,
+				{ cols: 120, rows: 33 },
+				{ now },
 			);
-			const at = out.findIndex((l) => l.includes("your answer"));
-			expect(at, `${cols} columns`).toBeGreaterThan(0);
-			expect(out[at + 1]).toContain("use the second");
-			expect(out.at(-1)).toContain("answering ACME-418");
-		}
+		const before = at2(NOW + 100);
+		expect(before.deadline).toBe(NOW + 2000);
+		expect(visible(before.lines.at(-1) ?? "")).not.toContain("⏎ send");
+		expect(visible(before.lines.at(-1) ?? "")).toContain("esc choices");
+		expect(visible(at2(NOW + 2000).lines.at(-1) ?? "")).toContain("⏎ send");
+	});
+	it("a question with no choices offers no ⏎ until something is typed", () => {
+		const out = at(120, 33, fixtureFs());
+		expect(out.at(-1)).toMatch(/type to answer · esc list/);
+		expect(out.at(-1)).not.toContain("⏎");
+	});
+	it("a word wider than the panel wraps, so the end of a pasted path shows", () => {
+		const path = `/${"very-long-directory/".repeat(8)}the-end.txt`;
+		const out = at(60, 40, withOptions(), (s) => {
+			const home = readHome(withOptions(), HOME, NOW);
+			const shown = settleAsk(s, home, NOW - 60_000);
+			return { ...shown, ask: shown.ask && { ...shown.ask, text: path } };
+		});
+		expect(out.join("").replace(/\s/g, "")).toContain(path);
+		for (const l of out) expect(strWidth(l)).toBeLessThanOrEqual(59);
+	});
+	it("gives the question room before it scrolls while the list has rows to spare", () => {
+		// A row too tall for the five list rows it could keep, and fine beside three.
+		const out = at(60, 24, withOptions());
+		const panel = out
+			.slice(out.findIndex((l) => /^ {4}ACME-418/.test(l)))
+			.join("\n");
+		expect(panel).not.toMatch(/\d+ more/);
+		expect(panel).toContain("May I add the search index");
+		expect(panel).toMatch(/database\.$/m);
+		expect(chosen(out)).toHaveLength(1);
+	});
+	it("uses > for the pointer in ASCII, and only ASCII", () => {
+		const out = frame(["--ascii", "--depth", "0", ...size(60, 24)], {
+			fs: withOptions(),
+		});
+		expect(out).toMatch(/^ {2}> 1 {2}/m);
+		expect(/^[\x20-\x7e\n]*$/.test(out), out).toBe(true);
+	});
+	it("truncates a long option with an ellipsis, and wraps typed text", () => {
+		const out = at(60, 40);
+		expect(out.join("\n")).toMatch(/4 {2}A very long choice.*…/);
+		const typed = at(60, 40, withOptions(), (s) => ({
+			...s,
+			ask: {
+				run: "ACME-410",
+				child: "ACME-418",
+				since:
+					readHome(withOptions(), HOME, NOW).runs[0]?.children.find(
+						(c) => c.key === "ACME-418",
+					)?.wait?.at ?? "",
+				takenAt: NOW - 60_000,
+				text: "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen",
+			},
+		}));
+		const text = typed.join("\n");
+		expect(text).toContain("one two three");
+		expect(text).toContain("fifteen");
+		expect(chosen(typed)).toEqual([]);
+	});
+	it("shows a refused send on the panel, with the text kept", () => {
+		const fs = withOptions();
+		const out = at(120, 33, fs, (s) => {
+			const home = readHome(fs, HOME, NOW);
+			const shown = settleAsk(s, home, NOW);
+			return refuseAsk(
+				{
+					...shown,
+					ask: shown.ask && { ...shown.ask, text: "my typed answer" },
+				},
+				home,
+				"ACME-418 is no longer waiting on this question",
+			);
+		}).join("\n");
+		expect(out).toContain("ACME-418 is no longer waiting on this question");
+		expect(out).toContain("my typed answer");
+	});
+	it("asks to be painted when the pause ends, and only until then", () => {
+		const fs = withOptions();
+		const home = readHome(fs, HOME, NOW);
+		const out = (lastKeyAt: number) =>
+			render(
+				{ ...initialState(), lastKeyAt },
+				{ home, machine: MACHINE },
+				INK,
+				{ cols: 120, rows: 33 },
+				{ now: NOW, frozen: true },
+			).deadline;
+		expect(out(NOW - 500)).toBe(NOW + 1500);
+		// A deadline in the past would repaint as fast as the loop can go.
+		const dismissed = reduce(
+			initialState(),
+			{ name: "esc" },
+			{ home, now: NOW - 60_000, rows: 33 },
+		).state;
+		expect(
+			render(
+				dismissed,
+				{ home, machine: MACHINE },
+				INK,
+				{ cols: 120, rows: 33 },
+				{ now: NOW, frozen: true },
+			).deadline,
+		).toBeUndefined();
+		expect(
+			render(
+				{ ...initialState(), toast: undefined, lastKeyAt: NOW - 5000 },
+				{ home, machine: MACHINE },
+				INK,
+				{ cols: 120, rows: 33 },
+				{ now: NOW, frozen: true },
+			).deadline,
+		).toBeUndefined();
+	});
+	it("takes control characters out of what a worker wrote", () => {
+		const out = frameOf(
+			[],
+			(s) => s,
+			asking({
+				message: "Which\u001b[31m way?",
+				options: ["red\u001b[2Jx", "blue\nsky"],
+			}),
+			120,
+			33,
+		).join("\n");
+		expect(out).not.toContain("\u001b[31m");
+		expect(out).not.toContain("\u001b[2J");
+		expect(out).toContain("blue sky");
+	});
+
+	const LONG = `${Array.from({ length: 60 }, (_, i) => `line${i} of the question`).join("\n")}\nthe last line`;
+	it("grows: the whole question reads when there is room", () => {
+		const out = at(
+			120,
+			60,
+			asking({
+				message: "a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl",
+				options: OPTIONS,
+			}),
+		);
+		for (const ch of "abcdefghijkl")
+			expect(
+				out.some((l) => l.trim() === ch),
+				ch,
+			).toBe(true);
+		expect(out.join("\n")).not.toMatch(/↓ \d+ more\s*$/m);
+	});
+	it("the hero gives way before the list does", () => {
+		const out = at(
+			120,
+			33,
+			asking({ message: "a\nb\nc\nd\ne\nf\ng\nh\ni\nj", options: OPTIONS }),
+		);
+		expect(out.join("\n")).not.toContain("██████╗");
+		expect(out[0]).toContain("P O R T I A");
+		for (const ch of "abcdefghij")
+			expect(
+				out.some((l) => l.trim() === ch),
+				ch,
+			).toBe(true);
+	});
+	it("scrolls the question inside the panel when it cannot fit, and keeps the choices", () => {
+		const fs = asking({ message: LONG, options: OPTIONS });
+		const out = at(120, 24, fs);
+		expect(out.join("\n")).toMatch(/↓ \d+ more/);
+		expect(out.join("\n")).toContain("line0 of the question");
+		expect(out.join("\n")).not.toContain("the last line");
+		expect(chosen(out)).toHaveLength(1);
+		expect(out.join("\n")).toContain("or just type your own answer");
+		// PgDn goes to the end and stops there, however far it is pushed.
+		const home = readHome(fs, HOME, NOW);
+		const since =
+			home.runs.flatMap((r) => r.children).find((c) => c.key === "ACME-418")
+				?.wait?.at ?? "";
+		const end = at(120, 24, fs, (s) => ({
+			...s,
+			scroll: { [`ask:ACME-410:ACME-418:${since}`]: 9999 },
+		}));
+		const panel = end.slice(end.findIndex((l) => /^ {4}ACME-418/.test(l)));
+		expect(panel.join("\n")).toContain("the last line");
+		expect(panel.join("\n")).toMatch(/↑ \d+ more/);
+		expect(panel.join("\n")).not.toMatch(/↓ \d+ more/);
+		expect(chosen(end)).toHaveLength(1);
+	});
+	it("at every size: the frame fits, the choices and the typing line show, and the list keeps 3 rows", () => {
+		const fs = asking({ message: LONG, options: OPTIONS, recommended: 3 });
+		const home = readHome(fs, HOME, NOW);
+		const since =
+			home.runs.flatMap((r) => r.children).find((c) => c.key === "ACME-418")
+				?.wait?.at ?? "";
+		const inks: Ink[] = [INK, { ...INK, unicode: false }];
+		for (const ink of inks)
+			for (const text of ["", `typed ${WORDS}`])
+				for (const cols of [60, 61, 72, 85, 99, 100, 120, 160])
+					for (let rows = 16; rows <= 50; rows++) {
+						const s = settleAsk(initialState(), home, NOW);
+						const out = render(
+							{ ...s, ask: s.ask && { ...s.ask, since, text } },
+							{ home, machine: MACHINE },
+							ink,
+							{ cols, rows },
+							{ now: NOW, frozen: true },
+						).lines.map(visible);
+						const where = `${cols}x${rows} ${text ? "typing" : "choosing"} ${ink.unicode ? "unicode" : "ascii"}`;
+						expect(out, where).toHaveLength(rows);
+						for (const l of out)
+							expect(strWidth(l), where).toBeLessThanOrEqual(cols - 1);
+						const opt = out.findIndex((l) =>
+							/ {2}1 {2}Allow read-only/.test(l),
+						);
+						expect(opt, where).toBeGreaterThan(0);
+						for (const n of [2, 3, 4])
+							expect(out[opt + n - 1], where).toMatch(
+								new RegExp(`^ {2}. ${n} {2}|^ {4}${n} {2}`),
+							);
+						expect(out[opt + 4], where).toMatch(
+							text ? /typed|word/ : /or just type/,
+						);
+						// The list's rows: from its first line to the panel, under any rule of the panel's.
+						const head = out.findIndex((l) => /^ {4}ACME-418/.test(l));
+						const list = out.findIndex((l) =>
+							/waiting on you|[↑^] (\d+ )?more/.test(l),
+						);
+						const end = /^ *[─-]{20,}$/.test(out[head - 1] ?? "")
+							? head - 1
+							: head;
+						expect(list, where).toBeGreaterThanOrEqual(0);
+						expect(end - list, where).toBeGreaterThanOrEqual(3);
+						expect(out.slice(list, end).join("\n"), where).toMatch(/ACME-410/);
+					}
+	}, 120_000);
+});
+
+describe("the footer on other pages", () => {
+	const PAGES: string[][] = [
+		["--page", "activity"],
+		["--page", "machine"],
+		["ACME-500"],
+		["ACME-500", "ACME-505"],
+		["ACME-500", "ACME-506", "--page", "worker"],
+	];
+	it("says how many questions wait, in the parked colour, at every width", () => {
+		for (const args of PAGES)
+			for (const cols of [60, 72, 120]) {
+				const out = lines(frame([...args, ...size(cols, 30), "--depth", "0"]));
+				expect(out.at(-1), `${args.join(" ")} at ${cols}`).toContain(
+					"! 1 question on Home",
+				);
+			}
+		const dark = lines(frame(["--page", "activity", "--depth", "24"]));
+		expect(visible(dark.at(-1) ?? "")).toContain("! 1 question on Home");
+		// biome-ignore lint/suspicious/noControlCharactersInRegex: reading the colour
+		expect(dark.at(-1)).toMatch(/\x1b\[[0-9;]*m! 1 question/);
+	});
+	it("does not on Home, or with no question waiting, or for a spec claim", () => {
+		expect(frame(size(120, 33))).not.toContain("question on Home");
+		expect(
+			frame(["--page", "activity", ...size(120, 30)], { fs: answeredFs() }),
+		).not.toContain("question on Home");
+		const run = "ACME-418";
+		const fs = fixtureFs();
+		const log = join(HOME, "runs", "ACME-410", "runlog.jsonl");
+		const claim = (fs.read(log) ?? "")
+			.split("\n")
+			.map((l) =>
+				l.includes(run) && l.includes('"status":"parked"')
+					? JSON.stringify({
+							...JSON.parse(l),
+							data: {
+								...JSON.parse(l).data,
+								spec: { path: "a", assertion: "b", evidence: "c" },
+							},
+						})
+					: l,
+			)
+			.join("\n");
+		expect(
+			frame(["--page", "activity", ...size(120, 30)], {
+				fs: fixtureFs({ [log]: claim }),
+			}),
+		).not.toContain("question on Home");
+	});
+	it("the Child page has no answer box and no Q", () => {
+		const out = frame(["ACME-410/ACME-418", ...size(120, 40)]);
+		expect(out).not.toContain("your answer");
+		expect(out).not.toContain("Q answer");
+		expect(out).toContain("May I add the search index");
 	});
 });
 
@@ -483,6 +862,34 @@ describe("accounts", () => {
 		expect(text).toMatch(
 			/home +idle · limited until \d\d:00 · 5-hour limit reach/,
 		);
+	});
+});
+
+describe("the dock under Home's list", () => {
+	const at = (cols = 130, rows = 36) =>
+		frameOf([...size(cols, rows)], (s) => s, answeredFs());
+	it("keeps the footer to what most pages need", () => {
+		const foot = at()
+			.filter((l) => l.includes("↑↓ move"))
+			.join("");
+		for (const k of ["a activity", "/ filter", "n new", "? help", "q quit"])
+			expect(foot).toContain(k);
+		for (const k of ["m machine", "o epic PR", "x archive", "s sort"])
+			expect(foot).not.toContain(k);
+	});
+	it("lines the run's key up with the list's keys, and a child's glyph with the list's glyphs", () => {
+		const out = at();
+		const listRow = out.find((l) => /^.{2}. ACME-\d+ /.test(l)) ?? "";
+		const listKey = listRow.search(/ACME-/);
+		const rule = out.map((l) => /^ *─{20,}/.test(l)).lastIndexOf(true);
+		const dock = out.slice(Math.max(0, rule));
+		const head = dock.find((l) => /^ +ACME-\d+ {2}/.test(l)) ?? "";
+		expect(head.search(/ACME-/)).toBe(listKey);
+	});
+	it("draws the strip in one still cell per child, solid once started", () => {
+		const strip = at().find((l) => /of \d+ landed/.test(l)) ?? "";
+		expect(strip).toMatch(/[■□·]/);
+		expect(strip).not.toMatch(/[●○⠁-⣿]/);
 	});
 });
 
