@@ -485,3 +485,27 @@ describe("accounts", () => {
 		);
 	});
 });
+
+describe("which repository a run belongs to", () => {
+	const run = `${HOME}/runs/ACME-500`;
+	const fs = fixtureFs({
+		[`${run}/repo.json`]: JSON.stringify({ repo: "shop-ios" }),
+		[`${HOME}/runs/ACME-410/repo.json`]: JSON.stringify({ repo: "shop-web" }),
+	});
+	it("names it on Home beside the run's summary", () => {
+		const out = frameOf([...size(120, 36)], (s) => s, fs).join("\n");
+		expect(out).toMatch(/shop-ios · /);
+	});
+	it("leaves it off Home when every run is from one repository", () => {
+		const out = frameOf([...size(120, 36)], (s) => s, fixtureFs()).join("\n");
+		expect(out).not.toMatch(/acme-app · /);
+	});
+	it("names it on the Run page's epic row", () => {
+		const out = frameOf(["ACME-500", ...size(120, 36)], (s) => s, fs);
+		expect(out.find((l) => /^ +epic /.test(l))).toContain("shop-ios");
+	});
+	it("falls back to where the run's worktrees live", () => {
+		const out = frameOf(["ACME-500", ...size(120, 36)], (s) => s, fixtureFs());
+		expect(out.find((l) => /^ +epic /.test(l))).toContain("acme-app");
+	});
+});

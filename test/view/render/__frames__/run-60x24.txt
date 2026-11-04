@@ -1,6 +1,6 @@
  ◆ PORTIA › ACME-500  Self-serve invoices for tea…  ⠙ 14:02
  ──────────────────────────────────────────────────────────
-  epic     #412 · epic/ACME-500 · 6h 41m · plan 2m old
+  epic     acme-app · #412 · epic/ACME-500 · plan 2m old
   progress 4/8 landed · 662k tokens
 
   spine       wave 1      wave 2      wave 3      wave 4

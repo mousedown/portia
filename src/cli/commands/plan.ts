@@ -4,7 +4,7 @@ import { writeFileAtomic } from "../../core/atomic";
 import { isDryRun, must, realExec } from "../../core/exec";
 import { EXIT, PortiaProblem } from "../../core/exit";
 import { isPlanUrl, PLAN_LINK_FILE, planUrlOf } from "../../core/plan-link";
-import { runDir, runPath } from "../../core/rundir";
+import { checkRunOwner, runDir, runPath } from "../../core/rundir";
 import { readRows } from "../../core/runlog";
 import { rippleWarnings } from "../../plan/check";
 import {
@@ -149,6 +149,7 @@ export const planCommand: Command = async (args, io) => {
 	const { profile, tracker } = await cliContext();
 	const files = await repoFiles(realExec, process.cwd());
 	// Read-only: the run directory is not created.
+	checkRunOwner(key);
 	const rows = readRows(runPath(key)).rows;
 	if (sub === "context") {
 		const ctx = await planContext(

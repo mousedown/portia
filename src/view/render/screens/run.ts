@@ -90,6 +90,7 @@ function epicRow(ctx: Ctx, r: RunView): Line {
 	const note = sourceNote(ctx, r);
 	const parts: Part[] = [];
 	const web = webOf(ctx, r.key);
+	if (r.repo) parts.push({ spans: [{ text: r.repo, role: "ink2" }], drop: 4 });
 	if (r.epicPr)
 		parts.push({
 			spans: linked(
