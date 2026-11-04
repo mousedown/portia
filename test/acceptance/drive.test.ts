@@ -253,6 +253,9 @@ it(
 		const d = await run.drive();
 		expect(d.code).toBe(11);
 		expect(d.result?.stop).toMatchObject({ kind: "error" });
+		expect(
+			Date.parse((d.result as { at?: string } | undefined)?.at ?? ""),
+		).not.toBeNaN();
 		const message =
 			d.result?.stop.kind === "error" ? d.result.stop.message : "";
 		expect(message).toContain('workers.mode: "detached"');

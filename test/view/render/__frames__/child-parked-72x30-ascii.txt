@@ -27,4 +27,4 @@
 
                                                                v 6 more
 
-  up/dn move . enter expand . left back . ? help                 * live
+  up/dn move . enter expand . Q answer . left back . ? help      * live

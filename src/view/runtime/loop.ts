@@ -23,6 +23,7 @@ import { render } from "../render";
 import { tilde } from "../render/common";
 import { detectInk, type Ink } from "../render/ink";
 import { arrivalAt } from "../render/logo";
+import { answerPark } from "./answer";
 import { archiveRun } from "./archive";
 import { decode, type Key } from "./keys";
 import {
@@ -512,6 +513,26 @@ export async function runView(o: {
 				loadAll();
 				homeAt(Date.now(), true);
 				toast(`archived ${e.run} · ${tilde(to)}`, "dim");
+				return full();
+			}
+			case "answer": {
+				try {
+					answerPark(runsDir, e.run, e.child, e.since, e.text);
+				} catch (err) {
+					// The box stays open with the text, so nothing typed is lost.
+					toast((err as Error).message, "failed");
+					return full();
+				}
+				state = { ...state, answer: undefined };
+				loadAll();
+				const left = homeAt(Date.now(), true).runs.reduce(
+					(n, r) => n + r.questions,
+					0,
+				);
+				toast(
+					`saved · its session picks it up, or portia resume${left ? ` · Q next (${left} waiting)` : ""}`,
+					"dim",
+				);
 				return full();
 			}
 			case "refresh":

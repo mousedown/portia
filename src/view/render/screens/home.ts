@@ -519,9 +519,10 @@ function subhead(ctx: Ctx, left: Line, m: number, n: number): Line {
 	return lr([sp(indent(ctx)), ...left], right, ctx.W);
 }
 
-export const HOME_HINTS = [
+export const HOME_HINTS = (waiting: boolean): string[] => [
 	"↑↓ move",
 	"→ open",
+	waiting ? "Q answer" : "",
 	"a activity",
 	"m machine",
 	"/ filter",
@@ -562,10 +563,14 @@ export function homeScreen(ctx: Ctx): Line[] {
 	const selRun = runs.find((r) => r.key === sel);
 	const body = runsBody(ctx, runs, sel);
 	const d = dock(ctx, selRun);
-	const foot = footer(ctx, hints(ctx, HOME_HINTS), {
-		m: runs.length,
-		n: h.runs.length,
-	});
+	const foot = footer(
+		ctx,
+		hints(ctx, HOME_HINTS(h.runs.some((r) => r.questions > 0))),
+		{
+			m: runs.length,
+			n: h.runs.length,
+		},
+	);
 	// The hero stays while the list keeps a useful window, scrolling under it; the
 	// tallest dock counts, so moving the selection never takes the hero away.
 	// Beside the hero the machine keeps six cells from the word; when its graphics do not

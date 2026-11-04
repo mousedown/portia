@@ -15,7 +15,7 @@
    │  follow        f                sort runs      s              │
    │  new run       n                re-read        r              │
    │  half page     ^d  ^u           archive run    x x            │
-   │  quit          q                                              │
+   │  answer        Q                quit           q              │
    │                                                               │
    │  filter words   state:parked  wave:2  model:opus  live        │
    │  glyphs   · pending  ○ ready  ⠹ running  ! parked  ✗ failed   │

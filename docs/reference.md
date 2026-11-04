@@ -453,6 +453,8 @@ The roles are `spine`, `child`, `amend` and `fix`. An MCP tool comes with its se
 
 A child that parks for the person (a worker's question, a parked land, or a failure decided as park) is announced the moment it is recorded: by `portia result` or `portia worker wait` when they write a parked result, by `portia land` when it parks a land, and by `portia decide failure` when it answers park. By default that is a desktop notification, `Portia <PARENT>` / `<CHILD> is waiting on you: <the question's first line>`, through `osascript` on macOS or `notify-send` on Linux (nothing elsewhere). A park the run clears itself, every account at its usage limit, is not announced.
 
+A parked question can also be answered in `portia view`: press `Q` to open the oldest question and write the answer. The view appends it to the child's run log, so it waits there whether or not the session that drives the run is still open. The skill waits on it with `portia answers wait <PARENT> --since <at>` (exit 0 once an answer lands, exit 10 when nothing waits) and drives again; `portia drive` then redispatches the child with the answer, as it does for one given with `--answer`.
+
 If the question is still unanswered `notify.remindMin` minutes later (30 by default), it is announced once more, never again. `portia status`, `portia resume` and `portia worker wait` (once a minute while it polls) look for questions that are due, and `notify.json` in the run directory records each reminder before it is sent, so however many of them look, each park is reminded at most once. A park ends when the child is dispatched again, lands, or an answer is recorded for it.
 
 `notify.onPark` replaces the desktop notification with your own command:
@@ -544,6 +546,7 @@ The next drive redispatches the child: `env up` rebases its worktree onto the am
 ```json
 {
   "parent": "GH-79",
+  "at": "2026-01-01T10:00:00.000Z",
   "steps": [
     { "step": "land", "child": "GH-80", "ok": true, "detail": "PR #4 merged", "at": "2026-01-01T10:00:00.000Z" }
   ],
@@ -551,7 +554,7 @@ The next drive redispatches the child: `env up` rebases its worktree onto the am
 }
 ```
 
-`steps` are the automatic steps taken this drive, in order. `step` is one of `record-landed`, `env-up`, `dispatch`, `worker-start`, `worker-wait`, `result`, `decide-failure`, `answer`, `signoff`, `land`, `ledger`, `wave-gate`, `epic-gate`; `child` is the child acted on, or the parent for a run-wide step; `attempt` appears where one applies; `ok` is false for a failed step; `detail` is one line. `stop` is the object whose `kind` and fields the table above lists. Without `--json`, the steps print one per line (`ok  land GH-80: PR #4 merged`) followed by `stop <kind>: …`.
+`at` is when the output was written, an ISO time. `steps` are the automatic steps taken this drive, in order. `step` is one of `record-landed`, `env-up`, `dispatch`, `worker-start`, `worker-wait`, `result`, `decide-failure`, `answer`, `signoff`, `land`, `ledger`, `wave-gate`, `epic-gate`; `child` is the child acted on, or the parent for a run-wide step; `attempt` appears where one applies; `ok` is false for a failed step; `detail` is one line. `stop` is the object whose `kind` and fields the table above lists. Without `--json`, the steps print one per line (`ok  land GH-80: PR #4 merged`) followed by `stop <kind>: …`.
 
 ## CLI reference
 
@@ -567,6 +570,7 @@ Every command runs from the target repository's root.
 | `portia check <KEY>` | Run every plan rule against the tracker. |
 | `portia permissions` | Add the profile's `denyRules` to the checkout's local Claude Code settings. Never adds an allow. |
 | `portia drive <PARENT> [--json] [--answer <KEY> --note-file <file>]` | Take every automatic step of the run (dispatch, detached workers, results, lands, ledger, wave and epic gates) until a stop needs a person or the AI. Exit 0 epic-ready, 10 a stop, 11 failed or error. Needs `workers.mode: "detached"`. See [Driving a run](#driving-a-run-portia-drive). |
+| `portia answers wait <PARENT> [--since <iso>] [--poll <seconds>]` | Read-only: poll the run until a child parked on a question is answered (from `portia view`), then print `{ "answered": [keys] }` and exit 0, so a session running it in the background wakes when an answer lands. `--since` ignores answers recorded before that time; `--poll` is the interval in seconds (default 2). Exit 10 with `{ "answered": [] }` when no child waits on a question. |
 | `portia resume <PARENT>` | Reconcile the run log with git, GitHub, the tracker and any detached workers, and list the actions needed to continue. |
 | `portia integration init <PARENT>` | Create the integration branch and the draft epic PR. |
 | `portia integration sync <PARENT>` | Bring main into the integration branch; exit 11 on conflicts. |
@@ -624,7 +628,7 @@ portia view [RUN [CHILD] | RUN/CHILD] [--plain | --json | --frame]
 
 A running child that has written no row for 45 minutes shows as **quiet** (a still `◐`), never as a spinner. Gate rows are written after a gate finishes, so the step running now is inferred from the newest row and shown as the phase (`working`, `exit gate`, `fixing`, `reporting`).
 
-It never writes to the tracker or GitHub, and to a run only when you archive it: `x` twice on Home moves a run at rest or delivered to `runs/.archive/`, out of the view (move it back to bring it back). The only programs it starts are `git -C <worktree> remote get-url origin` (to build a PR URL), `open` or `xdg-open` with that URL, `git -C <path> rev-parse --git-common-dir` and `tmux new-window … claude "/portia KEY"` or `open -na Ghostty.app --args … -e claude "/portia KEY"` for `n` (below), `$PAGER`, `$VISUAL` or `$EDITOR` on a worktree (`e`, given the absolute path, and only while the worktree is on disk), `ps -o tty=,lstart= -p <pid>` once per recorded pid, off the render thread, and for the machine figures `vm_stat` and `sysctl -n vm.swapusage` (macOS), `ps` and `du -sk`. A worker's liveness is signal 0 to its pid, which sends nothing. Copying (`y`) goes through the terminal (OSC 52). The live view links run and child keys, PR numbers and the integration branch (OSC 8), so cmd-click opens them: GitHub pages from the run's repository, and Jira issues from `JIRA_BASE_URL`. It never captures the mouse, so the click reaches the terminal. `--frame`, `--plain` and `--json` write no links.
+It never writes to the tracker or GitHub, and to a run in two ways only: `x` twice on Home moves a run at rest or delivered to `runs/.archive/`, out of the view (move it back to bring it back), and `Q` appends one answer row to the run log of a child parked on a question. The only programs it starts are `git -C <worktree> remote get-url origin` (to build a PR URL), `open` or `xdg-open` with that URL, `git -C <path> rev-parse --git-common-dir` and `tmux new-window … claude "/portia KEY"` or `open -na Ghostty.app --args … -e claude "/portia KEY"` for `n` (below), `$PAGER`, `$VISUAL` or `$EDITOR` on a worktree (`e`, given the absolute path, and only while the worktree is on disk), `ps -o tty=,lstart= -p <pid>` once per recorded pid, off the render thread, and for the machine figures `vm_stat` and `sysctl -n vm.swapusage` (macOS), `ps` and `du -sk`. A worker's liveness is signal 0 to its pid, which sends nothing. Copying (`y`) goes through the terminal (OSC 52). The live view links run and child keys, PR numbers and the integration branch (OSC 8), so cmd-click opens them: GitHub pages from the run's repository, and Jira issues from `JIRA_BASE_URL`. It never captures the mouse, so the click reaches the terminal. `--frame`, `--plain` and `--json` write no links.
 
 **Keys**
 
@@ -643,6 +647,7 @@ It never writes to the tracker or GitHub, and to a run only when you archive it:
 | `n` `N` | Worker: the next or previous match |
 | `n` | Home, Activity, Machine: start a run (asks for its key) |
 | `x` `x` | Home: archive the selected run, when it is at rest or delivered |
+| `Q` | Any page: open the question that has waited longest on its Child page with an answer box. Everything typed is text (`q` included); `⏎` sends, `esc` cancels. It records the answer only while that question is still the one waiting; otherwise it says so and keeps what you typed. A session waiting in `portia answers wait` picks it up, else `portia resume` does |
 | `1` `2` `3` | The tab bar's pages: runs, activity and machine beside Home; children and gate matrix on Run; child and worker on Child |
 | `o` | Open the PR of what is selected: the epic PR on Home, the child's PR on Run, Child and Worker |
 | `y` | Copy the key; on Child and Worker, the worktree path |

@@ -33,4 +33,4 @@
      ✓ ✓✓✓ ✓✓! ✓✓   #398 · ACME-418 parked · 2h
      ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
 
-   ↑↓ move · → open · a activity · m machine · / filter · o epic PR · n new run · x archive · ? help · q quit    ● live
+   ↑↓ move · → open · Q answer · a activity · m machine · / filter · o epic PR · n new run · ? help · q quit     ● live

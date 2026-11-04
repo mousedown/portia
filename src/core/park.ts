@@ -6,7 +6,14 @@ import type { RunRow } from "./types";
  * to them), or a usage limit the run clears itself once an account frees.
  */
 export type Wait =
-	| { kind: "question"; text: string; at: string; attempt: number }
+	| {
+			kind: "question";
+			text: string;
+			at: string;
+			attempt: number;
+			/** The park is a claim that a spec cannot pass: amendment settles it, not an answer. */
+			claim?: true;
+	  }
 	| {
 			kind: "limit";
 			text: string;
@@ -39,7 +46,13 @@ export function waitOf(rows: RunRow[]): Wait | undefined {
 		last.stage === "result" ? last.data?.message : last.data?.reason,
 	).trim();
 	if (last.status === "parked")
-		return { kind: "question", text, at: last.at, attempt: last.attempt };
+		return {
+			kind: "question",
+			text,
+			at: last.at,
+			attempt: last.attempt,
+			...(last.stage === "result" && last.data?.spec ? { claim: true } : {}),
+		};
 	if (last.status !== "failed") return undefined;
 	const parked = after
 		.filter((r) => r.data?.kind === "failure" && r.status === "park")

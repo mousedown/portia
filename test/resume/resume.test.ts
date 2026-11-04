@@ -5,6 +5,7 @@ import { expect, it } from "vitest";
 import { recordLandFailure } from "../../src/cli/commands/land";
 import { resumeExit } from "../../src/cli/commands/resume";
 import { testProfile } from "../../src/core/config";
+import { recordParkAnswer } from "../../src/core/park-answer";
 import { appendRow, readRows } from "../../src/core/runlog";
 import {
 	answerQuestions,
@@ -518,4 +519,21 @@ it("checks a direct landing in git, not on GitHub: its commit on the integration
 	]);
 	// Not known locally: fetched once before it counts as missing.
 	expect(calls.some((a) => a[0] === "fetch")).toBe(true);
+});
+
+it("a parked child whose answer is recorded says the next drive redispatches it", async () => {
+	const s = setup([], []);
+	appendRow(s.dir, { child: "ACME-2", attempt: 1, stage: "dispatched" });
+	appendRow(s.dir, {
+		child: "ACME-2",
+		attempt: 1,
+		stage: "result",
+		status: "parked",
+		data: { message: "Which one?" },
+	});
+	recordParkAnswer(s.dir, "ACME-2", "the first");
+	const r = await resume(plan, s.ctx);
+	const a = r.actions.find((x) => x.child === "ACME-2");
+	expect(a?.detail).toMatch(/answer is recorded.*next drive redispatches/);
+	expect(a?.detail).not.toMatch(/waiting on a person/);
 });

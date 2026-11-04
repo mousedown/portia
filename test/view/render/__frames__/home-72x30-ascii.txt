@@ -27,4 +27,4 @@
    + +++ ++! ++   #398 . ACME-418 parked . 2h
    ! ACME-418  parked     try 1 opus              Backfill the index f~
 
-  up/dn move . right open . a activity . ? help . q quit         * live
+  up/dn move . right open . Q answer . ? help . q quit           * live
