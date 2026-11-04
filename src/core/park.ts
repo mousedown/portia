@@ -31,11 +31,20 @@ const LIMITED = /^every account is at its usage limit/;
 const FREES = /the soonest frees at (\S+?)\.?(?:\s|$)/;
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 
+/** An option as plain text: a tab or newline is a space, and no other C0 or C1 control stays. */
+const plainOption = (o: string) =>
+	o
+		.replace(/[\t\n\r]/g, " ")
+		// biome-ignore lint/suspicious/noControlCharactersInRegex: stripping them is the point
+		.replace(/[\u0000-\u001f\u007f-\u009f]/g, "")
+		.trim();
+
 /**
- * A worker's suggested answers, kept only as far as they are good: an entry that is not a
- * non-blank string goes, past four go, and fewer than two left is none. `recommended`
- * follows its entry to where it ends up, and goes if that entry did. Never throws: a bad
- * suggestion must not cost a worker its result.
+ * A worker's suggested answers, kept only as far as they are good: control characters go
+ * from each (they would reach the worker as its answer), an entry that is not a non-blank
+ * string goes, past four go, and fewer than two left is none. `recommended` follows its
+ * entry to where it ends up, and goes if that entry did. Never throws: a bad suggestion
+ * must not cost a worker its result.
  */
 export function cleanOptions(
 	options: unknown,
@@ -43,7 +52,7 @@ export function cleanOptions(
 ): { options?: string[]; recommended?: number } {
 	if (!Array.isArray(options)) return {};
 	const kept = options.flatMap((o, from) => {
-		const text = typeof o === "string" ? o.trim() : "";
+		const text = typeof o === "string" ? plainOption(o) : "";
 		return text ? [{ text, from }] : [];
 	});
 	const four = kept.slice(0, 4);
