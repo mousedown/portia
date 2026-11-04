@@ -1,6 +1,6 @@
  o PORTIA > ACME-500  Self-serve invoices for team accounts     \ 14:02
  ----------------------------------------------------------------------
-  epic     #412 . epic/ACME-500 . 6h 41m . plan 2m old
+  epic     acme-app . #412 . epic/ACME-500 . 6h 41m . plan 2m old
    +---------------------------- keys -----------------------------+
    |                                                               |
    |  pages          Home > Run > Child > Worker                   |
