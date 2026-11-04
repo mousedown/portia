@@ -14,7 +14,17 @@ export const answersCommand: Command = async (args, io) => {
 	const [sub, rawKey] = args;
 	const key = rawKey?.toUpperCase();
 	if (sub !== "wait" || !key) throw new PortiaProblem(USAGE);
-	const since = flag(args, "--since");
+	const rawSince = flag(args, "--since");
+	let since: string | undefined;
+	if (rawSince !== undefined) {
+		const t = Date.parse(rawSince);
+		if (Number.isNaN(t))
+			throw new PortiaProblem(
+				`--since <iso> must be a date and time, got "${rawSince}"\n${USAGE}`,
+			);
+		// Rows carry millisecond ISO times; compare like with like.
+		since = new Date(t).toISOString();
+	}
 	const poll = Number(flag(args, "--poll") ?? 2);
 	if (!Number.isFinite(poll) || poll <= 0)
 		throw new PortiaProblem(

@@ -93,3 +93,39 @@ it("refuses an unknown subcommand", async () => {
 	expect(r.code).toBe(11);
 	expect(r.err).toContain("usage: portia answers wait");
 });
+
+it("refuses a --since that is not a time", async () => {
+	const r = await portia("answers", "wait", "A-1", "--since", "yesterday");
+	expect(r.code).toBe(11);
+	expect(r.err).toContain("--since");
+});
+
+it("compares --since as a time, so a whole-second value still precedes a later fraction", async () => {
+	appendRow(dir, {
+		at: "2026-11-03T09:59:59.000Z",
+		child: "A-2",
+		attempt: 1,
+		stage: "result",
+		status: "parked",
+		data: { message: "Which?" },
+	});
+	appendRow(dir, {
+		at: "2026-11-03T10:00:00.123Z",
+		child: "A-2",
+		attempt: 1,
+		stage: "decision",
+		status: "answer",
+		data: { kind: "parked", by: "person", answer: "x", why: "Which?" },
+	});
+	const r = await portia(
+		"answers",
+		"wait",
+		"A-1",
+		"--since",
+		"2026-11-03T10:00:00Z",
+		"--poll",
+		"0.01",
+	);
+	expect(r.code).toBe(0);
+	expect(JSON.parse(r.out)).toEqual({ answered: ["A-2"] });
+});
