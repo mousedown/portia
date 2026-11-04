@@ -759,7 +759,7 @@ export const CHILD_HINTS = (c: ChildView): string[] => {
 	return [
 		"↑↓ move",
 		"⏎ expand",
-		c.wait?.kind === "question" ? "Q answer" : "",
+		c.wait?.kind === "question" && !c.wait.claim ? "Q answer" : "",
 		c.worker?.kind === "detached" ? "w worker log" : "",
 		c.pr ? "o PR" : "",
 		here ? "y copy worktree" : "",

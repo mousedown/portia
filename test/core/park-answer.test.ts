@@ -52,6 +52,24 @@ describe("recording a person's answer to a parked child", () => {
 		).toThrow(/no longer waiting/);
 	});
 
+	it("with onlyWaitingSince, refuses a spec claim; without it, still records", () => {
+		appendRow(dir, {
+			at: "2026-11-03T10:00:00.000Z",
+			child: "A-2",
+			attempt: 1,
+			stage: "result",
+			status: "parked",
+			data: { message: "cannot pass", spec: { path: "a.feature" } },
+		});
+		expect(() =>
+			recordParkAnswer(dir, "A-2", "x", {
+				onlyWaitingSince: "2026-11-03T10:00:00.000Z",
+			}),
+		).toThrow(/spec claim, settled by amendment from the session/);
+		recordParkAnswer(dir, "A-2", "x");
+		expect(readRows(dir).rows.at(-1)?.status).toBe("answer");
+	});
+
 	it("answeredSince names answers not yet acted on, newer than since", () => {
 		parked("2026-11-03T10:00:00.000Z");
 		expect(answeredSince(readRows(dir).rows)).toEqual([]);

@@ -19,6 +19,10 @@ export function recordParkAnswer(
 		const w = waitOf(rows);
 		if (w?.kind !== "question" || w.at !== o.onlyWaitingSince)
 			throw new PortiaProblem(`${key} is no longer waiting on this question`);
+		if (w.claim)
+			throw new PortiaProblem(
+				`${key}'s park is a spec claim, settled by amendment from the session`,
+			);
 	}
 	const wait = answerable(rows);
 	if (!wait)

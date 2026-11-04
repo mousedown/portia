@@ -33,6 +33,19 @@ describe("what a parked child waits on", () => {
 		});
 	});
 
+	it("marks a question that is a spec claim, which amendment settles", () => {
+		const w = waitOf(
+			rows(dispatched(0), {
+				at: at(10),
+				attempt: 1,
+				stage: "result",
+				status: "parked",
+				data: { message: "cannot pass", spec: { path: "a.feature" } },
+			}),
+		);
+		expect(w).toMatchObject({ kind: "question", claim: true });
+	});
+
 	it("a parked land waits on the person, with its reason", () => {
 		expect(
 			waitOf(

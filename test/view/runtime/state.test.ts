@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { memoryFs } from "../../../src/view/model/fs";
 import { readHome } from "../../../src/view/model/home";
+import { CHILD_HINTS } from "../../../src/view/render/screens/child";
 import type { Key } from "../../../src/view/runtime/keys";
 import {
 	completions,
@@ -506,5 +508,72 @@ describe("answering a parked question", () => {
 	it("enter on an empty box sends nothing", () => {
 		const s = reduce(initialState(), char("Q"), ctx).state;
 		expect(reduce(s, { name: "enter" }, ctx).effects).toEqual([]);
+	});
+});
+
+describe("Q across runs, and spec claims", () => {
+	const at = (hms: string) => `2026-10-20T${hms}.000Z`;
+	const line = (child: string, t: string, data: Record<string, unknown>) =>
+		JSON.stringify({
+			at: at(t),
+			child,
+			attempt: 1,
+			stage: "result",
+			status: "parked",
+			data,
+		});
+	const homeOf = (runs: Record<string, string[]>) =>
+		readHome(
+			memoryFs(
+				Object.fromEntries(
+					Object.entries(runs).map(([k, v]) => [
+						`${HOME}/runs/${k}/runlog.jsonl`,
+						`${v.join("\n")}\n`,
+					]),
+				),
+			),
+			HOME,
+			Date.parse(at("14:00:00")),
+		);
+	const ctxOf = (h: typeof home) => ({ home: h, now: Date.parse(at("14:00:00")), rows: 36 });
+	const Q: Key = { name: "char", ch: "Q" };
+
+	it("Q picks the oldest question across two runs, not the first run's", () => {
+		const h = homeOf({
+			"ACME-700": [line("ACME-701", "13:30:00", { message: "later?" })],
+			"ACME-800": [line("ACME-801", "12:00:00", { message: "earlier?" })],
+		});
+		const r = reduce(initialState(), Q, ctxOf(h));
+		expect(r.state.runKey).toBe("ACME-800");
+		expect(r.state.answer).toMatchObject({ run: "ACME-800", child: "ACME-801" });
+	});
+
+	it("Q skips a spec claim, which is settled by amendment, not by an answer", () => {
+		const claim = { path: "a.feature", scenario: "s", assertion: "a", evidence: "e" };
+		const h = homeOf({
+			"ACME-700": [
+				line("ACME-701", "12:00:00", { message: "cannot pass", spec: claim }),
+				line("ACME-702", "13:30:00", { message: "which?" }),
+			],
+		});
+		const r = reduce(initialState(), Q, ctxOf(h));
+		expect(r.state.answer).toMatchObject({ child: "ACME-702" });
+		const only = homeOf({
+			"ACME-700": [line("ACME-701", "12:00:00", { message: "x", spec: claim })],
+		});
+		const none = reduce(initialState(), Q, ctxOf(only));
+		expect(none.state.answer).toBeUndefined();
+		expect(none.state.toast?.text).toBe("no questions waiting");
+		const c = only.runs[0]?.children[0];
+		expect(c && CHILD_HINTS(c)).not.toContain("Q answer");
+	});
+
+	it("paste drops control characters and normalises line endings", () => {
+		const h = homeOf({
+			"ACME-700": [line("ACME-701", "12:00:00", { message: "which?" })],
+		});
+		let st = reduce(initialState(), Q, ctxOf(h)).state;
+		st = reduce(st, { name: "paste", text: "a\r\nb\rc\u001b[31m\u0007\td" }, ctxOf(h)).state;
+		expect(st.answer?.text).toBe("a\nb\nc[31m\td");
 	});
 });

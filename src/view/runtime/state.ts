@@ -756,13 +756,20 @@ function nextQuestion(home: HomeView) {
 	return home.runs
 		.flatMap((r) =>
 			r.children.flatMap((c) =>
-				c.wait?.kind === "question"
+				c.wait?.kind === "question" && !c.wait.claim
 					? [{ run: r.key, child: c.key, since: c.wait.at }]
 					: [],
 			),
 		)
 		.sort((a, b) => a.since.localeCompare(b.since))[0];
 }
+
+/** A paste as plain answer text: one newline style, and no control characters but tab. */
+const cleanPaste = (t: string) =>
+	t
+		.replace(/\r\n?/g, "\n")
+		// biome-ignore lint/suspicious/noControlCharactersInRegex: stripping them is the point
+		.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "");
 
 function editAnswer(s: ViewState, k: Key): Reduced {
 	const a = s.answer;
@@ -796,7 +803,7 @@ function editAnswer(s: ViewState, k: Key): Reduced {
 		case "char":
 			return set(a.text + (k.ch ?? ""));
 		case "paste":
-			return set(a.text + (k.text ?? ""));
+			return set(a.text + cleanPaste(k.text ?? ""));
 		default:
 			return { state: s, effects: [] };
 	}
