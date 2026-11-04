@@ -544,6 +544,7 @@ The next drive redispatches the child: `env up` rebases its worktree onto the am
 ```json
 {
   "parent": "GH-79",
+  "at": "2026-01-01T10:00:00.000Z",
   "steps": [
     { "step": "land", "child": "GH-80", "ok": true, "detail": "PR #4 merged", "at": "2026-01-01T10:00:00.000Z" }
   ],
@@ -551,7 +552,7 @@ The next drive redispatches the child: `env up` rebases its worktree onto the am
 }
 ```
 
-`steps` are the automatic steps taken this drive, in order. `step` is one of `record-landed`, `env-up`, `dispatch`, `worker-start`, `worker-wait`, `result`, `decide-failure`, `answer`, `signoff`, `land`, `ledger`, `wave-gate`, `epic-gate`; `child` is the child acted on, or the parent for a run-wide step; `attempt` appears where one applies; `ok` is false for a failed step; `detail` is one line. `stop` is the object whose `kind` and fields the table above lists. Without `--json`, the steps print one per line (`ok  land GH-80: PR #4 merged`) followed by `stop <kind>: …`.
+`at` is when the output was written, an ISO time. `steps` are the automatic steps taken this drive, in order. `step` is one of `record-landed`, `env-up`, `dispatch`, `worker-start`, `worker-wait`, `result`, `decide-failure`, `answer`, `signoff`, `land`, `ledger`, `wave-gate`, `epic-gate`; `child` is the child acted on, or the parent for a run-wide step; `attempt` appears where one applies; `ok` is false for a failed step; `detail` is one line. `stop` is the object whose `kind` and fields the table above lists. Without `--json`, the steps print one per line (`ok  land GH-80: PR #4 merged`) followed by `stop <kind>: …`.
 
 ## CLI reference
 
@@ -567,6 +568,7 @@ Every command runs from the target repository's root.
 | `portia check <KEY>` | Run every plan rule against the tracker. |
 | `portia permissions` | Add the profile's `denyRules` to the checkout's local Claude Code settings. Never adds an allow. |
 | `portia drive <PARENT> [--json] [--answer <KEY> --note-file <file>]` | Take every automatic step of the run (dispatch, detached workers, results, lands, ledger, wave and epic gates) until a stop needs a person or the AI. Exit 0 epic-ready, 10 a stop, 11 failed or error. Needs `workers.mode: "detached"`. See [Driving a run](#driving-a-run-portia-drive). |
+| `portia answers wait <PARENT> [--since <iso>] [--poll <seconds>]` | Read-only: poll the run until a child parked on a question is answered (from `portia view`), then print `{ "answered": [keys] }` and exit 0, so a session running it in the background wakes when an answer lands. `--since` ignores answers recorded before that time; `--poll` is the interval in seconds (default 2). Exit 10 with `{ "answered": [] }` when no child waits on a question. |
 | `portia resume <PARENT>` | Reconcile the run log with git, GitHub, the tracker and any detached workers, and list the actions needed to continue. |
 | `portia integration init <PARENT>` | Create the integration branch and the draft epic PR. |
 | `portia integration sync <PARENT>` | Bring main into the integration branch; exit 11 on conflicts. |

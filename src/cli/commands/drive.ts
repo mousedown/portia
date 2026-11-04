@@ -20,7 +20,11 @@ const USAGE =
 export const DETACHED_SETTING = 'workers.mode: "detached"';
 
 function print(io: Io, r: DriveResult, json: boolean): number {
-	io.out(json ? JSON.stringify(r) : renderDrive(r));
+	io.out(
+		json
+			? JSON.stringify({ ...r, at: new Date().toISOString() })
+			: renderDrive(r),
+	);
 	return stopExit(r.stop);
 }
 

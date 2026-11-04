@@ -16,6 +16,7 @@ import { banner } from "../render/banner";
 import { detect } from "../render/style";
 import { accountsCommand } from "./commands/accounts";
 import { amendCommand } from "./commands/amend";
+import { answersCommand } from "./commands/answers";
 import { briefCommand } from "./commands/brief";
 import { checkCommand } from "./commands/check";
 import { decideCommand } from "./commands/decide";
@@ -52,6 +53,7 @@ export const commands: Record<string, Command> = {
 	accounts: accountsCommand,
 	amend: amendCommand,
 	answer: answerCommand,
+	answers: answersCommand,
 	brief: briefCommand,
 	check: checkCommand,
 	decide: decideCommand,
