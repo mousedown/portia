@@ -58,6 +58,16 @@ await spawnExec("sh", ["-c", "echo $$ > ${pidFile}; sleep 30"], { timeoutMs: 60_
 	const exited = new Promise((r) => portia.on("exit", r));
 	portia.kill("SIGTERM");
 	await exited;
-	await new Promise((r) => setTimeout(r, 100));
-	expect(() => process.kill(-pid, 0)).toThrow();
+	// The group's end is not instant, and a busy machine takes longer: wait for it, up to a limit.
+	const gone = () => {
+		try {
+			process.kill(-pid, 0);
+			return false;
+		} catch {
+			return true;
+		}
+	};
+	for (let i = 0; i < 100 && !gone(); i++)
+		await new Promise((r) => setTimeout(r, 50));
+	expect(gone()).toBe(true);
 });
