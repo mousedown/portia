@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { runMetrics } from "../../core/metrics";
 import { waitOf } from "../../core/park";
 import { PLAN_LINK_FILE, planUrlOf } from "../../core/plan-link";
+import { RUN_REPO_FILE, repoOfMark, repoOfRecords } from "../../core/run-repo";
 import { deriveStates } from "../../core/state";
 import type {
 	ChildPlan,
@@ -65,6 +66,8 @@ export interface RunFiles {
 	epic?: string;
 	/** `plan-link.json`: where the plan's page was published. */
 	planLink?: string;
+	/** `repo.json`: the repository that owns the run. */
+	repoMark?: string;
 	/** The epic PR's title, asked for only when there is no plan snapshot to title the run. */
 	epicTitle?: string;
 	ports?: string;
@@ -156,6 +159,7 @@ export function gatherRun(
 		ledgerMtime: fs.stat(join(dir, LEDGER))?.mtimeMs,
 		epic,
 		planLink: read(PLAN_LINK_FILE),
+		repoMark: read(RUN_REPO_FILE),
 		epicTitle:
 			plan === undefined && epicPr !== undefined
 				? fs.prTitle?.(
@@ -681,6 +685,12 @@ export function buildRun(f: RunFiles, now: number): RunView {
 		summary: source === "plan" ? plan.summary : titled?.summary,
 		scope: source === "plan" ? plan.scope : titled?.scope,
 		source,
+		repo:
+			repoOfMark(json(f.repoMark)) ??
+			repoOfRecords([
+				...Object.values(f.envs),
+				...Object.values(f.workers).map((w) => w.record),
+			]),
 		planAt: snap?.at,
 		planUrl: planUrlOf(json(f.planLink)),
 		skipped: f.log?.skipped ?? 0,

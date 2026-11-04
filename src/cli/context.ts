@@ -7,7 +7,7 @@ import {
 	type ProfileLocation,
 	repoNameFromCommonDir,
 } from "../core/profile-file";
-import { runDir } from "../core/rundir";
+import { runDir, setRunOwner } from "../core/rundir";
 import { scheduleOf } from "../core/state";
 import type { Finding, ParentPlan } from "../core/types";
 import { BlockError } from "../plan/block";
@@ -139,6 +139,7 @@ export async function cliContext(): Promise<CliContext> {
 	const { repoRoot, repoName } = await repoOf(process.cwd());
 	const profileFile = locateProfile(repoRoot, { repoName });
 	const profile = await loadProfileFile(profileFile.file);
+	setRunOwner(profile);
 	let tracker: Tracker | undefined;
 	return {
 		repoRoot,

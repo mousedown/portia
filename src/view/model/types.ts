@@ -194,6 +194,8 @@ export interface RunView {
 	summary?: string;
 	scope?: string;
 	source: Source;
+	/** The repository the run belongs to: its marker, else where its worktrees live. */
+	repo?: string;
 	planAt?: string;
 	/** The published page of the plan and its waves, from `portia plan link`. */
 	planUrl?: string;

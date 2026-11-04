@@ -313,7 +313,8 @@ const LEAD = 2 + 1 + 1;
  */
 export function homeColumns(ctx: Ctx, runs: RunView[]): Cols {
 	const K = Math.max(8, ...runs.map((r) => r.key.length));
-	const SW = Math.max(1, ...runs.map(summaryWidth));
+	const tagged = reposDiffer(ctx);
+	const SW = Math.max(1, ...runs.map((r) => summaryWidth(r, tagged)));
 	const figs = runs.map((r) =>
 		progressFigures(ctx, runProgress(r, ctx.tick.now)),
 	);
@@ -346,14 +347,34 @@ export const questionsText = (n: number): string =>
 	n ? `${n} ${n === 1 ? "question" : "questions"} for you` : "";
 
 /** The summary cell's text width: the questions waiting lead, then the summary. */
-const summaryWidth = (r: RunView) =>
+const summaryWidth = (r: RunView, tagged: boolean) =>
 	strWidth(
-		[questionsText(r.questions), r.summary || (r.questions ? "" : "—")]
+		[
+			tagged ? r.repo : "",
+			questionsText(r.questions),
+			r.summary || (r.questions ? "" : "—"),
+		]
 			.filter(Boolean)
 			.join(" · "),
 	);
 
+/** A repository is worth a column's room only when the list spans more than one. */
+const reposDiffer = (ctx: Ctx) =>
+	new Set(ctx.models.home.runs.map((r) => r.repo).filter(Boolean)).size > 1;
+
+/** A cell this narrow has no room to name the repository beside the summary. */
+const REPO_MIN_CELL = 28;
+
+/** The run's repository ahead of its summary, so runs of different repositories read apart. */
 function summarySpan(ctx: Ctx, r: RunView, w: number): Span[] {
+	if (!r.repo || w < REPO_MIN_CELL || !reposDiffer(ctx))
+		return summaryText(ctx, r, w);
+	const tag: Span[] = [{ text: `${r.repo} · `, role: "dim" }];
+	const used = lineWidth(tag);
+	return [...tag, ...summaryText(ctx, r, w - used)];
+}
+
+function summaryText(ctx: Ctx, r: RunView, w: number): Span[] {
 	const asks = questionsText(r.questions);
 	if (asks) {
 		const lead: Line = [

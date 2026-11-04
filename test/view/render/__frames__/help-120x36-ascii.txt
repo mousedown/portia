@@ -1,6 +1,6 @@
  o P O R T I A  >  ACME-500  Self-serve invoices for team accounts                                 \ in session . 14:02
  ----------------------------------------------------------------------------------------------------------------------
-   epic     #412 . epic/ACME-500 . started 6h 41m ago . plan 2m old
+   epic     acme-app . #412 . epic/ACME-500 . started 6h 41m ago . plan 2m old
                            +---------------------------- keys -----------------------------+
                            |                                                               |
                            |  pages          Home > Run > Child > Worker                   |

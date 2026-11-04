@@ -1,14 +1,14 @@
  ◆ PORTIA › ACME-500  Self-serve invoices for tea…  ⠙ 14:02
  ──────────────────────────────────────────────────────────
-  epic     #412 · epic/ACME-500 · 6h 41m · plan 2m old
+  epic     acme-app · #412 · epic/ACME-500 · plan 2m old
   progress 4/8 landed · 662k tokens
 
-  spine ✓1 ──▶ wave 1 ✓2 ──▶ wave 2 ⠇2 ✓1 ──▶ wave 3 ·1
-  wave 4 ·1
+  spine       wave 1      wave 2      wave 3      wave 4
+  ✓ 501 ─┬──▶ ✓ 502 ─┬──▶ ✓ 504 ────▶ · 507
+         │           └──▶ ⠇ 505
+         └──▶ ✓ 503 ────▶ ⠏ 506 ────────────────▶ · 508
 
-                                                   ↑ 1 more
-  ✓ ACME-502  Price a line ite…  landed      try 1   28m00s
-  ✓ ACME-503  Tax rules per bi…  landed      try 2    1h12m
+                                                   ↑ 3 more
   wave 2         2 running                     1/3    1h04m
   ✓ ACME-504  Invoice list for…  landed      try 1   33m00s
 ▌ ⠇ ACME-505  Team admins down…  exit gate   try 2   12m04s
