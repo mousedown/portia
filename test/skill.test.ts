@@ -203,3 +203,14 @@ it("turns a spec that needs another scenario's feature into a need or a decouple
 	);
 	expect(review).toMatch(/refuses a child already started/);
 });
+it("waits for an answer from the view at a parked stop, without a blocking dialog", () => {
+	const parked = skill.slice(
+		skill.indexOf("   - `parked`:"),
+		skill.indexOf("   - `failed`"),
+	);
+	expect(parked).toContain(
+		"`portia answers wait <PARENT> --since <the JSON's at>`",
+	);
+	expect(parked).toContain("never with AskUserQuestion");
+	expect(parked).toContain("stop the background wait first");
+});

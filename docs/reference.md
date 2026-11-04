@@ -453,6 +453,8 @@ The roles are `spine`, `child`, `amend` and `fix`. An MCP tool comes with its se
 
 A child that parks for the person (a worker's question, a parked land, or a failure decided as park) is announced the moment it is recorded: by `portia result` or `portia worker wait` when they write a parked result, by `portia land` when it parks a land, and by `portia decide failure` when it answers park. By default that is a desktop notification, `Portia <PARENT>` / `<CHILD> is waiting on you: <the question's first line>`, through `osascript` on macOS or `notify-send` on Linux (nothing elsewhere). A park the run clears itself, every account at its usage limit, is not announced.
 
+A parked question can also be answered in `portia view`: press `Q` to open the oldest question and write the answer. The view appends it to the child's run log, so it waits there whether or not the session that drives the run is still open. The skill waits on it with `portia answers wait <PARENT> --since <at>` (exit 0 once an answer lands, exit 10 when nothing waits) and drives again; `portia drive` then redispatches the child with the answer, as it does for one given with `--answer`.
+
 If the question is still unanswered `notify.remindMin` minutes later (30 by default), it is announced once more, never again. `portia status`, `portia resume` and `portia worker wait` (once a minute while it polls) look for questions that are due, and `notify.json` in the run directory records each reminder before it is sent, so however many of them look, each park is reminded at most once. A park ends when the child is dispatched again, lands, or an answer is recorded for it.
 
 `notify.onPark` replaces the desktop notification with your own command:
