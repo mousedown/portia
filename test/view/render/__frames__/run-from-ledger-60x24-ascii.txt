@@ -21,4 +21,4 @@
   wave 3                                       2/2    1h45m
                                                    v 2 more
 
-  up/dn move . right open . left back . ? help       * live
+  left back . ? help          ! 1 question on Home   * live

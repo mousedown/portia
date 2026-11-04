@@ -316,3 +316,56 @@ it("takes a claim on another child's spec as an ordinary outcome", async () => {
 	expect(a.message).toContain("not an acceptance spec of its own scenarios");
 	expect(readRows(s.dir).rows.at(-1)?.data?.spec).toBeUndefined();
 });
+
+const parkedWith = (extra: Record<string, unknown> = {}) => ({
+	ok: true as const,
+	result: {
+		child: "ACME-2",
+		status: "parked" as const,
+		head: "abc1234",
+		gates: { task: "pass" as const, exit: "fail" as const },
+		evidence: {},
+		question: "Which way?",
+		options: ["left", "right"],
+		recommended: 1,
+		...extra,
+	},
+});
+
+it("carries a parked worker's options into the result row", async () => {
+	const s = setup("");
+	await applyOutcome(parkedWith(), "ACME-2", s.ctx);
+	expect(readRows(s.dir).rows.at(-1)).toMatchObject({
+		stage: "result",
+		status: "parked",
+		data: { message: "Which way?", options: ["left", "right"], recommended: 1 },
+	});
+});
+
+it("writes no options when the worker gave none", async () => {
+	const s = setup("");
+	await applyOutcome(
+		parkedWith({ options: undefined, recommended: undefined }),
+		"ACME-2",
+		s.ctx,
+	);
+	const data = readRows(s.dir).rows.at(-1)?.data ?? {};
+	expect(data).not.toHaveProperty("options");
+	expect(data).not.toHaveProperty("recommended");
+});
+
+it("keeps options off a park that asks something other than the worker's question", async () => {
+	// A done result outside its touches parks on the files, not on anything it offered.
+	const s = setup("elsewhere/a.ts\n");
+	await applyOutcome(
+		{
+			...done,
+			result: { ...done.result, options: ["left", "right"], recommended: 0 },
+		},
+		"ACME-2",
+		{ ...s.ctx, decideTouches: async () => "park" as const },
+	);
+	const row = readRows(s.dir).rows.at(-1);
+	expect(row?.status).toBe("parked");
+	expect(row?.data).not.toHaveProperty("options");
+});

@@ -30,7 +30,7 @@ Run `{{evidence}}` and record its last lines for each scenario you own.
 ## Rules
 
 - Follow the repository's CLAUDE.md files, project skills and settings. Where they conflict with this brief, park.
-- Never guess. When unsure, park with one clear question.
+- Never guess. When unsure, park with one clear question. When it has real alternatives, give 2-4 short suggested answers in `options`, and the index of the one you recommend in `recommended`, counting from 0. The person picks one or types their own.
 - When what you lack is another child's work in {{parent}} (a route, a module or a hook its ticket delivers), name that child's key in your question: the run sends you again once it has landed, and asks no one.
 - Never change permissions, never touch main, never write outside your touches except for the test and generated ripples above.
 - Before finishing, review your own diff once for twin code paths, helpers adopted in only some places, comments that narrate ticket history, and database calls outside the repository's data-access layer.
@@ -39,5 +39,5 @@ Run `{{evidence}}` and record its last lines for each scenario you own.
 
 Exactly one JSON object and nothing else:
 
-{"child":"{{child}}","status":"done|parked|failed","head":"<git rev-parse HEAD>","gates":{"task":"pass|fail","exit":"pass|fail"},"evidence":{"F1":"<command and last lines>"},"question":"<only when parked>","reason":"<only when failed>"}
+{"child":"{{child}}","status":"done|parked|failed","head":"<git rev-parse HEAD>","gates":{"task":"pass|fail","exit":"pass|fail"},"evidence":{"F1":"<command and last lines>"},"question":"<only when parked>","options":["<only when parked: a short suggested answer>","<another>"],"recommended":<with options: the index you recommend>,"reason":"<only when failed>"}
 {{resultFile}}

@@ -171,7 +171,7 @@ describe("formatting", () => {
 describe("narrow widths", () => {
 	// A run's row is the one with a bar on it; the dock's rows have none.
 	const at = (cols: number, args: string[] = []) =>
-		frame([...args, "--width", String(cols), "--height", "36", "--depth", "0"])
+		frame([...args, "--width", String(cols), "--height", "60", "--depth", "0"])
 			.split("\n")
 			.filter((l) => /^[ ▌] {1,3}\S ACME-\d+ /.test(l) && /[━─]/.test(l));
 	const barOf = (l: string) =>

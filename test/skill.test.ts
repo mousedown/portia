@@ -30,6 +30,9 @@ it("has frontmatter with a name and description", () => {
 });
 it("the brief tells the worker the exact result shape", () => {
 	expect(brief).toContain('"status":"done|parked|failed"');
+	expect(brief).toContain('"options":[');
+	expect(brief).toContain('"recommended":<');
+	expect(brief).toContain("2-4 short suggested answers");
 });
 it("signs off the spine's acceptance tests before the spine lands", () => {
 	expect(skill).not.toContain("After wave 0 (the spine) lands");
@@ -212,5 +215,7 @@ it("waits for an answer from the view at a parked stop, without a blocking dialo
 		"`portia answers wait <PARENT> --since <the JSON's at>`",
 	);
 	expect(parked).toContain("never with AskUserQuestion");
+	expect(parked).toContain("say they can answer here or in `portia view`");
+	expect(parked).not.toContain("`Q`");
 	expect(parked).toContain("stop the background wait first");
 });

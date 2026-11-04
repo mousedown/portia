@@ -27,4 +27,4 @@
   ACME-506    3.9 GB  ███████▌
                                                               ↓ 10 more
 
-  ↑↓ scroll · a activity · ← home · ? help · q quit              ● live
+  ↑↓ scroll · ← home · ? help · q quit    ! 1 question on Home   ● live

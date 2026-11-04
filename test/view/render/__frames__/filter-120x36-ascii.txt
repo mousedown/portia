@@ -25,12 +25,12 @@
 
 
 
-
-
-
  ----------------------------------------------------------------------------------------------------------------------
-   ACME-410                                                                         epic/ACME-410 . started 12h 02m ago
-     + +++ ++! ++   #398 . ACME-418 parked . 2h
-     ! ACME-418  parked     attempt 1 opus              Backfill the index for old archives
+    ACME-418  Backfill the index for old archives                                                                1 of 1
+    May I add the search index migration to my paths?
+    The backfill needs db/migrations/0042_archive_index.sql, which is outside my declared paths.
+    Without it the index cannot be built on an existing database.
+
+    type your answer
 
   / state:parked state:failed|                                                          2 of 6 . enter keep . esc clear

@@ -27,4 +27,4 @@
   files
                                                                v 6 more
 
-  up/dn move . enter expand . left back . ? help                 * live
+  up/dn move . left back . ? help         ! 1 question on Home   * live

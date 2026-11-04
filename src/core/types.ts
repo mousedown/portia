@@ -91,6 +91,10 @@ export interface WorkerResult {
 	gates: { task: GateStatus; exit: GateStatus };
 	evidence: Record<ReqId, string>;
 	question?: string;
+	/** Suggested answers to `question`, when it has real alternatives. */
+	options?: string[];
+	/** Which of `options` the worker recommends. */
+	recommended?: number;
 	reason?: string;
 	/** Set when the child claims an acceptance spec it owns cannot pass as written. */
 	spec?: SpecClaim;

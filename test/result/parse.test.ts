@@ -100,3 +100,82 @@ describe("a claim that a spec cannot pass", () => {
 		).toBe(false);
 	});
 });
+
+describe("a parked worker's suggested answers", () => {
+	const park = {
+		...good,
+		status: "parked",
+		gates: { task: "pass", exit: "fail" },
+		question: "Which way?",
+	};
+	const parse = (extra: Record<string, unknown>) => {
+		const r = parseResult(JSON.stringify({ ...park, ...extra }), "ACME-2");
+		if (!r.ok) throw new Error(`a suggestion failed the result: ${r.error}`);
+		return r.result;
+	};
+	it("keeps 2 to 4 options and the one recommended", () => {
+		expect(parse({ options: ["a", "b"], recommended: 1 })).toMatchObject({
+			options: ["a", "b"],
+			recommended: 1,
+		});
+		expect(parse({ options: [" a ", "b", "c", "d"] }).options).toEqual([
+			"a",
+			"b",
+			"c",
+			"d",
+		]);
+		expect(parse({ options: ["a", "b"], recommended: 0 }).recommended).toBe(0);
+	});
+	const BAD: [string, Record<string, unknown>][] = [
+		["a string", { options: "a, b" }],
+		["an object", { options: { a: 1 } }],
+		["a number", { options: 3 }],
+		["null", { options: null }],
+		["an empty list", { options: [] }],
+		["one option", { options: ["only"] }],
+		["all the wrong type", { options: [1, 2, 3] }],
+		["all blank", { options: ["", "  ", "\n"] }],
+		["one left of two", { options: ["a", ""] }],
+		["one left of two types", { options: ["a", 2] }],
+	];
+	for (const [name, extra] of BAD)
+		it(`drops ${name}, and never fails the result`, () => {
+			const r = parse({ ...extra, recommended: 0 });
+			expect(r.options).toBeUndefined();
+			expect(r.recommended).toBeUndefined();
+			expect(r.question).toBe("Which way?");
+		});
+	it("drops the bad entries among good ones", () => {
+		expect(parse({ options: ["a", "", 3, null, "b"] }).options).toEqual([
+			"a",
+			"b",
+		]);
+	});
+	it("keeps the first 4 of more", () => {
+		const options = ["a", "b", "c", "d", "e", "f"];
+		expect(parse({ options }).options).toEqual(["a", "b", "c", "d"]);
+		expect(parse({ options, recommended: 4 }).recommended).toBeUndefined();
+	});
+	for (const bad of [2, -1, 0.5, "0", null, true, [0]])
+		it(`drops recommended ${JSON.stringify(bad)}, keeping the options`, () => {
+			const r = parse({ options: ["a", "b"], recommended: bad });
+			expect(r.options).toEqual(["a", "b"]);
+			expect(r.recommended).toBeUndefined();
+		});
+	it("keeps recommended on its own entry when one before it is dropped", () => {
+		const r = parse({ options: ["", "a", "b"], recommended: 2 });
+		expect(r.options).toEqual(["a", "b"]);
+		expect(r.recommended).toBe(1);
+		expect(
+			parse({ options: ["", "a", "b"], recommended: 0 }).recommended,
+		).toBeUndefined();
+	});
+	it("drops recommended alone, with no options", () => {
+		expect(parse({ recommended: 0 }).recommended).toBeUndefined();
+	});
+	it("still rejects a key the result does not have", () => {
+		expect(parseResult(JSON.stringify({ ...park, nope: 1 }), "ACME-2").ok).toBe(
+			false,
+		);
+	});
+});

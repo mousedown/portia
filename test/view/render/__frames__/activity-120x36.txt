@@ -33,4 +33,4 @@
    10:52:50   ACME-410  ACME-418   ↑ env up       epic/ACME-418 · port 3101 · db portia_acme_418
                                                                                                              ↓ 175 more
 
-   ↑↓ move · ⏎ expand · → open child · f follow · / filter · m machine · ← home · ? help · q quit                ● live
+   ↑↓ move · ⏎ expand · → open child · f follow · / filter · ← home · ? help · q quit     ! 1 question on Home   ● live
