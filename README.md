@@ -34,73 +34,47 @@ Named for the judge in *The Merchant of Venice*, who hears the evidence before a
 
 ## Install
 
-Portia runs on macOS, Linux and WSL. You need [Claude Code](https://docs.claude.com/claude-code) and the [GitHub CLI](https://cli.github.com), logged in. The installer tells you if either is missing, and adds everything else. Installing takes about a minute.
+Three steps, from nothing to your first epic. You need [Claude Code](https://docs.claude.com/claude-code) and the [GitHub CLI](https://cli.github.com), logged in, on macOS, Linux or WSL. The installer adds everything else and tells you if either is missing.
+
+**1. Install.** In a terminal:
 
 ```sh
-# 1. Install
 curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/install.sh | bash
+```
 
-# 2. In a new terminal, from your repository: the setup wizard detects your settings, press Enter to accept
+**2. Set up your repository.** In a new terminal:
+
+```sh
+cd your-repo
 portia init
 ```
+
+**3. Hand it an epic.** In Claude Code, from the same repository:
 
 ```text
-# 3. In Claude Code, from your repository: run an epic
-/portia PROJ-123
+/portia GH-42
 ```
 
-That is all most people need. The steps below say the same thing with more detail.
+You approve the plan, sign off the acceptance tests, and review one PR at the end. If a run is interrupted, pick it up with `portia resume GH-42`.
 
-### 1. Check what you need
+<p align="center">
+  <img alt="The real installer finishing in a terminal, then portia init asking where tickets live, proposing lint, typecheck and test from the repository's package.json, and saving the profile" src="docs/images/install.gif" width="760">
+</p>
 
-| You need | Why | Check it |
-| --- | --- | --- |
-| [Claude Code](https://docs.claude.com/claude-code) | Runs the skill and the workers | `claude --version` |
-| [GitHub CLI](https://cli.github.com), logged in | Opens and merges PRs, reads GitHub Issues | `gh auth status` |
-| git | Worktrees, rebases, branches | `git --version` |
-| [Bun](https://bun.sh) 1.2 or later | Runs the CLI | The installer adds it if it is missing |
+<sub>The real installer and wizard, run in a throwaway home directory. Typing is scripted and output is not edited: <a href="docs/demo/install.tape">see the script</a>.</sub>
 
-Your project may need more: Jira credentials ([step 4](#4-set-up-your-repository)), Postgres client tools if your profile sets `db`, Docker if it defines `services`, and Chromium for design checks.
+> No `sudo`, and everything goes under your home directory. [Read the script](scripts/install.sh) first if you like. Portia never merges to `main`, and no run starts until you approve its plan.
 
-### 2. Run the installer
+### What setup asks
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/install.sh | bash
-```
-
-Everything goes under your home directory, with no `sudo`, and no dependency's install script runs. [Read the script](scripts/install.sh) first if you like.
-
-| Installed | Where |
-| --- | --- |
-| Portia's source | `~/.portia/src` |
-| The `portia` command | `~/.bun/bin/portia` |
-| The `/portia` and `/portia-setup` skills | `~/.claude/skills/` (or `$CLAUDE_CONFIG_DIR/skills/`) |
-
-### 3. Check it worked
-
-Open a new terminal and run:
-
-```sh
-portia version
-```
-
-Then start a new Claude Code session and type `/portia-setup`: the skill should be offered. If either fails, see [Troubleshooting](#troubleshooting).
-
-### 4. Set up your repository
-
-The setup wizard writes a profile for your repository. From its root, in a terminal:
-
-```sh
-portia init
-```
-
-Or run `/portia-setup` in Claude Code. Either one detects your checks and machine, asks whether your tickets live in GitHub Issues or Jira, shows the result, and asks whether to change anything. Press Enter to accept a suggestion, or Tab to edit it.
+`portia init` reads your repository, then asks one question and shows you the rest. Press Enter to accept a suggestion, or Tab to edit it.
 
 ```text
 ◆  Where do your tickets live?
-│  ● GitHub Issues (origin is acme/widget) / ○ Jira
+│  ● GitHub Issues (origin is acme/widget)
+│  ○ Jira
 │
-◆  Settings
+◇  Settings
 │  Tracker        GitHub Issues (acme/widget)
 │  Checks         bun run lint, bun run typecheck, bun run test
 │  Landing        each ticket's PR waits for CI
@@ -113,7 +87,14 @@ Or run `/portia-setup` in Claude Code. Either one detects your checks and machin
 │  ○ Yes / ● No
 ```
 
-For Jira, set these first, then pick Jira when asked:
+It proposes checks from your `package.json`, `Makefile`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Package.swift` or Xcode project, and asks if it finds none.
+
+Would you rather talk it through? Run `/portia-setup` in Claude Code instead of `portia init`. Claude can read your repository and propose checks that no file names outright.
+
+<details>
+<summary><b>Using Jira</b></summary>
+
+Set these before setup, then pick Jira when asked:
 
 ```sh
 export JIRA_BASE_URL=https://your-team.atlassian.net
@@ -121,22 +102,53 @@ export JIRA_EMAIL=you@example.com
 export JIRA_API_TOKEN=...
 ```
 
-### 5. Run an epic
+Then run an epic by its key: `/portia PROJ-123`.
 
-Open Claude Code in the root of your repository:
+</details>
 
-```text
-/portia PROJ-123        # a Jira epic or story
-/portia GH-42           # a GitHub issue
-portia resume PROJ-123  # pick up a run that was interrupted
-```
+<details>
+<summary><b>Not a JavaScript or TypeScript repository?</b></summary>
 
-### Update or remove
+Portia runs your checks in any stack, and setup proposes them for Python, Go, Rust and Swift. Acceptance gates are the exception: setup only writes your checks, so `{acceptance}` and `{owned}` steps need wiring by hand in the profile. See the [full example profile](examples/profile.example.ts).
+
+A repository with no `package.json` skips the dependency install, and Portia has no setup step for other stacks yet. A check that needs a virtual environment or similar has to create it itself.
+
+</details>
+
+<details>
+<summary><b>No CI on your repository?</b></summary>
+
+Setup notices, and lands each ticket on its local gates, for epics of up to 4 tickets. CI still runs on the epic PR. You can change this under Landing. Larger epics need CI on each ticket's PR. See [`directLand`](docs/reference.md).
+
+</details>
+
+<details>
+<summary><b>What gets installed, and what you need</b></summary>
+
+| Installed | Where |
+| --- | --- |
+| Portia's source | `~/.portia/src` |
+| The `portia` command | `~/.bun/bin/portia` |
+| The `/portia` and `/portia-setup` skills | `~/.claude/skills/` (or `$CLAUDE_CONFIG_DIR/skills/`) |
+
+| You need | Why | Check it |
+| --- | --- | --- |
+| [Claude Code](https://docs.claude.com/claude-code) | Runs the skill and the workers | `claude --version` |
+| [GitHub CLI](https://cli.github.com), logged in | Opens and merges PRs, reads GitHub Issues | `gh auth status` |
+| git | Worktrees, rebases, branches | `git --version` |
+| [Bun](https://bun.sh) 1.2 or later | Runs the CLI | The installer adds it if it is missing |
+
+Your project may need more: Postgres client tools if your profile sets `db`, Docker if it defines `services`, and Chromium for design checks.
+
+</details>
+
+<details>
+<summary><b>Update or remove</b></summary>
 
 Run the installer again to update. Add a flag after `bash -s --` for anything else:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/install.sh | bash -s -- --design
+curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/install.sh | bash -s -- --uninstall
 ```
 
 | Flag | Does |
@@ -145,7 +157,10 @@ curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/insta
 | `--design` | Also install headless Chromium for design checks |
 | `--uninstall` | Remove the command and the skills. Your profiles and run state stay in `~/.portia` |
 
-### Troubleshooting
+</details>
+
+<details>
+<summary><b>Troubleshooting</b></summary>
 
 | What you see | What to do |
 | --- | --- |
@@ -154,9 +169,13 @@ curl -fsSL https://raw.githubusercontent.com/mousedown/portia/main/scripts/insta
 | `/portia` is not offered in Claude Code | Start a new session. If you set `CLAUDE_CONFIG_DIR`, check that it was set when you installed |
 | `… already exists and is not a link` | Something else has that name. Move it, then run the installer again |
 | `Portia runs on macOS and Linux` | On Windows, install inside WSL |
+| `cannot tell which tracker this repository uses` | Run `portia init` in a terminal and pick one, or name it with `--answers` |
+| `PORTIA_PROFILE … outranks the profile just written` | Unset `PORTIA_PROFILE` for this repository |
+
+</details>
 
 <details>
-<summary>Other ways to install</summary>
+<summary><b>Other ways to install</b></summary>
 
 **From a checkout,** to work on Portia itself. The installer links your checkout instead of cloning, and keeps the dev tools:
 
