@@ -57,6 +57,12 @@ portia init
 
 You approve the plan, sign off the acceptance tests, and review one PR at the end. If a run is interrupted, pick it up with `portia resume GH-42`.
 
+<p align="center">
+  <img alt="The real installer finishing in a terminal, then portia init asking where tickets live, proposing lint, typecheck and test from the repository's package.json, and saving the profile" src="docs/images/install.gif" width="760">
+</p>
+
+<sub>The real installer and wizard, run in a throwaway home directory. Typing is scripted and output is not edited: <a href="docs/demo/install.tape">see the script</a>.</sub>
+
 > No `sudo`, and everything goes under your home directory. [Read the script](scripts/install.sh) first if you like. Portia never merges to `main`, and no run starts until you approve its plan.
 
 ### What setup asks
