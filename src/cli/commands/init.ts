@@ -14,6 +14,7 @@ import {
 	mergeAnswers,
 	renderProfile,
 } from "../../init/profile";
+import { suggestText } from "../../init/prompt";
 import { banner } from "../../render/banner";
 import { detect as detectStyle } from "../../render/style";
 import type { Command, Io } from "../main";
@@ -28,8 +29,8 @@ import type { Command, Io } from "../main";
  *   portia init --detect             print the detected defaults as JSON and write nothing
  */
 export const initCommand: Command = async (args, io) => {
-	const root = process.cwd();
-	const found = await detect(root, realExec);
+	const root = await repositoryRoot();
+	const found = await withExistingProfile(await detect(root, realExec), root);
 	if (args.includes("--detect")) {
 		io.out(
 			JSON.stringify(
@@ -52,6 +53,10 @@ export const initCommand: Command = async (args, io) => {
 		const over = file
 			? (JSON.parse(readFileSync(file, "utf8")) as Partial<Answers>)
 			: {};
+		if (found.trackerSignal.ambiguous && !over.tracker)
+			throw new PortiaProblem(
+				`cannot tell which tracker this repository uses (${found.trackerSignal.reason}): name one with --answers, as {"tracker":{"kind":"github","repo":"owner/name"}} or {"tracker":{"kind":"jira"}}`,
+			);
 		const answers = mergeAnswers(found.answers, over);
 		const out = target(root, answers.saveTo, answers.repo);
 		if (existsSync(out) && !force)
@@ -66,6 +71,51 @@ export const initCommand: Command = async (args, io) => {
 		);
 	return interview(found, root, force, io);
 };
+
+async function repositoryRoot(): Promise<string> {
+	const r = await realExec("git", ["rev-parse", "--show-toplevel"], {
+		cwd: process.cwd(),
+	});
+	if (r.code !== 0)
+		throw new PortiaProblem(
+			"portia init sets up a git repository, and this is not inside one: cd into your repository, or run git init",
+		);
+	return r.stdout.trim();
+}
+
+/** A profile already here is the best evidence of all: a re-run keeps its tracker and its place. */
+async function withExistingProfile(
+	found: Detected,
+	root: string,
+): Promise<Detected> {
+	for (const saveTo of ["repo", "home"] as const) {
+		const file = target(root, saveTo, found.answers.repo);
+		if (!existsSync(file)) continue;
+		try {
+			const { tracker, transitions } = await loadProfileFile(file);
+			return {
+				...found,
+				trackerSignal: {
+					choice: tracker.kind,
+					ambiguous: false,
+					reason: `the profile at ${file} uses it`,
+				},
+				answers: {
+					...found.answers,
+					saveTo,
+					transitions,
+					tracker:
+						tracker.kind === "github"
+							? { kind: "github", repo: tracker.repo }
+							: { kind: "jira" },
+				},
+			};
+		} catch {
+			// A profile that no longer loads says nothing; the person is replacing it anyway.
+		}
+	}
+	return found;
+}
 
 const flag = (args: string[], name: string) => {
 	const i = args.indexOf(name);
@@ -91,6 +141,11 @@ async function write(a: Answers, root: string, io: Io): Promise<number> {
 	mkdirSync(dirname(file), { recursive: true });
 	writeFileSync(file, source);
 	await loadProfileFile(file); // fails with every bad field
+	const override = process.env.PORTIA_PROFILE;
+	if (override && override !== file)
+		io.err(
+			`PORTIA_PROFILE is set to ${override}, which outranks the profile just written. Unset it for this repository to use ${file}.`,
+		);
 	io.out(`profile written to ${file}`);
 	return EXIT.OK;
 }
@@ -100,9 +155,15 @@ const trackerLabel = (a: Answers) =>
 		? `GitHub Issues (${a.tracker.repo})`
 		: `Jira (statuses "${a.transitions.running}" → "${a.transitions.landed}")`;
 
+const landingLabel = (a: Answers) =>
+	a.directLand
+		? `on local gates, no CI found (epics of up to ${a.directLand.maxChildren} tickets)`
+		: "each ticket's PR waits for CI";
+
 const SETTINGS = {
 	tracker: "Tracker",
 	checks: "Checks",
+	landing: "Landing",
 	waveCap: "Workers",
 	models: "Models",
 	branchPrefix: "Branch prefix",
@@ -114,6 +175,7 @@ function summary(a: Answers, root: string): string {
 	const rows: Record<Setting, string> = {
 		tracker: trackerLabel(a),
 		checks: a.checks.join(", ") || "(none found)",
+		landing: landingLabel(a),
 		waveCap: `${a.waveCap} at once`,
 		models: `${a.models.high} for hard tickets, ${a.models.standard} for routine ones`,
 		branchPrefix: `${a.branchPrefix}/<KEY>`,
@@ -130,20 +192,62 @@ function ask<T>(v: T): Exclude<T, symbol> {
 	return v as Exclude<T, symbol>;
 }
 
-/** A text prompt whose default shows as a placeholder and is taken on Enter. */
+/** A text prompt whose default shows as a suggestion: Enter takes it, Tab fills it to edit. */
 async function text(
 	message: string,
 	value: string,
 	validate?: (v: string) => string | undefined,
 ): Promise<string> {
+	return ask(await suggestText({ message, suggestion: value, validate }));
+}
+
+const GITHUB_REPO = /^[\w.-]+\/[\w.-]+$/;
+
+async function askTrackerKind(a: Answers, found: Detected) {
+	const hint = (kind: "github" | "jira") =>
+		found.trackerSignal.choice === kind
+			? found.trackerSignal.reason
+			: undefined;
 	return ask(
-		await p.text({
-			message,
-			placeholder: value,
-			defaultValue: value,
-			validate: validate && ((v) => validate(v || value)),
+		await p.select({
+			message: "Where do your tickets live?",
+			initialValue: a.tracker.kind,
+			options: [
+				{
+					value: "github" as const,
+					label: "GitHub Issues",
+					hint: hint("github"),
+				},
+				{ value: "jira" as const, label: "Jira", hint: hint("jira") },
+			],
 		}),
 	);
+}
+
+const askGithubRepo = (suggestion: string) =>
+	text("Which GitHub repository? (owner/name)", suggestion, (v) =>
+		GITHUB_REPO.test(v) ? undefined : "Use owner/name",
+	);
+
+/** The first question, always. It asks for only what the choice cannot do without. */
+async function chooseTracker(a: Answers, found: Detected) {
+	const kind = await askTrackerKind(a, found);
+	if (
+		a.tracker.kind === "jira"
+			? kind === "jira"
+			: kind === "github" && a.tracker.repo
+	)
+		return;
+	if (kind === "github") {
+		a.tracker = {
+			kind,
+			repo: found.githubRepo ?? (await askGithubRepo("")),
+		};
+		a.transitions = GITHUB_TRANSITIONS;
+		return;
+	}
+	a.tracker = { kind };
+	a.transitions = JIRA_TRANSITIONS;
 }
 
 async function interview(
@@ -156,12 +260,11 @@ async function interview(
 	io.err(banner(detectStyle()));
 	p.intro(`Portia setup for ${a.repo}`);
 	try {
-		// With nothing to run there is no sensible default: ask before showing the summary.
-		const change = new Set<Setting>(a.checks.length ? [] : ["checks"]);
-		if (a.tracker.kind === "github" && !a.tracker.repo) change.add("tracker");
-		p.note(summary(a, root), "Detected settings");
+		await chooseTracker(a, found);
+		// With nothing to run there is no sensible default.
+		if (!a.checks.length) await QUESTIONS.checks(a, found);
+		p.note(summary(a, root), "Settings");
 		if (
-			!change.size &&
 			ask(
 				await p.confirm({
 					message: "Want to modify these settings?",
@@ -169,21 +272,26 @@ async function interview(
 				}),
 			)
 		) {
-			for (const k of ask(
-				await p.multiselect<Setting>({
-					message: "Which settings?",
-					options: (Object.keys(SETTINGS) as Setting[]).map((k) => ({
-						value: k,
-						label: SETTINGS[k],
-					})),
-					required: true,
-				}),
-			))
-				change.add(k);
+			const change = new Set(
+				ask(
+					await p.multiselect<Setting>({
+						message: "Which settings?",
+						options: (Object.keys(SETTINGS) as Setting[]).map((k) => ({
+							value: k,
+							label: SETTINGS[k],
+						})),
+						required: true,
+					}),
+				),
+			);
+			for (const k of Object.keys(SETTINGS) as Setting[])
+				if (change.has(k)) await QUESTIONS[k](a, found);
 		}
-		for (const k of Object.keys(SETTINGS) as Setting[])
-			if (change.has(k)) await QUESTIONS[k](a, found);
 
+		if (a.tracker.kind === "jira" && !process.env.JIRA_API_TOKEN)
+			p.log.warn(
+				"Jira needs JIRA_BASE_URL, JIRA_EMAIL and JIRA_API_TOKEN in your environment.",
+			);
 		const out = target(root, a.saveTo, a.repo);
 		if (
 			existsSync(out) &&
@@ -196,11 +304,7 @@ async function interview(
 			)
 		)
 			throw new Cancelled();
-		await write(a, root, { out: () => {}, err: io.err });
-		if (a.tracker.kind === "jira" && !process.env.JIRA_API_TOKEN)
-			p.log.warn(
-				"Jira needs JIRA_BASE_URL, JIRA_EMAIL and JIRA_API_TOKEN in your environment.",
-			);
+		await write(a, root, { out: () => {}, err: (s) => p.log.warn(s) });
 		p.outro(
 			`Saved ${out}\n   Next: open Claude Code in this repo and run /portia <EPIC>`,
 		);
@@ -212,30 +316,20 @@ async function interview(
 	}
 }
 
+const TYPE_A_COMMAND = "\0type";
+
 const QUESTIONS: Record<
 	Setting,
 	(a: Answers, found: Detected) => Promise<void>
 > = {
 	async tracker(a, found) {
-		const detectedRepo =
-			a.tracker.kind === "github" ? a.tracker.repo : (found.githubRepo ?? "");
-		const kind = ask(
-			await p.select({
-				message: "Where do your tickets live?",
-				initialValue: a.tracker.kind,
-				options: [
-					{ value: "github" as const, label: "GitHub Issues" },
-					{ value: "jira" as const, label: "Jira" },
-				],
-			}),
-		);
+		const kind = await askTrackerKind(a, found);
 		if (kind === "github") {
-			const repo = await text(
-				"Which GitHub repository? (owner/name)",
-				detectedRepo,
-				(v) => (/^[\w.-]+\/[\w.-]+$/.test(v) ? undefined : "Use owner/name"),
-			);
-			a.tracker = { kind, repo };
+			const was = a.tracker.kind === "github" ? a.tracker.repo : "";
+			a.tracker = {
+				kind,
+				repo: await askGithubRepo(was || (found.githubRepo ?? "")),
+			};
 			a.transitions = GITHUB_TRANSITIONS;
 			return;
 		}
@@ -250,25 +344,66 @@ const QUESTIONS: Record<
 		};
 	},
 	async checks(a, found) {
-		if (found.scripts.length) {
-			a.checks = ask(
-				await p.multiselect({
-					message: "Which checks must pass before a ticket lands?",
-					options: found.scripts.map((s) => ({ value: s, label: s })),
-					initialValues: a.checks,
-					required: true,
-				}),
+		const typed = async (message: string) =>
+			(
+				await text(message, "", (v) =>
+					v.trim() ? undefined : "Name at least one command",
+				)
+			)
+				.split(",")
+				.map((s) => s.trim())
+				.filter(Boolean);
+		const known = found.candidates.map((c) => c.cmd);
+		if (!known.length && !a.checks.length) {
+			a.checks = await typed(
+				"Which commands must pass before a ticket lands? (comma-separated)",
 			);
 			return;
 		}
-		const cmds = await text(
-			"Which commands must pass before a ticket lands? (comma-separated)",
-			a.checks.join(", ") || "bun test",
+		const picked = ask(
+			await p.multiselect<string>({
+				message: "Which checks must pass before a ticket lands?",
+				options: [
+					...found.candidates.map((c) => ({
+						value: c.cmd,
+						label: c.cmd,
+						hint: c.why,
+					})),
+					...a.checks
+						.filter((c) => !known.includes(c))
+						.map((c) => ({ value: c, label: c })),
+					{ value: TYPE_A_COMMAND, label: "Type a command…" },
+				],
+				initialValues: a.checks,
+				required: true,
+			}),
 		);
-		a.checks = cmds
-			.split(",")
-			.map((s) => s.trim())
-			.filter(Boolean);
+		const chosen = picked.filter((c) => c !== TYPE_A_COMMAND);
+		a.checks =
+			chosen.length === picked.length
+				? chosen
+				: [...chosen, ...(await typed("Which commands? (comma-separated)"))];
+	},
+	async landing(a) {
+		const direct = ask(
+			await p.select({
+				message: "How should a finished ticket land?",
+				initialValue: Boolean(a.directLand),
+				options: [
+					{
+						value: false,
+						label: "Wait for CI on each ticket's PR",
+						hint: "needs CI on this repository",
+					},
+					{
+						value: true,
+						label: "On local gates alone",
+						hint: "no CI needed; CI still runs on the epic PR. Epics of up to 4 tickets",
+					},
+				],
+			}),
+		);
+		a.directLand = direct ? (a.directLand ?? { maxChildren: 4 }) : null;
 	},
 	async waveCap(a) {
 		a.waveCap = Number(
