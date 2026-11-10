@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ChildPlan, ParentPlan } from "../../src/core/types";
-import { planPage } from "../../src/plan/page";
+import {
+	groupNeeds,
+	headline,
+	planPage,
+	splitScenario,
+} from "../../src/plan/page";
 
 const child = (o: Partial<ChildPlan> & { key: string }): ChildPlan => ({
 	summary: `${o.key} summary`,
@@ -58,7 +63,17 @@ describe("planPage", () => {
 		expect(html).toContain(">Spine<");
 		expect(html).toContain(">Wave 2<");
 		expect(html).toContain("the contract");
-		expect(html).toContain("Given a cart, Then it pays");
+		expect(html).toContain("<dt>Given</dt><dd>a cart</dd>");
+		expect(html).toContain("<dt>Then</dt><dd>it pays</dd>");
+	});
+	it("puts each scenario under the child that delivers it, and keeps an unowned one", () => {
+		const html = planPage(
+			{ ...plan, scenarios: [...plan.scenarios, { id: "F2", text: "Loose" }] },
+			at,
+		);
+		const card = html.slice(html.indexOf('id="ACME-3"'));
+		expect(card.slice(0, card.indexOf("</article>"))).toContain(">F1<");
+		expect(html).toContain("Not yet owned");
 	});
 	it("draws a need another need implies once, and a later child with no need from the spine", () => {
 		// 2→3, 2→4 (no need named: the spine), 3→5. 2→5 is implied through 3.
@@ -72,5 +87,44 @@ describe("planPage", () => {
 		const style = /<style>([\s\S]*)<\/style>/.exec(html)?.[1] ?? "";
 		const rules = style.slice(style.lastIndexOf('[data-theme="dark"]'));
 		expect(rules.slice(rules.indexOf("}"))).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+	});
+});
+
+describe("splitScenario", () => {
+	it("reads Given, When and Then, splitting the Then at each and", () => {
+		expect(
+			splitScenario(
+				"Given a lesson, When the tutor cancels it, Then the lesson shows cancelled, and the room ends",
+			),
+		).toEqual({
+			given: "a lesson",
+			when: "the tutor cancels it",
+			outcomes: ["the lesson shows cancelled", "the room ends"],
+		});
+	});
+	it("reads a scenario with no When, and leaves free text alone", () => {
+		expect(
+			splitScenario("Given a date, Then it answers")?.when,
+		).toBeUndefined();
+		expect(splitScenario("Free text")).toBeUndefined();
+	});
+	it("heads a scenario with its When, else its Given", () => {
+		expect(headline("Given a, When b happens, Then c")).toBe("When b happens");
+		expect(headline("Given a date, Then c")).toBe("Given a date");
+	});
+});
+
+describe("groupNeeds", () => {
+	it("draws needs that share a reason as one group", () => {
+		expect(
+			groupNeeds([
+				{ key: "A", reason: "ships once landed" },
+				{ key: "B", reason: "the contract" },
+				{ key: "C", reason: "ships once landed" },
+			]),
+		).toEqual([
+			{ keys: ["A", "C"], reason: "ships once landed" },
+			{ keys: ["B"], reason: "the contract" },
+		]);
 	});
 });

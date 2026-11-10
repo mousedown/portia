@@ -201,6 +201,15 @@ cd portia
 3. **Waves.** Ready tickets run in parallel, each in its own worktree with its own port and database. Each one is rebased, re-gated, PR'd into the integration branch and squash-merged once CI passes.
 4. **Epic PR.** When every ticket has landed and the acceptance tests pass, the epic PR is marked ready. **You review and merge it.**
 
+### See the whole plan first
+
+Before any worker starts, Portia publishes the plan as a private Claude page you can share. It has a map of every wave, with each child linked to the children it waits on. Hover a child to see what it waits on, what it unblocks and why. Under the map, wave tabs list each child's dependencies and the acceptance scenarios it delivers, each one a line you can expand into Given, When and Then. `portia view` links to the page from the run.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/images/plan-light.png">
+  <img alt="The plan page's wave map for a 21-child epic: a spine and five waves of cards, one child hovered with the children it waits on and the ones it unblocks highlighted, and a tooltip with its reason and scenarios" src="docs/images/plan.png">
+</picture>
+
 ### What it proves
 
 - **Before a child merges**, its gates run again on the head rebased onto the integration branch, not on the branch the worker left.
