@@ -102,6 +102,15 @@ What happens next:
   <img alt="portia view of one run: its children by wave, two landed waves, two children running in wave 2 and two waves still pending" src="docs/images/run.png">
 </picture>
 
+### See the whole plan first
+
+Before any worker starts, Portia publishes the plan as a private Claude page you can share. It has a map of every wave, with each child linked to the children it waits on. Hover a child to see what it waits on, what it unblocks and why. Under the map, wave tabs list each child's dependencies and the acceptance scenarios it delivers, each one a line you can expand into Given, When and Then. `portia view` links to the page from the run.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/images/plan-light.png">
+  <img alt="The plan page's wave map for a 21-child epic: a spine and five waves of cards, one child hovered with the children it waits on and the ones it unblocks highlighted, and a tooltip with its reason and scenarios" src="docs/images/plan.png">
+</picture>
+
 ### Judgement, not guesswork
 
 Portia stops and asks you, instead of guessing, when:
