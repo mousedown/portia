@@ -1,6 +1,6 @@
  ◆ PORTIA › ACME-500  Self-serve invoices for team accounts     ⠙ 14:02
  ──────────────────────────────────────────────────────────────────────
-  epic     #412 · epic/ACME-500 · 6h 41m · plan 2m old
+  epic     acme-app · #412 · epic/ACME-500 · 6h 41m · plan 2m old
   progress 4/8 landed · 662k tokens
   rework   36% · 1st pass 3/4 · path 1h48m of 2h24m · 0 decisions
 
@@ -27,4 +27,4 @@
   proves     R5 · a team admin downloads an invoice as PDF · not yet
 
 
-  ↑↓ move · → open · g children · / filter · ← back · ? help     ● live
+  ↑↓ move · → open · ← back · ? help      ! 1 question on Home   ● live

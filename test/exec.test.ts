@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
 	existsSync,
 	mkdirSync,
@@ -9,7 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { expect, it } from "vitest";
-import { must, realExec } from "../src/core/exec";
+import { must, realExec, spawnExec } from "../src/core/exec";
 import { PortiaProblem } from "../src/core/exit";
 
 it("runs a command and captures stdout", async () => {
@@ -52,12 +52,39 @@ it("a timed command does not outlive Portia when Portia is stopped", async () =>
 await spawnExec("sh", ["-c", "echo $$ > ${pidFile}; sleep 30"], { timeoutMs: 60_000 });`,
 	);
 	const portia = spawn("bun", [script], { stdio: "ignore" });
-	for (let i = 0; i < 100 && !existsSync(pidFile); i++)
-		await new Promise((r) => setTimeout(r, 50));
+	// Stop it the moment the command is up: a stop in the instant after the spawn is the one
+	// that once found no listener, and left the group running.
+	const up = () => existsSync(pidFile) && readFileSync(pidFile, "utf8").trim();
+	for (let i = 0; i < 5000 && !up(); i++)
+		await new Promise((r) => setTimeout(r, 1));
 	const pid = Number(readFileSync(pidFile, "utf8"));
 	const exited = new Promise((r) => portia.on("exit", r));
 	portia.kill("SIGTERM");
 	await exited;
-	await new Promise((r) => setTimeout(r, 100));
-	expect(() => process.kill(-pid, 0)).toThrow();
+	// Signal 0 also answers for a zombie, which a CI runner's init may never reap, so ask who
+	// is still running. A failure names them, which tells a slow reap from a real survivor.
+	const running = () =>
+		spawnSync("ps", ["-A", "-o", "pgid=,stat=,pid=,command="], {
+			encoding: "utf8",
+		})
+			.stdout.split("\n")
+			.map((l) => l.trim().split(/\s+/))
+			.filter(([pgid, stat]) => Number(pgid) === pid && !stat?.startsWith("Z"))
+			.map((f) => f.join(" "));
+	for (let i = 0; i < 100 && running().length; i++)
+		await new Promise((r) => setTimeout(r, 50));
+	expect(running()).toEqual([]);
+});
+
+it("holds the stop listeners only while a timed command runs, even one that cannot start", async () => {
+	const listening = () => process.listenerCount("SIGTERM");
+	const before = listening();
+	const running = spawnExec("sh", ["-c", "exit 0"], { timeoutMs: 60_000 });
+	expect(listening()).toBe(before + 1);
+	await running;
+	expect(listening()).toBe(before);
+	await spawnExec("no-such-command-portia", [], { timeoutMs: 60_000 }).catch(
+		() => {},
+	);
+	expect(listening()).toBe(before);
 });

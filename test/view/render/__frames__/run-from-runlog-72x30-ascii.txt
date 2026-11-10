@@ -27,4 +27,4 @@
   last exit  type + lint + unit + intg + acpt + e2e + debt +
   | CI failed on PR #360
 
-  up/dn move . right open . g gate matrix . left back . ? help   * live
+  up/dn move . left back . ? help         ! 1 question on Home   * live

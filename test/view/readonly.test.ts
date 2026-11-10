@@ -10,9 +10,11 @@ import {
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
+import { appendRow, readRows } from "../../src/core/runlog";
 import type { ViewFs } from "../../src/view/model/fs";
 import { readHome } from "../../src/view/model/home";
 import { readRun } from "../../src/view/model/run";
+import { answerPark } from "../../src/view/runtime/answer";
 import { archiveRun } from "../../src/view/runtime/archive";
 import { fixtureFs, HOME, NOW } from "./helpers";
 
@@ -51,14 +53,16 @@ describe("portia view is read-only", () => {
 			const banned =
 				rel === join("runtime", "tty.ts")
 					? IMPORTS
-					: rel === join("runtime", "archive.ts")
-						? [
-								...IMPORTS,
-								...CALLS.filter(
-									(re) => !/mkdirSync|renameSync/.test(re.source),
-								),
-							]
-						: [...IMPORTS, ...CALLS];
+					: rel === join("runtime", "answer.ts")
+						? IMPORTS
+						: rel === join("runtime", "archive.ts")
+							? [
+									...IMPORTS,
+									...CALLS.filter(
+										(re) => !/mkdirSync|renameSync/.test(re.source),
+									),
+								]
+							: [...IMPORTS, ...CALLS];
 			return banned.filter((re) => re.test(text)).map((re) => `${rel} ${re}`);
 		});
 		expect(hits).toEqual([]);
@@ -103,5 +107,35 @@ describe("portia view is read-only", () => {
 		expect(second).toMatch(/\.archive\/ACME-1-\d+$/);
 		expect(existsSync(first)).toBe(true);
 		expect(() => archiveRun(runs, "../elsewhere")).toThrow(/not a run key/);
+	});
+	it("answer.ts is the only view file that imports core/park-answer", () => {
+		const importers = walk(SRC)
+			.filter((f) => /core\/park-answer/.test(readFileSync(f, "utf8")))
+			.map((f) => relative(SRC, f));
+		expect(importers).toEqual([join("runtime", "answer.ts")]);
+	});
+	it("answers a question once: a second send to it is refused and adds no row", () => {
+		const runs = join(mkdtempSync(join(tmpdir(), "portia-answer-")), "runs");
+		const dir = join(runs, "ACME-1");
+		mkdirSync(dir, { recursive: true });
+		const at = "2026-01-01T00:00:00.000Z";
+		appendRow(dir, {
+			at,
+			child: "ACME-2",
+			attempt: 1,
+			stage: "result",
+			status: "parked",
+			data: { message: "which way?" },
+		});
+		answerPark(runs, "ACME-1", "ACME-2", at, "left");
+		expect(() => answerPark(runs, "ACME-1", "ACME-2", at, "right")).toThrow(
+			/no longer waiting/,
+		);
+		expect(
+			readRows(dir).rows.filter((r) => r.status === "answer"),
+		).toHaveLength(1);
+		expect(() => answerPark(runs, "../x", "ACME-2", at, "y")).toThrow(
+			/not a run key/,
+		);
 	});
 });

@@ -85,7 +85,7 @@ const ROWS: [string, string, string, string][] = [
 	["follow", "f", "sort runs", "s"],
 	["new run", "n", "re-read", "r"],
 	["half page", "^d  ^u", "archive run", "x x"],
-	["quit", "q", "", ""],
+	["question text", "PgUp  PgDn", "quit", "q"],
 ];
 const EPIGRAPH = "the quality of mercy is not strained";
 

@@ -1,0 +1,24 @@
+ ◆ PORTIA                            ⠋ 1 live · ! 2 · 14:02
+  cpu  ━───   37%   mem  ━━╸─   64%   disk ━━╸─   69%
+ ──────────────────────────────────────────────────────────
+
+  in session                                              1
+▌ ⠙ ACME-500  Self-serve …  ━━━━╸────  4/8    6h41m    662k
+
+  awaiting judgement                                      2
+  ! ACME-410  —             ━━━━━━━━─  8/9   10h00m   2.77M
+  ✗ ACME-366  —             ━━━━━━───  2/3    4h49m    610k
+
+  at rest                                                 2
+  ◐ ACME-390  Saved carts…  ━━━──────  2/6    5h00m    709k
+  ○ ACME-352  —             ─────────    —
+                                                   ↓ 1 more
+
+ ──────────────────────────────────────────────────────────
+    ACME-500  Self-serve invoices fo…  #412 · epic/ACME-500
+    ■  ■■  ■■■  ·  ·              4 of 8 landed · 2 working
+
+  ⠇ ACME-505  exit gate    12:04  Team admins download an …
+  ⠏ ACME-506  working       3:51  Email the invoice when a…
+
+  ↑↓ move · → open · a activity · ? help · q quit    ● live

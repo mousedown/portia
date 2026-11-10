@@ -6,6 +6,14 @@ import {
 	selectedId,
 	worktreeOf as treeOf,
 } from "../select";
+import {
+	type Ask,
+	enterRepeats,
+	listKeyOnQuestion,
+	panelKey,
+	panelTakes,
+	settleAsk,
+} from "./ask";
 import type { Key } from "./keys";
 
 /**
@@ -42,6 +50,18 @@ export interface ViewState {
 	scroll: Record<string, number>;
 	filter?: { text: string; editing: boolean };
 	command?: { text: string; hist: number };
+	/** The question Home's panel is on. */
+	ask?: Ask;
+	/** When the last key was pressed, by the time the reducer was given. */
+	lastKeyAt?: number;
+	/** When the last ⏎ was pressed, while nothing has been pressed since: a held-down key repeats. */
+	enterAt?: number;
+	/** The panel took a key, and keeps them however fast they come. Nothing else ever sets this. */
+	held?: boolean;
+	/** `--select` chose the run on Home: the first question shown leaves it selected. */
+	pinned?: boolean;
+	/** The set of questions esc dismissed the panel for; a different set brings it back. */
+	dismissed?: string;
 	history: string[];
 	overlay?: "help";
 	toast?: { text: string; role: Role; until: number };
@@ -92,7 +112,8 @@ export type Effect =
 	| { kind: "launch"; key: string; prompt: string; run?: string }
 	| { kind: "refresh" }
 	| { kind: "theme" }
-	| { kind: "archive"; run: string };
+	| { kind: "archive"; run: string }
+	| { kind: "answer"; run: string; child: string; since: string; text: string };
 
 export interface ReduceCtx {
 	home: HomeView;
@@ -748,9 +769,58 @@ function scrollKey(k: Key, ctx: ReduceCtx): number | "top" | "bottom" | 0 {
 	return 0;
 }
 
+/**
+ * One key. Home's panel has it when a question waits and the panel takes that key; else it
+ * goes to the page. Each key's time is kept, for the pause a new question waits for, except
+ * a lone ⏎ that did nothing: someone pressing it once a second is still waiting out the
+ * pause. One right behind another is a key held down, which puts the pause off.
+ */
 export function reduce(prev: ViewState, k: Key, ctx: ReduceCtx): Reduced {
 	// A toast lasts until the next key: whatever the key does next, it has been read.
-	const s = prev.toast ? { ...prev, toast: undefined } : prev;
+	const before = settleAsk(
+		prev.toast ? { ...prev, toast: undefined } : prev,
+		ctx.home,
+		ctx.now,
+	);
+	const ctrl = k.name === "^c" || k.name === "^z";
+	const panel = !ctrl && panelTakes(before, k, ctx.home, ctx.now);
+	const onList =
+		!ctrl && !panel
+			? listKeyOnQuestion(before, k, ctx.home, ctx.now)
+			: undefined;
+	const r: Reduced = panel
+		? panelKey(before, k, ctx.home, ctx.now)
+		: onList
+			? { state: onList, effects: [] }
+			: pageKey(before, k, ctx);
+	const enter = k.name === "enter";
+	const idle =
+		enter &&
+		r.state === before &&
+		!r.effects.length &&
+		!enterRepeats(before, ctx.now);
+	// The panel shows only on Home, so coming back to it is a question to read again.
+	const arrived = before.screen !== "home" && r.state.screen === "home";
+	return {
+		...r,
+		state: settleAsk(
+			{
+				...r.state,
+				lastKeyAt: idle ? before.lastKeyAt : ctx.now,
+				enterAt: enter ? ctx.now : undefined,
+				pinned: undefined,
+				ask:
+					arrived && r.state.ask
+						? { ...r.state.ask, takenAt: ctx.now }
+						: r.state.ask,
+			},
+			ctx.home,
+			ctx.now,
+		),
+	};
+}
+
+function pageKey(s: ViewState, k: Key, ctx: ReduceCtx): Reduced {
 	const none = { state: s, effects: [] as Effect[] };
 	if (k.name === "^c") return { state: s, effects: [{ kind: "quit" }] };
 	// Raw mode turns off ISIG, so ^z arrives as a key and the view suspends itself.

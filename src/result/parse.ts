@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cleanOptions } from "../core/park";
 import type { WorkerResult } from "../core/types";
 
 const Gate = z.enum(["pass", "fail"]);
@@ -10,6 +11,9 @@ export const ResultSchema = z
 		gates: z.object({ task: Gate, exit: Gate }),
 		evidence: z.record(z.string(), z.string()),
 		question: z.string().min(1).optional(),
+		// Unchecked here: a bad suggestion is dropped, and never fails the result.
+		options: z.unknown().optional(),
+		recommended: z.unknown().optional(),
 		reason: z.string().min(1).optional(),
 		spec: z
 			.object({
@@ -65,5 +69,9 @@ export function parseResult(text: string, expectedChild: string): ParseOutcome {
 			ok: false,
 			error: `the result is for ${parsed.data.child}, expected ${expectedChild}`,
 		};
-	return { ok: true, result: parsed.data };
+	const { options, recommended, ...result } = parsed.data;
+	return {
+		ok: true,
+		result: { ...result, ...cleanOptions(options, recommended) },
+	};
 }

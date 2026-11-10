@@ -16,6 +16,7 @@ import { workerCommand } from "../cli/commands/worker";
 import { cliContext, loadForCli } from "../cli/context";
 import { approveTouches } from "../core/approvals";
 import { PortiaProblem } from "../core/exit";
+import { waitOf } from "../core/park";
 import { appendRow, readRows } from "../core/runlog";
 import { recordSignoff } from "../core/signoff";
 import { spendOver } from "../core/spend";
@@ -88,6 +89,20 @@ export type Move =
 	/** Nothing to do but let a background land or wait finish. */
 	| { do: "settle" }
 	| { do: "stop"; stop: Stop };
+
+/**
+ * Drops a held `parked` stop whose child no longer waits on a question: the person
+ * answered (from `portia view`, say) while drive was busy elsewhere, so drive restarts
+ * the child itself rather than stopping on an answered question.
+ */
+export function dropAnswered(held: Map<string, Stop>, rows: RunRow[]): void {
+	for (const [k, s] of held)
+		if (
+			s.kind === "parked" &&
+			waitOf(rows.filter((r) => r.child === k))?.kind !== "question"
+		)
+			held.delete(k);
+}
 
 /**
  * Picks the next move from the view alone, so a second drive after a crash picks the same
@@ -429,6 +444,7 @@ export async function drive(parent: string): Promise<DriveResult> {
 					step("record-landed", a.child, true, a.detail);
 
 			const rows = readRows(dir).rows;
+			dropAnswered(held, rows);
 			for (const r of rows.slice(seen))
 				if (r.stage === "result")
 					step(

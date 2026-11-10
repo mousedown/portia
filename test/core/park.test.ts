@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answerable, waitOf } from "../../src/core/park";
+import { answerable, cleanOptions, waitOf } from "../../src/core/park";
 import type { RunRow } from "../../src/core/types";
 
 const at = (m: number) => new Date(Date.UTC(2026, 9, 20, 12, m)).toISOString();
@@ -31,6 +31,19 @@ describe("what a parked child waits on", () => {
 			at: at(10),
 			attempt: 1,
 		});
+	});
+
+	it("marks a question that is a spec claim, which amendment settles", () => {
+		const w = waitOf(
+			rows(dispatched(0), {
+				at: at(10),
+				attempt: 1,
+				stage: "result",
+				status: "parked",
+				data: { message: "cannot pass", spec: { path: "a.feature" } },
+			}),
+		);
+		expect(w).toMatchObject({ kind: "question", claim: true });
 	});
 
 	it("a parked land waits on the person, with its reason", () => {
@@ -233,5 +246,21 @@ describe("what a person's answer answers", () => {
 				rows(dispatched(0), result(10, 1, "parked", "Q?"), dispatched(20, 2)),
 			),
 		).toBeUndefined();
+	});
+});
+
+describe("cleanOptions", () => {
+	it("drops an option of only control characters, C0 or C1, and moves recommended with the rest", () => {
+		expect(
+			cleanOptions(["\u0007\u001b", "keep", "\u009b\u0085", "this"], 3),
+		).toEqual({ options: ["keep", "this"], recommended: 1 });
+	});
+	it("takes control characters out of an option that has more to it", () => {
+		expect(
+			cleanOptions(["red\u001b[2Jx", "\u0000blue\u009f ", "a\tb\nc"]).options,
+		).toEqual(["red[2Jx", "blue", "a b c"]);
+	});
+	it("counts what is left: one good option and a control-only one is none", () => {
+		expect(cleanOptions(["ok", "\u0007"])).toEqual({});
 	});
 });

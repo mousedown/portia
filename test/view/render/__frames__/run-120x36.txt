@@ -1,7 +1,7 @@
   ◆  █▀█ █▀█ █▀█ ▀█▀ █ ▄▀█   ACME-500  Self-serve invoices for team accounts                       ⠙ in session · 14:02
  ▀█▀ █▀▀ █▄█ █▀▄  █  █ █▀█    1 children    2 gate matrix
  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   epic     #412 · epic/ACME-500 · started 6h 41m ago · plan 2m old
+   epic     acme-app · #412 · epic/ACME-500 · started 6h 41m ago · plan 2m old
    progress 4 of 8 landed · 662k tokens
    rework   36% tokens 29% time · first pass 3/4 · critical path 1h48m of 2h24m · 0 decisions
    machine  mem 64% · cpu 37% · disk 312G free
@@ -33,4 +33,4 @@
    proves           R5 · a team admin downloads an invoice as PDF · not yet
 
 
-   ↑↓ move · → open · g gate matrix · / filter · ← back · ? help                                                 ● live
+   ↑↓ move · → open · g gate matrix · / filter · ← back · ? help                          ! 1 question on Home   ● live

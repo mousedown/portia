@@ -33,4 +33,4 @@
    y copies the worktree . e opens it in $EDITOR
                                                                                                                v 5 more
 
-   up/dn move . enter expand . y copy worktree . e editor . left back . ? help                                   * live
+   up/dn move . enter expand . y copy worktree . e editor . left back . ? help            ! 1 question on Home   * live

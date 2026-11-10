@@ -33,4 +33,4 @@
 
 
 
-   ↑↓ scroll · end follow · / search · y copy worktree · e editor · ← back · ? help                              ● live
+   ↑↓ scroll · end follow · / search · y copy worktree · e editor · ← back · ? help       ! 1 question on Home   ● live

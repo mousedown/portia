@@ -1,0 +1,24 @@
+ o PORTIA                            | 1 live . ! 2 . 14:02
+  cpu  =---   37%   mem  ==--   64%   disk ==--   69%
+ ----------------------------------------------------------
+
+  waiting on you                                          1
+> ! ACME-410  1 question ~  ========-  8/9    9h17m   2.77M
+                                                   v 5 more
+
+
+ ----------------------------------------------------------
+    ACME-418  Backfill the index for old archives    1 of 1
+    May I add the search index migration to my paths?
+    The backfill needs
+    db/migrations/0042_archive_index.sql, which is outside
+    my declared paths.
+    Without it the index cannot be built on an existing
+    database.
+
+  > 1  Allow it, read-only (recommended)
+    2  Put the migration in another child's paths
+    3  Build the index without a migration
+    or just type your own answer
+
+  up/dn choose . enter send . esc list               * live

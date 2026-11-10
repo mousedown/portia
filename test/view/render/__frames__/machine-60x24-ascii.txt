@@ -21,4 +21,4 @@
   10 min ago                                           now
                                                   v 16 more
 
-  up/dn scroll . left home . ? help . q quit         * live
+  ? help . q quit             ! 1 question on Home   * live

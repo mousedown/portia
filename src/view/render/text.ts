@@ -283,6 +283,37 @@ export function wrap(text: string, w: number): string[] {
 	return out.map((l) => cut(l, w));
 }
 
+/** Like wrap, but a word longer than w breaks across lines, so none of it is lost. */
+export function wrapWhole(text: string, w: number): string[] {
+	const chop = (word: string): string[] => {
+		const out: string[] = [];
+		let piece = "";
+		let used = 0;
+		for (const ch of word) {
+			const cw = cellWidth(ch);
+			if (used + cw > w && piece) {
+				out.push(piece);
+				piece = "";
+				used = 0;
+			}
+			piece += ch;
+			used += cw;
+		}
+		return [...out, piece];
+	};
+	const broken = text
+		.split("\n")
+		.map((raw) =>
+			raw
+				.split(/\s+/)
+				.filter(Boolean)
+				.flatMap((word) => (strWidth(word) > w ? chop(word) : [word]))
+				.join(" "),
+		)
+		.join("\n");
+	return wrap(broken, w);
+}
+
 const ASCII: Record<string, string> = {
 	"·": ".",
 	"✓": "+",

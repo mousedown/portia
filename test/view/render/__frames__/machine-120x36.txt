@@ -33,4 +33,4 @@
 
 
 
-   ↑↓ scroll · a activity · ← home · ? help · q quit                                                             ● live
+   ↑↓ scroll · a activity · ← home · ? help · q quit                                      ! 1 question on Home   ● live

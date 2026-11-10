@@ -1,6 +1,7 @@
 import { childKeyOf, integrationBranch } from "../core/branches";
 import type { Profile } from "../core/config";
 import { type Exec, must } from "../core/exec";
+import { waitOf } from "../core/park";
 import { appendRow, readRows } from "../core/runlog";
 import { DECIDING, deriveStates, scheduleOf, waveGateDue } from "../core/state";
 import type { ParentPlan, RunRow } from "../core/types";
@@ -235,7 +236,9 @@ export async function resume(
 				actions.push({
 					child: c.key,
 					action: "await-answer",
-					detail: "parked; waiting on a person",
+					detail: waitOf(rows.filter((r) => r.child === c.key))
+						? "parked; waiting on a person"
+						: "parked; the answer is recorded and the next drive redispatches it",
 				});
 				break;
 			case "failed": {

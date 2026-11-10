@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { buildLabel } from "../../core/build";
 import type { Profile } from "../../core/config";
 import { stateFor, type ViewArgs } from "../args";
 import { nodeFs, type ViewFs } from "../model/fs";
@@ -23,7 +24,9 @@ import { render } from "../render";
 import { tilde } from "../render/common";
 import { detectInk, type Ink } from "../render/ink";
 import { arrivalAt } from "../render/logo";
+import { answerPark } from "./answer";
 import { archiveRun } from "./archive";
+import { refuseAsk, sentAsk, settleAsk } from "./ask";
 import { decode, type Key } from "./keys";
 import {
 	diskPaths,
@@ -121,6 +124,7 @@ export async function runView(o: {
 	const { stdin, stdout } = process;
 	const homePath = o.home;
 	const runsDir = join(homePath, "runs");
+	const build = buildLabel();
 
 	let reply: string | undefined;
 	let queued = "";
@@ -372,6 +376,7 @@ export async function runView(o: {
 		if (arrivalStart !== undefined && !arrival) arrivalStart = undefined;
 		const home = homeAt(now);
 		findRepos(home.runs);
+		state = settleAsk(state, home, now);
 		const out = render(
 			state,
 			{
@@ -379,6 +384,7 @@ export async function runView(o: {
 				machine: sampler.view(),
 				repos: repoUrls,
 				jira: o.env.JIRA_BASE_URL,
+				build,
 			},
 			ink,
 			term.size(),
@@ -512,6 +518,20 @@ export async function runView(o: {
 				loadAll();
 				homeAt(Date.now(), true);
 				toast(`archived ${e.run} · ${tilde(to)}`, "dim");
+				return full();
+			}
+			case "answer": {
+				try {
+					answerPark(runsDir, e.run, e.child, e.since, e.text);
+				} catch (err) {
+					// The panel stays on the question with the text, so nothing typed is lost.
+					state = refuseAsk(state, homeAt(Date.now()), (err as Error).message);
+					return full();
+				}
+				state = sentAsk(state);
+				loadAll();
+				homeAt(Date.now(), true);
+				toast("saved · its session picks it up, or portia resume", "dim");
 				return full();
 			}
 			case "refresh":

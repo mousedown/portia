@@ -1,9 +1,17 @@
 import { tokens } from "../../model/format";
 import { runProgress } from "../../model/progress";
 import type { ChildView, RunView } from "../../model/types";
+import {
+	canSend,
+	dismissedNow,
+	guardEnds,
+	panelHasKeys,
+	panelUp,
+	questionsOf,
+	shownQuestion,
+} from "../../runtime/ask";
 import { homeRuns, selectedId } from "../../select";
 import {
-	ageOf,
 	breathFrame,
 	type Ctx,
 	childGlyph,
@@ -19,10 +27,10 @@ import {
 	mark,
 	marked,
 	rule,
+	STATE_ROLE,
 	selected,
 	shortPath,
 	spin,
-	startedAgo,
 	ticking,
 	tilde,
 	underlined,
@@ -36,7 +44,7 @@ import {
 	machineStrip,
 	machineTail,
 } from "../machine";
-import { footer } from "../overlays";
+import { deadline, footer } from "../overlays";
 import {
 	BAR_MAX,
 	BAR_MID,
@@ -62,6 +70,8 @@ import {
 	strWidth,
 	truncate,
 } from "../text";
+import { phaseWord } from "./children";
+import { askPanel, DOCK_AT } from "./panel";
 
 export const GROUP_LABEL = {
 	waiting: "WAITING ON YOU",
@@ -71,21 +81,43 @@ export const GROUP_LABEL = {
 	delivered: "DELIVERED",
 };
 
-/** One glyph per child in wave order, a space between waves; capped at T cells. */
+/**
+ * One mark per child, wave by wave with a gap between waves, capped at T cells. Every mark
+ * is one still cell, so the row sits level and only the rows under it move: a child that
+ * has started is a solid mark in its state's colour, one ready an open mark, and one still
+ * waiting its turn a dot.
+ */
 export function runStrip(ctx: Ctx, r: RunView, T: number): Line {
+	const u = ctx.ink.unicode;
+	const mark = (c: ChildView): Span => {
+		if (c.state === "pending") return { text: u ? "·" : ".", role: "faint" };
+		if (c.state === "ready") return { text: u ? "□" : "o", role: "dim" };
+		return { text: u ? "■" : "#", role: STATE_ROLE[c.state] };
+	};
 	const cells: Span[] = [];
-	r.waves.forEach((w, i) => {
-		if (i) cells.push(sp(1));
-		for (const c of w.children) cells.push(childGlyph(ctx, c));
-	});
-	if (cells.length <= T) return cells;
-	const shown = cells.slice(0, Math.max(0, T - 3));
-	const hidden = r.children.length - shown.filter((c) => c.text !== " ").length;
-	return [...shown, { text: `+${hidden}`, role: "dim" }];
+	let used = 0;
+	let shown = 0;
+	for (const [i, w] of r.waves.entries()) {
+		if (i) {
+			cells.push(sp(WAVE_GAP));
+			used += WAVE_GAP;
+		}
+		for (const c of w.children) {
+			if (used >= T - 3 && r.children.length - shown > 3) {
+				cells.push({ text: `+${r.children.length - shown}`, role: "dim" });
+				return cells;
+			}
+			cells.push(mark(c));
+			used++;
+			shown++;
+		}
+	}
+	return cells;
 }
 
+const WAVE_GAP = 2;
 const stripWidth = (r: RunView) =>
-	r.children.length + Math.max(0, r.waves.length - 1);
+	r.children.length + WAVE_GAP * Math.max(0, r.waves.length - 1);
 
 /**
  * The compact header's status cluster: the census, the tokens, the machine tail and the
@@ -281,7 +313,8 @@ const LEAD = 2 + 1 + 1;
  */
 export function homeColumns(ctx: Ctx, runs: RunView[]): Cols {
 	const K = Math.max(8, ...runs.map((r) => r.key.length));
-	const SW = Math.max(1, ...runs.map(summaryWidth));
+	const tagged = reposDiffer(ctx);
+	const SW = Math.max(1, ...runs.map((r) => summaryWidth(r, tagged)));
 	const figs = runs.map((r) =>
 		progressFigures(ctx, runProgress(r, ctx.tick.now)),
 	);
@@ -314,14 +347,34 @@ export const questionsText = (n: number): string =>
 	n ? `${n} ${n === 1 ? "question" : "questions"} for you` : "";
 
 /** The summary cell's text width: the questions waiting lead, then the summary. */
-const summaryWidth = (r: RunView) =>
+const summaryWidth = (r: RunView, tagged: boolean) =>
 	strWidth(
-		[questionsText(r.questions), r.summary || (r.questions ? "" : "—")]
+		[
+			tagged ? r.repo : "",
+			questionsText(r.questions),
+			r.summary || (r.questions ? "" : "—"),
+		]
 			.filter(Boolean)
 			.join(" · "),
 	);
 
+/** A repository is worth a column's room only when the list spans more than one. */
+const reposDiffer = (ctx: Ctx) =>
+	new Set(ctx.models.home.runs.map((r) => r.repo).filter(Boolean)).size > 1;
+
+/** A cell this narrow has no room to name the repository beside the summary. */
+const REPO_MIN_CELL = 28;
+
+/** The run's repository ahead of its summary, so runs of different repositories read apart. */
 function summarySpan(ctx: Ctx, r: RunView, w: number): Span[] {
+	if (!r.repo || w < REPO_MIN_CELL || !reposDiffer(ctx))
+		return summaryText(ctx, r, w);
+	const tag: Span[] = [{ text: `${r.repo} · `, role: "dim" }];
+	const used = lineWidth(tag);
+	return [...tag, ...summaryText(ctx, r, w - used)];
+}
+
+function summaryText(ctx: Ctx, r: RunView, w: number): Span[] {
 	const asks = questionsText(r.questions);
 	if (asks) {
 		const lead: Line = [
@@ -383,7 +436,6 @@ function runRow(ctx: Ctx, r: RunView, c: Cols, isSel: boolean): Line {
 }
 
 const DOCK_ORDER = ["running", "parked", "failed", "ready"];
-
 function dockChildren(r: RunView): ChildView[] {
 	return DOCK_ORDER.flatMap((s) =>
 		r.children.filter((c) => c.state === s),
@@ -391,84 +443,88 @@ function dockChildren(r: RunView): ChildView[] {
 }
 
 /**
- * The selected run: its key, branch and start; its children as one glyph each, wave by
- * wave, with the epic PR, the last event and its age; then the children still in play.
+ * The selected run, on the list's own columns: its key and summary with the epic PR and
+ * branch; its children as one mark each with the counts; then the children still in play.
  */
-function dock(ctx: Ctx, r: RunView | undefined): Line[] {
+function dock(ctx: Ctx, r: RunView | undefined, listK: number): Line[] {
 	if (!r || ctx.size.rows < 24) return [];
 	const kids = dockChildren(r);
-	const started = r.startedAt
-		? `started ${startedAgo(ctx, r)} ago`
-		: "not started";
-	const K = Math.max(8, ...kids.map((c) => c.key.length));
+	const K = Math.max(listK, ...kids.map((c) => c.key.length));
+	const web = webOf(ctx, r.key);
+	const where: Line = [
+		...(r.epicPr
+			? [
+					...linked(
+						[{ text: `#${r.epicPr}`, role: "accent" as const }],
+						web.pr(r.epicPr),
+					),
+					...(r.branch ? [{ text: " · ", role: "dim" as const }] : []),
+				]
+			: []),
+		...(r.branch ? [{ text: r.branch, role: "dim" as const }] : []),
+	];
 	const head = lr(
 		[
-			sp(3),
-			...linked([{ text: r.key, role: "ink" }], webOf(ctx, r.key).issue(r.key)),
+			sp(DOCK_AT),
+			...linked([{ text: r.key.padEnd(K), role: "ink" }], web.issue(r.key)),
 			...(r.summary ? [sp(2), { text: r.summary, role: "ink2" as const }] : []),
 		],
-		[
-			{
-				text: [r.branch, started].filter(Boolean).join(" · "),
-				role: "dim",
-			},
-		],
+		where,
 		ctx.W,
 	);
-	const at = ctx.narrow ? 3 : 5;
-	const age = ageOf(ctx, r.lastAt ?? r.mtimeMs);
-	const strip = r.children.length
-		? [...runStrip(ctx, r, Math.min(24, stripWidth(r))), sp(3)]
+	const landed = r.children.filter((c) => c.state === "landed").length;
+	const working = r.children.filter((c) => c.state === "running").length;
+	const counts: Line = r.children.length
+		? [
+				{
+					text: `${landed} of ${r.children.length} landed`,
+					role: "dim",
+				},
+				...(working
+					? [{ text: ` · ${working} working`, role: "dim" as const }]
+					: []),
+				...(r.questions
+					? [
+							{ text: " · ", role: "dim" as const },
+							{ text: questionsText(r.questions), role: "parked" as const },
+						]
+					: []),
+			]
 		: [];
-	const about: Line = truncate(
-		[
-			sp(at),
-			...strip,
-			...(r.epicPr
-				? [
-						{ text: `#${r.epicPr}`, role: "accent" as const },
-						{ text: " · ", role: "dim" as const },
-					]
-				: []),
-			...eventSpans(r, ctx.W),
-			...(age ? [{ text: ` · ${age}`, role: "dim" as const }] : []),
-		],
-		ctx.W,
-	);
-	const lines = kids.map((c): Line => {
-		const phase =
-			c.state === "running"
-				? (c.phase ?? "working")
-				: c.state === "done"
-					? "landing"
-					: c.state;
-		const showClock = c.state === "running";
-		return [
-			sp(at),
+	const about: Line[] = r.children.length
+		? [
+				lr(
+					[
+						sp(DOCK_AT),
+						...runStrip(
+							ctx,
+							r,
+							Math.min(stripWidth(r), ctx.W - DOCK_AT - lineWidth(counts) - 3),
+						),
+					],
+					counts,
+					ctx.W,
+				),
+			]
+		: [];
+	const lines = kids.map(
+		(c): Line => [
+			sp(DOCK_AT - 2),
 			childGlyph(ctx, c),
 			sp(1),
 			{ text: c.key.padEnd(K), role: "ink" },
 			sp(2),
-			...cell(phase, 10, "ink2"),
-			sp(1),
-			...cell(
-				c.attempt && c.state !== "ready"
-					? ctx.narrow
-						? `try ${c.attempt}`
-						: `attempt ${c.attempt}`
-					: "",
-				ctx.narrow ? 5 : 9,
-				"dim",
+			...cell(phaseWord(c), 10, "ink2"),
+			...rcell(
+				c.state === "running" ? ticking(ctx, c.elapsedMs) : "",
+				8,
+				"ink2",
 			),
-			sp(1),
-			...cell(c.state === "ready" ? "" : (c.model?.requested ?? ""), 7, "dim"),
-			sp(1),
-			...rcell(showClock ? ticking(ctx, c.elapsedMs) : "", 8, "ink2"),
 			sp(2),
 			{ text: c.summary || "—", role: c.summary ? "ink2" : "dim" },
-		];
-	});
-	return [rule(ctx), head, about, ...lines];
+		],
+	);
+	return [rule(ctx), head, ...about, ...(lines.length ? [[], ...lines] : [])];
 }
 
 function runsBody(
@@ -519,26 +575,42 @@ function subhead(ctx: Ctx, left: Line, m: number, n: number): Line {
 	return lr([sp(indent(ctx)), ...left], right, ctx.W);
 }
 
-export const HOME_HINTS = [
+export const HOME_HINTS = (waiting: boolean): string[] => [
 	"↑↓ move",
 	"→ open",
+	waiting ? "⏎ answer" : "",
 	"a activity",
-	"m machine",
 	"/ filter",
-	"o epic PR",
-	"n new run",
-	"x archive",
-	"s sort",
+	"n new",
 	"? help",
 	"q quit",
 ];
 
 /** Body rows the hero leaves at the least; short of them it gives way to the strip. */
 const HERO_MIN_BODY = 8;
-/** The dock at its tallest: the rule, its two lines and three children. */
-const DOCK_MAX = 6;
+/** The dock at its tallest: the rule, its two lines, a gap and three children. */
+const DOCK_MAX = 7;
 /** The machine strip under the compact header needs this many rows. */
 const STRIP_MIN_ROWS = 20;
+/** List rows the panel always leaves, and the most it leaves them if its choices still fit. */
+const LIST_LEAST = 3;
+const LIST_WANTED = 5;
+
+/** The panel's keys, for what works this moment: during the pause, only typing and esc. */
+function panelHints(ctx: Ctx, focused: boolean): Line {
+	const h = home(ctx);
+	const typing = !!ctx.state.ask?.text;
+	const choices = !!shownQuestion(ctx.state, h)?.options?.length;
+	const esc = typing && choices ? "esc choices" : "esc list";
+	if (!focused) return hints(ctx, ["type to answer", esc]);
+	const send = canSend(ctx.state, h, ctx.tick.now);
+	return hints(ctx, [
+		choices && !typing ? "↑↓ choose" : "",
+		send ? "⏎ send" : !choices && !typing ? "type to answer" : "",
+		!typing && questionsOf(h).length > 1 ? "tab next" : "",
+		esc,
+	]);
+}
 
 export function homeScreen(ctx: Ctx): Line[] {
 	const h = home(ctx);
@@ -561,11 +633,37 @@ export function homeScreen(ctx: Ctx): Line[] {
 	);
 	const selRun = runs.find((r) => r.key === sel);
 	const body = runsBody(ctx, runs, sel);
-	const d = dock(ctx, selRun);
-	const foot = footer(ctx, hints(ctx, HOME_HINTS), {
-		m: runs.length,
-		n: h.runs.length,
-	});
+	const listK = Math.max(8, ...h.runs.map((r) => r.key.length));
+	const q = shownQuestion(ctx.state, h);
+	const focused = panelHasKeys(ctx.state, h, ctx.tick.now);
+	const up = panelUp(ctx.state, h);
+	// Paint again the moment the guard lifts, when that is what the panel waits for.
+	if (up && guardEnds(ctx.state) > ctx.tick.now)
+		deadline(ctx, guardEnds(ctx.state));
+	// The panel grows as far as the list allows; past that its question scrolls inside it.
+	const dockFor = (top: number): Line[] => {
+		if (!q) return dock(ctx, selRun, listK);
+		const most = ctx.size.rows - top - 2 - LIST_LEAST;
+		const wanted = ctx.size.rows - top - 2 - LIST_WANTED;
+		// The list keeps its spare rows only if the whole question fits beside them.
+		const whole = askPanel(ctx, q, listK, focused).length <= wanted;
+		return askPanel(ctx, q, listK, focused, whole ? wanted : most);
+	};
+	// ⏎ on a row answers only once the panel has let go of the keys: see `listKeyOnQuestion`.
+	const offered =
+		dismissedNow(ctx.state, h) && questionsOf(h).some((x) => x.run === sel);
+	const foot = footer(
+		ctx,
+		up ? panelHints(ctx, focused) : hints(ctx, HOME_HINTS(offered)),
+		{
+			m: runs.length,
+			n: h.runs.length,
+		},
+	);
+	const tallest = Math.max(
+		ctx.size.rows < 24 ? 0 : DOCK_MAX,
+		q ? askPanel(ctx, q, listK, focused).length : 0,
+	);
 	// The hero stays while the list keeps a useful window, scrolling under it; the
 	// tallest dock counts, so moving the selection never takes the hero away.
 	// Beside the hero the machine keeps six cells from the word; when its graphics do not
@@ -574,10 +672,7 @@ export function homeScreen(ctx: Ctx): Line[] {
 	const stripUnder = !graphicMach.length && strip.length > 0;
 	const heroFits =
 		ctx.size.cols >= HERO_WIDTH + 6 &&
-		ctx.size.rows -
-			(HERO_ROWS + 3 + (stripUnder ? 1 : 0)) -
-			(ctx.size.rows < 24 ? 0 : DOCK_MAX) -
-			2 >=
+		ctx.size.rows - (HERO_ROWS + 3 + (stripUnder ? 1 : 0)) - tallest - 2 >=
 			HERO_MIN_BODY;
 	if (heroFits) {
 		const art = hero(ctx.ink, {
@@ -647,22 +742,23 @@ export function homeScreen(ctx: Ctx): Line[] {
 			sel: body.sel,
 			items: body.items,
 			scrollKey: "home:runs",
-			dock: d,
+			dock: dockFor(top.length),
 			footer: foot,
 		});
 	}
+	const top: Line[] = [
+		compactHeader,
+		...(strip.length ? [[sp(indent(ctx)), ...strip]] : []),
+		rule(ctx),
+		subhead(ctx, [], runs.length, h.runs.length),
+	];
 	return compose(ctx, {
-		top: [
-			compactHeader,
-			...(strip.length ? [[sp(indent(ctx)), ...strip]] : []),
-			rule(ctx),
-			subhead(ctx, [], runs.length, h.runs.length),
-		],
+		top,
 		body: body.lines,
 		sel: body.sel,
 		items: body.items,
 		scrollKey: "home:runs",
-		dock: d,
+		dock: dockFor(top.length),
 		footer: foot,
 	});
 }

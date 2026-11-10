@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 320" width="1040" height="320" role="img" aria-labelledby="t d">
+	<title id="t">How a Portia run works</title>
+	<desc id="d">An epic is planned and you approve the plan. One spine worker lands shared code and failing acceptance tests, and you sign them off. Waves of children then run in parallel, each rebased, re-gated and squash-merged onto the integration branch. The epic PR is ready when every acceptance test passes, and you merge it.</desc>
+	<defs>
+		<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6b665c"/></marker>
+	</defs>
+	<style>
+		text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1f1d1a; font-size: 13px; }
+		.h { font-size: 16px; font-weight: 700; }
+		.m { fill: #6b665c; }
+		.you { fill: #7d3c98; font-weight: 700; }
+		.ok { fill: #1c7a3e; }
+		.box { fill: #ffffff; stroke: #cfc8ba; stroke-width: 1.5; }
+		.spine { stroke: #8f6510; }
+		.final { stroke: #7d3c98; }
+		.child { fill: #ffffff; stroke: #1c7a3e; stroke-width: 1.2; }
+		.group { fill: none; stroke: #cfc8ba; stroke-width: 1.2; stroke-dasharray: 4 4; }
+		.line { stroke: #6b665c; stroke-width: 1.5; fill: none; }
+	</style>
+	<rect width="1040" height="320" rx="14" fill="#faf8f4"/>
+
+	<rect class="box" x="28" y="82" width="150" height="116" rx="8"/>
+	<text class="h" x="46" y="112">Plan</text>
+	<text class="m" x="46" y="138">reads the epic,</text>
+	<text class="m" x="46" y="156">draws the wave</text>
+	<text class="m" x="46" y="174">table</text>
+	<text class="you" x="46" y="228">◆ you approve</text>
+
+	<path class="line" d="M178 140H214" marker-end="url(#a)"/>
+
+	<rect class="box spine" x="218" y="82" width="168" height="116" rx="8"/>
+	<text class="h" x="236" y="112">Spine</text>
+	<text class="m" x="236" y="138">shared code, and</text>
+	<text class="m" x="236" y="156">every acceptance</text>
+	<text class="m" x="236" y="174">test, failing</text>
+	<text class="you" x="236" y="228">◆ you sign off</text>
+
+	<path class="line" d="M386 140H422" marker-end="url(#a)"/>
+
+	<rect class="group" x="426" y="40" width="288" height="200" rx="10"/>
+	<text class="m" x="446" y="68">wave 1</text>
+	<text class="m" x="584" y="68">wave 2</text>
+	<rect class="child" x="446" y="82" width="110" height="38" rx="6"/>
+	<text x="460" y="106"><tspan class="ok">✓</tspan> worker</text>
+	<rect class="child" x="446" y="130" width="110" height="38" rx="6"/>
+	<text x="460" y="154"><tspan class="ok">✓</tspan> worker</text>
+	<rect class="child" x="446" y="178" width="110" height="38" rx="6"/>
+	<text x="460" y="202"><tspan class="ok">✓</tspan> worker</text>
+	<path class="line" d="M556 125H580" marker-end="url(#a)"/>
+	<rect class="child" x="584" y="106" width="110" height="38" rx="6"/>
+	<text x="598" y="130"><tspan class="ok">✓</tspan> worker</text>
+	<rect class="child" x="584" y="154" width="110" height="38" rx="6"/>
+	<text x="598" y="178"><tspan class="ok">✓</tspan> worker</text>
+	<text class="m" x="432" y="266">each in its own worktree, port and db</text>
+	<text class="m" x="432" y="286">each rebased, re-gated, squash-merged</text>
+
+	<path class="line" d="M714 140H750" marker-end="url(#a)"/>
+
+	<rect class="box" x="754" y="82" width="134" height="116" rx="8"/>
+	<text class="h" x="770" y="112">Epic PR</text>
+	<text class="m" x="770" y="138">ready when</text>
+	<text class="m" x="770" y="156">every test</text>
+	<text class="m" x="770" y="174">passes</text>
+
+	<path class="line" d="M888 140H920" marker-end="url(#a)"/>
+
+	<rect class="box final" x="924" y="104" width="92" height="72" rx="8"/>
+	<text class="you" x="970" y="136" text-anchor="middle">◆ you</text>
+	<text class="you" x="970" y="156" text-anchor="middle">merge</text>
+</svg>

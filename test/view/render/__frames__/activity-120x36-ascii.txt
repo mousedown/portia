@@ -33,4 +33,4 @@
    10:52:00   ACME-390  ACME-394   + task gate    typecheck +  lint +  related-unit +                           12m 00s
                                                                                                              v 174 more
 
-   up/dn move . enter expand . right open child . f follow . / filter . m machine . left home . ? help . q quit  * live
+   up/dn move . enter expand . right open child . f follow . left home . ? help . q quit  ! 1 question on Home   * live

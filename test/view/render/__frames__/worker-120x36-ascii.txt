@@ -33,4 +33,4 @@
 
 
 
-   up/dn scroll . end follow . / search . y copy worktree . e editor . left back . ? help                        * live
+   up/dn scroll . end follow . / search . y copy worktree . left back . ? help            ! 1 question on Home   * live

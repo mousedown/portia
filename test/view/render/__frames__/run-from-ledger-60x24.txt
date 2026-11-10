@@ -3,22 +3,22 @@
   epic     #398 · epic/ACME-410 · 12h 02m · from the ledger
   progress 8/9 landed · 2.77M tokens
 
-  spine ✓1 ──▶ wave 1 ✓3 ──▶ wave 2 !1 ✓2 ──▶ wave 3 ✓2
+  spine       wave 1      wave 2      wave 3
+  ✓ 411 ─┬──▶ ✓ 412
+         ├──▶ ✓ 413
+         ├──▶ ✓ 414
+         ├──────────────▶ ✓ 415
+         ├──────────────▶ ✓ 416
+         ├──────────────▶ ! 418
+         ├──────────────────────────▶ ✓ 417
+         └──────────────────────────▶ ✓ 419
 
-                                                   ↑ 2 more
-  ✓ ACME-413  Rank results by …  landed      try 1   45m00s
-  ✓ ACME-414  Highlight the ma…  landed      try 1   45m00s
-  wave 2                                       2/3    5h17m
+                                                   ↑ 4 more
   ✓ ACME-415  Filter by archiv…  landed      try 1   45m00s
   ✓ ACME-416  Search box on th…  landed      try 1   45m00s
 ▌ ! ACME-418  Backfill the ind…  parked      try 1   24m43s
               waiting on you · 2h44m  May I add the search…
   wave 3                                       2/2    1h45m
                                                    ↓ 2 more
- ──────────────────────────────────────────────────────────
-  ACME-418 · try 1 · parked · opus · port 3101
 
-  proves     F9 · · not yet
-  ▎ May I add the search index migration to my paths?
-
-  ↑↓ move · → open · ← back · ? help                 ● live
+  ↑↓ move · ← back · ? help   ! 1 question on Home   ● live

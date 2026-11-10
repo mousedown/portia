@@ -1,3 +1,4 @@
+import { statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import picomatch from "picomatch";
@@ -469,7 +470,10 @@ export async function loadProfile(
 export async function loadProfileFile(file: string): Promise<Profile> {
 	let mod: { default?: unknown };
 	try {
-		mod = await import(file);
+		// A module is cached by its specifier, so a profile rewritten in this process must not
+		// come back as the version read before it.
+		const { mtimeMs, size } = statSync(file);
+		mod = await import(`${file}?v=${mtimeMs}-${size}`);
 	} catch (e) {
 		throw new PortiaProblem(
 			`could not import ${file}: ${e instanceof Error ? e.message : String(e)}`,

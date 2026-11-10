@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deriveStates } from "../../src/core/state";
 import type { RunRow } from "../../src/core/types";
-import { type DriveView, nextMove } from "../../src/drive/run";
+import { type DriveView, dropAnswered, nextMove } from "../../src/drive/run";
 import type { Stop } from "../../src/drive/types";
 import type { ResumeAction } from "../../src/resume/resume";
 import { child, parent, spine } from "../helpers/plan";
@@ -259,5 +259,43 @@ describe("nextMove with work in the background", () => {
 		expect(
 			nextMove(busyView(rows, [["ACME-2", "wait"]], { actions: [gate] })),
 		).toEqual({ do: "settle" });
+	});
+});
+
+describe("dropAnswered", () => {
+	const parked: Stop = {
+		kind: "parked",
+		child: "ACME-3",
+		attempt: 1,
+		question: "which zone?",
+	};
+	const asks = row("ACME-3", {
+		stage: "result",
+		status: "parked",
+		data: { message: "which zone?" },
+	});
+	const answer = row("ACME-3", {
+		stage: "decision",
+		status: "answer",
+		data: { kind: "parked", by: "person", answer: "zone b" },
+	});
+
+	it("keeps a parked stop while its question still waits", () => {
+		const held = new Map([["ACME-3", parked]]);
+		dropAnswered(held, [asks]);
+		expect(held.has("ACME-3")).toBe(true);
+	});
+
+	it("drops a parked stop once the question is answered, so drive restarts the child", () => {
+		const held = new Map([["ACME-3", parked]]);
+		dropAnswered(held, [asks, answer]);
+		expect(held.has("ACME-3")).toBe(false);
+	});
+
+	it("leaves other kinds of stop alone", () => {
+		const err: Stop = { kind: "error", message: "boom" };
+		const held = new Map([["ACME-3", err]]);
+		dropAnswered(held, [asks, answer]);
+		expect(held.get("ACME-3")).toBe(err);
 	});
 });

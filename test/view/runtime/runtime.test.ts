@@ -4,6 +4,7 @@ import { memoryFs } from "../../../src/view/model/fs";
 import { readHome } from "../../../src/view/model/home";
 import { render } from "../../../src/view/render";
 import { detectInk } from "../../../src/view/render/ink";
+import { KEY_PAUSE_MS, settleAsk } from "../../../src/view/runtime/ask";
 import { decode } from "../../../src/view/runtime/keys";
 import {
 	flashesFor,
@@ -105,7 +106,8 @@ describe("an idle screen", () => {
 			motion: true,
 		};
 		const out = render(
-			stateFor(a, home, NOW),
+			// A question on Home sets one timer, for the end of its pause: long over here.
+			settleAsk(stateFor(a, home, NOW), home, NOW - KEY_PAUSE_MS),
 			{ home },
 			ink,
 			{ cols: 120, rows: 36 },

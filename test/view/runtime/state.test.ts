@@ -16,12 +16,15 @@ const home = readHome(fixtureFs(), HOME, NOW);
 const ctx = { home, now: NOW, rows: 36 };
 const k = (s: string): Key =>
 	s.length === 1 ? { name: "char", ch: s } : { name: s };
+/** A fresh Home with its question dismissed, so the keys are the list's, on ACME-410. */
+const onList = (): ViewState =>
+	reduce(initialState(), { name: "esc" }, ctx).state;
 /**
  * Home with the cursor on ACME-500, the run in session. ACME-410, which waits on the
  * person's answer, sorts first, so a fresh Home starts on it instead.
  */
 const atSession = (): ViewState => {
-	const s = initialState();
+	const s = onList();
 	return { ...s, selection: { ...s.selection, "home:runs": "ACME-500" } };
 };
 /** Presses keys in order, from Home on ACME-500; returns the final state and every effect. */
@@ -46,9 +49,9 @@ const sel = (s: ViewState) => {
 describe("moving", () => {
 	it("moves over runs and skips labels; the selection is a key", () => {
 		// The run waiting on the person's answer comes first, so Home starts on it.
-		expect(sel(initialState())).toBe("ACME-410");
-		expect(sel(press(["down"], initialState()).s)).toBe("ACME-500");
-		expect(sel(press(["j", "j", "k"], initialState()).s)).toBe("ACME-500");
+		expect(sel(onList())).toBe("ACME-410");
+		expect(sel(press(["down"], onList()).s)).toBe("ACME-500");
+		expect(sel(press(["j", "j", "k"], onList()).s)).toBe("ACME-500");
 		expect(sel(press(["end"]).s)).toBe("ACME-377");
 		expect(sel(press(["end", "home"]).s)).toBe("ACME-410");
 		expect(press(["end"]).s.selection["home:runs"]).toBe("ACME-377");
@@ -141,14 +144,15 @@ describe("the key map", () => {
 				expect(where(press([key], at)), `${name} ${key}`).toBe(to);
 			for (const key of ["tab", "stab", "[", "]", "4", "5"]) {
 				const r = press([key], at);
-				expect(r.s, `${name} ${key}`).toEqual(at);
+				// Any other key ends a run of ⏎, which is all it may change.
+				expect({ ...r.s, enterAt: at.enterAt }, `${name} ${key}`).toEqual(at);
 				expect(r.effects, `${name} ${key}`).toEqual([]);
 			}
 		}
 	});
 	it("archives a finished run on x twice, and nothing that is still going", () => {
 		const on = (run: string): ViewState => ({
-			...initialState(),
+			...onList(),
 			selection: { "home:runs": run },
 		});
 		// Once only asks; the second press within three seconds archives.
