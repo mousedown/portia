@@ -622,6 +622,45 @@ it("writes the plan page, and says which link it already has", async () => {
 	expect(JSON.parse(again.out)).toEqual({ out: file, url: ARTIFACT });
 });
 
+it("plan <PARENT> prints the recorded link", async () => {
+	await portia("plan", "link", "ACME-187", ARTIFACT);
+	const r = await portia("plan", "acme-187");
+	expect(r.code, r.err).toBe(0);
+	expect(r.out).toBe(`ACME-187: plan page ${ARTIFACT}`);
+});
+
+it("plan <PARENT> says to run /portia when the epic has no plan", async () => {
+	const r = await portia("plan", "ACME-187");
+	expect(r.code).not.toBe(0);
+	expect(r.err).toContain(
+		"ACME-187 has no plan yet: run /portia ACME-187 in Claude Code",
+	);
+});
+
+it("plan <PARENT> writes the page when no link is recorded yet", async () => {
+	const draft = join(dir, "draft.json");
+	writeFileSync(
+		draft,
+		JSON.stringify({
+			parent: { block: PARENT_BLOCK },
+			children: [
+				{ key: "ACME-201", block: SPINE_BLOCK, needs: [] },
+				{ key: "ACME-202", block: UI_BLOCK, needs: ["ACME-201", "ACME-150"] },
+			],
+		}),
+	);
+	expect(
+		(await portia("plan", "write", "ACME-187", "--from", draft)).code,
+	).toBe(0);
+	const r = await portia("plan", "ACME-187");
+	expect(r.code, r.err).toBe(0);
+	const page = join(runDir("ACME-187"), "plan.html");
+	expect(r.out).toContain(`ACME-187: plan page ${page}, not published yet`);
+	expect(readFileSync(page, "utf8")).toContain(
+		"<title>ACME-187 wave plan</title>",
+	);
+});
+
 it("refuses a run another repository owns, for a command that only reads it and one that writes", async () => {
 	const dir = runDir("ACME-187");
 	writeFileSync(join(dir, "repo.json"), JSON.stringify({ repo: "other-repo" }));

@@ -21,7 +21,7 @@ import type { Command } from "../main";
 import { flag } from "./env";
 
 const USAGE =
-	"usage: portia plan context <PARENT> --out <file> | portia plan write <PARENT> --from <file> [--json] | portia plan specs <PARENT> [--dir <checkout>] [--json] | portia plan page <PARENT> --out <file> [--json] | portia plan link <PARENT> <url>";
+	"usage: portia plan <PARENT> | portia plan context <PARENT> --out <file> | portia plan write <PARENT> --from <file> [--json] | portia plan specs <PARENT> [--dir <checkout>] [--json] | portia plan page <PARENT> --out <file> [--json] | portia plan link <PARENT> <url>";
 
 /** The link `plan link` recorded for this run, if any. Read-only. */
 function recordedLink(key: string): string | undefined {
@@ -49,6 +49,34 @@ async function pageCommand(
 		json
 			? JSON.stringify({ out, url: url ?? null })
 			: `${key}: plan page -> ${out}${url ? ` (published at ${url})` : ""}`,
+	);
+	return EXIT.OK;
+}
+
+/** The plan page's link, or the page written for publishing when it has none yet. */
+async function linkOrPage(
+	key: string,
+	io: Parameters<Command>[1],
+): Promise<number> {
+	const known = recordedLink(key);
+	if (known) {
+		io.out(`${key}: plan page ${known}`);
+		return EXIT.OK;
+	}
+	const { plan, dir } = await loadForCli(key, { allowFindings: true }).catch(
+		(e) => {
+			throw e instanceof PortiaProblem &&
+				/no plan block in the description/.test(e.message)
+				? new PortiaProblem(
+						`${key} has no plan yet: run /portia ${key} in Claude Code to draft its waves`,
+					)
+				: e;
+		},
+	);
+	const out = join(dir, "plan.html");
+	writeFileSync(out, planPage(plan, new Date().toISOString()));
+	io.out(
+		`${key}: plan page ${out}, not published yet: publish it from Claude Code, then portia plan link ${key} <url>`,
 	);
 	return EXIT.OK;
 }
@@ -134,8 +162,12 @@ async function specsCommand(
 	return EXIT.OK;
 }
 
+const SUBS = new Set(["context", "write", "specs", "page", "link"]);
+
 export const planCommand: Command = async (args, io) => {
 	const [sub, rawKey] = args;
+	if (sub && !rawKey && !sub.startsWith("-") && !SUBS.has(sub))
+		return linkOrPage(sub.toUpperCase(), io);
 	const key = rawKey?.toUpperCase();
 	const out = flag(args, "--out");
 	const from = flag(args, "--from");

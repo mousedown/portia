@@ -565,6 +565,7 @@ Every command runs from the target repository's root.
 | Command | What it does |
 | --- | --- |
 | `portia plan context <PARENT> --out <file>` | Read-only: write the parent, children, blockers, repo layout and profile limits to a JSON file for planning. |
+| `portia plan <PARENT>` | The plan page's link. Without one recorded yet, it writes the page to `plan.html` in the run directory to publish from Claude Code, and says to run `/portia <PARENT>` first when the epic has no plan. |
 | `portia plan page <PARENT> --out <file> [--json]` | Read-only on the run: write the plan and its waves as a page to publish. `--json` prints `{ out, url }`, `url` being the link already recorded, or null. |
 | `portia plan link <PARENT> <url>` | Record the published page's Claude artifact link in `plan-link.json`, for `portia view` to show. Refuses any other URL. |
 | `portia plan write <PARENT> --from <file> [--json]` | Check the drafted plan as a whole, then write the plan blocks and blocker links. Idempotent; refuses to re-plan a child the run has already started. `--json` prints `{ findings, lanes }` in place of text. |
