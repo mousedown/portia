@@ -457,6 +457,21 @@ describe("probe and collect", () => {
 		expect(running(rec, { ...procs, identity: () => rec.proc })).toBe(true);
 	});
 
+	it("a start time recorded under another locale is still the worker: it stays alive", () => {
+		const s = started();
+		const rec: WorkerRecord = { ...s.rec, proc: "Sat 14 Nov 05:46:36 2026" };
+		const same: Procs = {
+			...s.procs,
+			identity: () => "Sat Nov 14 05:46:36 2026",
+		};
+		expect(running(rec, same)).toBe(true);
+		const later: Procs = {
+			...s.procs,
+			identity: () => "Sat Nov 14 05:46:37 2026",
+		};
+		expect(running(rec, later)).toBe(false);
+	});
+
 	it("a quiet worker whose processes keep using CPU is alive; once they idle it stalls", async () => {
 		const s = started();
 		let cpu = 0;
