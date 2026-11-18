@@ -83,7 +83,11 @@ const signal = (pid: number, sig: NodeJS.Signals | 0) => {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const ps = (args: string[]) => {
 	try {
-		return execFileSync("ps", args, { encoding: "utf8" });
+		// A fixed locale, so `lstart` reads the same whoever recorded it.
+		return execFileSync("ps", args, {
+			encoding: "utf8",
+			env: { ...process.env, LC_ALL: "C", LANG: "C" },
+		});
 	} catch {
 		return undefined;
 	}
@@ -257,10 +261,20 @@ export function readWorker(
 }
 
 /** Whether the recorded worker still runs: its pid is alive and is still the same process. */
+/**
+ * Two `ps -o lstart` readings of one start time. A record written under another locale orders
+ * the day and month differently (`Sat 14 Nov` against `Sat Nov 14`), so the parts are compared
+ * as a set rather than as a string.
+ */
+export const sameStart = (a: string, b: string | undefined): boolean =>
+	b !== undefined &&
+	a.trim().split(/\s+/).sort().join(" ") ===
+		b.trim().split(/\s+/).sort().join(" ");
+
 export function running(rec: WorkerRecord, p: Procs = procs): boolean {
 	if (!p.alive(rec.pid)) return false;
 	const id = rec.proc && p.identity?.(rec.pid);
-	return !id || id === rec.proc;
+	return !id || sameStart(id, rec.proc);
 }
 
 export function startWorker(
