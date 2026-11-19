@@ -9,7 +9,7 @@ const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
 const SCANNED = [
 	"src",
-	"skills",
+	"plugin",
 	"test",
 	"examples",
 	"docs",

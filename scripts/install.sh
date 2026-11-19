@@ -72,7 +72,7 @@ main() {
 	# 2. Source: this checkout when run from one, otherwise clone or update
 	local here="" script="${BASH_SOURCE[0]:-}" checkout=0
 	[ -n "$script" ] && [ -f "$script" ] && here="$(cd "$(dirname "$script")" && pwd)"
-	if [ -z "$ref" ] && [ -n "$here" ] && [ -f "$here/../skills/portia/SKILL.md" ] && [ -f "$here/../src/cli/main.ts" ]; then
+	if [ -z "$ref" ] && [ -n "$here" ] && [ -f "$here/../plugin/skills/portia/SKILL.md" ] && [ -f "$here/../src/cli/main.ts" ]; then
 		src="$(cd "$here/.." && pwd)"
 		checkout=1
 		say "Using the checkout at $src"
@@ -99,12 +99,12 @@ main() {
 	# 5. The skills
 	mkdir -p "$skills_dir"
 	local dir skill
-	for dir in "$src"/skills/*/; do
+	for dir in "$src"/plugin/skills/*/; do
 		skill="$(basename "$dir")"
 		if [ -e "$skills_dir/$skill" ] && [ ! -L "$skills_dir/$skill" ]; then
 			warn "$skills_dir/$skill already exists and is not a link; left it alone."
 		else
-			ln -sfn "$src/skills/$skill" "$skills_dir/$skill"
+			ln -sfn "$src/plugin/skills/$skill" "$skills_dir/$skill"
 			say "Linked the $skill skill into $skills_dir"
 		fi
 	done

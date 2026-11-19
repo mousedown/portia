@@ -185,7 +185,16 @@ cd portia
 ./scripts/install.sh
 ```
 
-**From npm and the plugin marketplace** is not available yet: `@mousedown/portia` is published with the first release. The Claude Code plugin installs today, but its skills need the `portia` command, so until then use the installer above.
+**As a Claude Code plugin.** The plugin carries the skills only; they still need the `portia` command from the installer above.
+
+```text
+/plugin marketplace add mousedown/portia
+/plugin install portia@portia
+```
+
+If you also ran the installer, which links the same skills into `~/.claude/skills`, you will see each skill twice, as `/portia` and `/portia:portia`. Either one works. The plugin lives in [`plugin/`](plugin/).
+
+**From npm** is not available yet: `@mousedown/portia` is published with the first release.
 
 </details>
 

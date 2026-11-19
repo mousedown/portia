@@ -4,11 +4,11 @@ import { expect, it } from "vitest";
 import { commands } from "../src/cli/main";
 
 const skill = readFileSync(
-	join(__dirname, "../skills/portia/SKILL.md"),
+	join(__dirname, "../plugin/skills/portia/SKILL.md"),
 	"utf8",
 );
 const brief = readFileSync(
-	join(__dirname, "../skills/portia/worker-brief.md"),
+	join(__dirname, "../plugin/skills/portia/worker-brief.md"),
 	"utf8",
 );
 
@@ -138,7 +138,7 @@ it("approves extra files per child with portia touches, never the profile", () =
 
 it("the setup skill names only commands the CLI has", () => {
 	const setup = readFileSync(
-		join(__dirname, "../skills/portia-setup/SKILL.md"),
+		join(__dirname, "../plugin/skills/portia-setup/SKILL.md"),
 		"utf8",
 	);
 	expect(setup).toMatch(/^---\nname: portia-setup\ndescription: .+\n---\n/);

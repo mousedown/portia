@@ -28,7 +28,7 @@ const TEMPLATE = join(
 	dirname(fileURLToPath(import.meta.url)),
 	"..",
 	"..",
-	"skills/portia/amend-brief.md",
+	"plugin/skills/portia/amend-brief.md",
 );
 
 /** The amendment worker's files sit apart from the child's, so neither overwrites the other's. */

@@ -91,7 +91,7 @@ describe("the ticket in the brief", () => {
 			],
 		};
 		const template = readFileSync(
-			join(import.meta.dirname, "../../skills/portia/worker-brief.md"),
+			join(import.meta.dirname, "../../plugin/skills/portia/worker-brief.md"),
 			"utf8",
 		);
 		const out = fill(
@@ -130,7 +130,7 @@ describe("the ticket in the brief", () => {
 			"```",
 		].join("\n");
 		const template = readFileSync(
-			join(import.meta.dirname, "../../skills/portia/worker-brief.md"),
+			join(import.meta.dirname, "../../plugin/skills/portia/worker-brief.md"),
 			"utf8",
 		);
 		const out = fill(
@@ -321,7 +321,7 @@ describe("previous attempt", () => {
 
 describe("previous attempt rendering", () => {
 	const template = readFileSync(
-		join(__dirname, "../../skills/portia/worker-brief.md"),
+		join(__dirname, "../../plugin/skills/portia/worker-brief.md"),
 		"utf8",
 	);
 	const render = (previous: string) =>
@@ -410,7 +410,7 @@ describe("previous attempt rendering", () => {
 
 describe("the Environment section", () => {
 	const template = readFileSync(
-		join(import.meta.dirname, "../../skills/portia/worker-brief.md"),
+		join(import.meta.dirname, "../../plugin/skills/portia/worker-brief.md"),
 		"utf8",
 	);
 	const render = (environment: string) =>
@@ -468,7 +468,7 @@ describe("the Environment section", () => {
 
 describe("a detached worker's brief", () => {
 	const template = readFileSync(
-		join(import.meta.dirname, "../../skills/portia/worker-brief.md"),
+		join(import.meta.dirname, "../../plugin/skills/portia/worker-brief.md"),
 		"utf8",
 	);
 	const render = (resultFile?: string) =>
@@ -494,7 +494,7 @@ describe("a detached worker's brief", () => {
 
 describe("the tickets whose scenarios the spine writes", () => {
 	const template = readFileSync(
-		join(import.meta.dirname, "../../skills/portia/worker-brief.md"),
+		join(import.meta.dirname, "../../plugin/skills/portia/worker-brief.md"),
 		"utf8",
 	);
 	const theSpine = spine({ requirements: ["R1"] });
@@ -608,7 +608,7 @@ describe("the hooks the spine scaffolds", () => {
 			"hook module",
 		);
 		const template = readFileSync(
-			join(__dirname, "../../skills/portia/worker-brief.md"),
+			join(__dirname, "../../plugin/skills/portia/worker-brief.md"),
 			"utf8",
 		);
 		const brief = fill(template, {
@@ -626,7 +626,7 @@ it("asks a child to check a spec claim, and to name a sibling instead when one h
 	expect(text).toContain("is no claim: park naming that child's key");
 	expect(claimSection(new Map())).toBe("");
 	const template = readFileSync(
-		join(__dirname, "../../skills/portia/worker-brief.md"),
+		join(__dirname, "../../plugin/skills/portia/worker-brief.md"),
 		"utf8",
 	);
 	expect(template).toMatch(/name that child's key in your question/);
