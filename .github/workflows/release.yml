@@ -30,7 +30,7 @@ jobs:
             [ "$1" = "$tag" ] || { echo "$2 is $1, tag is $tag"; exit 1; }
           }
           check "$(jq -r .version package.json)" package.json
-          check "$(jq -r .version .claude-plugin/plugin.json)" .claude-plugin/plugin.json
+          check "$(jq -r .version plugin/.claude-plugin/plugin.json)" plugin/.claude-plugin/plugin.json
           check "$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)" .claude-plugin/marketplace.json
       - run: bunx playwright install --with-deps chromium
       - run: bun run typecheck

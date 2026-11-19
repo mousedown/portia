@@ -7,7 +7,7 @@
 	"plugins": [
 		{
 			"name": "portia",
-			"source": "./",
+			"source": "./plugin",
 			"description": "Take one epic or story from Jira or GitHub Issues to one reviewed PR: a spine first, then parallel waves of worktree workers.",
 			"version": "0.1.0",
 			"homepage": "https://portia.run",

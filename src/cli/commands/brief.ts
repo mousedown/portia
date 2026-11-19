@@ -22,7 +22,7 @@ const TEMPLATE = join(
 	"..",
 	"..",
 	"..",
-	"skills/portia/worker-brief.md",
+	"plugin/skills/portia/worker-brief.md",
 );
 
 export const briefCommand: Command = async (args, io) => {
